@@ -129,6 +129,7 @@ if pos == 'y':
 		while med[i] > hist[1][outliers_idx]:
 			a = i-1
 			med[i] = med[a]
+	binned_mot = np.nanmean(np.reshape(med, (900, 4)), axis = 1)
 
 ratio2 = 12*4
 
@@ -139,7 +140,7 @@ satisfaction = []
 if model == 'y':
 	mod_name = input('Which model? (young rat, adult rat, mouse)')
 	os.chdir('/Volumes/HlabShare/Sleep_Model/')
-	clf = load('NewModel.joblib')
+	clf = load('NewModelTest.joblib')
 	os.chdir(rawdat_dir) 
 	FullFeaturesTrain = np.empty((0,9))
 	FullFeaturesTest = np.empty((0,9))
@@ -152,12 +153,17 @@ if model == 'y':
 	bin = 4 #bin size in seconds
 	binl = bin * fs #bin size in array slots
 	EEGamp = np.zeros(int(np.size(downdatlfp)/(4*fs)))
+	EEGmean = np.zeros(int(np.size(downdatlfp)/(4*fs)))
 	for i in np.arange(np.size(EEGamp)):
 		EEGamp[i] = np.var(downdatlfp[4*fs*(i):(4*fs*(i+1))])
+		EEGmean[i] = np.mean(np.abs(downdatlfp[4*fs*(i):(4*fs*(i+1))]))
+	EEGamp = (EEGamp - np.average(EEGamp))/np.std(EEGamp)
 
 	EEGmax = np.zeros(int(np.size(downdatlfp)/(4*fs)))
 	for i in np.arange(np.size(EEGmax)):
 		EEGmax[i] = np.max(downdatlfp[4*fs*(i):(4*fs*(i+1))])
+	EEGmax = (EEGmax - np.average(EEGmax))/np.std(EEGmax)
+	
 
 	fse = 4
 	EMG = np.zeros(int(np.size(EMGamp)/(4*fse)))
@@ -179,7 +185,6 @@ if model == 'y':
 	idx_delta = np.zeros(dtype=bool, shape=freqs.shape)
 	idx_delta[idx_min:idx_max] = True
 	EEGdelta = simps(psd[:,idx_delta], freqs[idx_delta])
-	EEGdelta = (EEGdelta - np.average(EEGdelta))/np.std(EEGdelta)
 
 	print('Extracting theta bandpower...')
 	EEGtheta = np.zeros(int(np.size(downdatlfp)/(4*fs)))
@@ -191,7 +196,13 @@ if model == 'y':
 	idx_theta = np.zeros(dtype=bool, shape=freqs.shape)
 	idx_theta[idx_min:idx_max] = True
 	EEGtheta = simps(psd[:,idx_theta], freqs[idx_theta])
-	EEGtheta = (EEGtheta - np.average(EEGtheta))/np.std(EEGtheta)
+
+	delt_thet = EEGdelta/EEGtheta
+	delt_thet = (delt_thet - np.average(delt_thet))/np.std(delt_thet)
+
+	EEGdelta = (EEGdelta - np.average(EEGdelta))/np.std(EEGdelta)
+
+
 
 	print('Extracting alpha bandpower...')
 	EEGalpha = np.zeros(int(np.size(downdatlfp)/(4*fs)))
@@ -215,7 +226,7 @@ if model == 'y':
 	idx_beta = np.zeros(dtype=bool, shape=freqs.shape)
 	idx_beta[idx_min:idx_max] = True
 	EEGbeta = simps(psd[:,idx_beta], freqs[idx_beta])
-	EEGbeta = (EEGtbeta - np.average(EEGbeta))/np.std(EEGbeta)
+	EEGbeta = (EEGbeta - np.average(EEGbeta))/np.std(EEGbeta)
 
 	print('Extracting gamma bandpower...')
 	EEGgamma = np.zeros(int(np.size(downdatlfp)/(4*fs)))
@@ -227,7 +238,7 @@ if model == 'y':
 	idx_gamma = np.zeros(dtype=bool, shape=freqs.shape)
 	idx_gamma[idx_min:idx_max] = True
 	EEGgamma = simps(psd[:,idx_gamma], freqs[idx_gamma])
-	EEGtheta = (EEGgamma - np.average(EEGgamma))/np.std(EEGgamma)
+	EEGgamma = (EEGgamma - np.average(EEGgamma))/np.std(EEGgamma)
 
 	print('Extracting narrow-band theta bandpower...')
 	EEG_broadtheta = np.zeros(int(np.size(downdatlfp)/(4*fs)))
@@ -239,8 +250,9 @@ if model == 'y':
 	idx_broadtheta = np.zeros(dtype=bool, shape=freqs.shape)
 	idx_broadtheta[idx_min:idx_max] = True
 	EEG_broadtheta = simps(psd[:,idx_broadtheta], freqs[idx_broadtheta])
-	EEG_broadtheta= (EEG_broadtheta - np.average(EEG_broadtheta))/np.std(EEG_broadtheta)
 	EEGnb = EEGtheta/EEG_broadtheta
+	EEGnb= (EEGnb - np.average(EEGnb))/np.std(EEGnb)
+	EEGtheta = (EEGtheta - np.average(EEGtheta))/np.std(EEGtheta)
 
 
 	print('Boom. Boom. FIYA POWER...')
@@ -268,12 +280,34 @@ if model == 'y':
 	theta_pre = np.append(0,EEGtheta)
 	theta_pre = theta_pre[0:-1]
 
+	delta_post2 = np.append(delta_post,0)
+	delta_post2 = np.delete(delta_post2,0)
+	delta_pre2 = np.append(0,delta_pre)
+	delta_pre2 = delta_pre2[0:-1]
+
+	theta_post2 = np.append(theta_post,0)
+	theta_post2 = np.delete(theta_post2,0)
+	theta_pre2 = np.append(0,theta_pre)
+	theta_pre2 = theta_pre2[0:-1]
+
+	delta_post3 = np.append(delta_post2,0)
+	delta_post3 = np.delete(delta_post3,0)
+	delta_pre3 = np.append(0,delta_pre2)
+	delta_pre3 = delta_pre3[0:-1]
+
+	theta_post3 = np.append(theta_post2,0)
+	theta_post3 = np.delete(theta_post3,0)
+	theta_pre3 = np.append(0,theta_pre2)
+	theta_pre3 = theta_pre3[0:-1]
+
 	nb_post = np.append(EEGnb,0)
 	nb_post = np.delete(nb_post,0)
 	nb_pre = np.append(0,EEGnb)
 	nb_pre = nb_pre[0:-1]
+	
 
-	FeatureList = [delta_pre,EEGdelta,theta_pre,EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp]
+	FeatureList = [delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
+	EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean,EMG]
 	Features = np.column_stack((FeatureList))
 
 	Predict_y = clf.predict(Features) 
@@ -293,18 +327,23 @@ if model == 'y':
 	plt.yticks(ticksy, labelsy)
 	ax2 = plt.subplot2grid((2, 1), (1, 0))
 	plt.title('Predicted States')
+	plt.ion()
 	for state in np.arange(np.size(Predict_y)):
 		if Predict_y[state] == 0:
-			rect7 = patch.Rectangle((state,0),3.8,height=2,color='green')
+			rect7 = patch.Rectangle((state,0),3.8,height=1,color='green')
 			ax2.add_patch(rect7)
 		elif Predict_y[state] == 2:
-			rect7 = patch.Rectangle((state,0),3.8,height=2,color='blue')
+			rect7 = patch.Rectangle((state,0),3.8,height=1,color='blue')
 			ax2.add_patch(rect7)
 		elif Predict_y[state] == 5:
-			rect7 = patch.Rectangle((state,0),3.8,height=2,color='red')
+			rect7 = patch.Rectangle((state,0),3.8,height=1,color='red')
 			ax2.add_patch(rect7)
-	plt.ylim(0,2)
+	plt.ylim(0.3,1)
 	plt.xlim(0,900)
+	Predictions  = clf.predict_proba(Features)  
+	predConf = np.max(Predictions,1)
+	plt.plot(predConf, color= 'k')
+
 	plt.tight_layout()
 	plt.show()
 	satisfaction = input('Satisfied?: ')
@@ -550,12 +589,12 @@ if update == 'y':
 	# Aligned = np.concatenate((StatesFull,State))
 	ymot = input('Use motion?: ')
 	yemg = input('Use EMG?: ')
-	if ymot == 'y':
-	    N = 9
-	    if yemg == 'y':
-	        N = 10
-	elif yemg == 'y':
-	    N = 9
+	# if ymot == 'y':
+	#     N = 9
+	#     if yemg == 'y':
+	#         N = 10
+	# elif yemg == 'y':
+	#     N = 9
 
 	# FullTestY = []
 	# FullTrainY = []
@@ -571,12 +610,17 @@ if update == 'y':
 		bin = 4 #bin size in seconds
 		binl = bin * fs #bin size in array slots
 		EEGamp = np.zeros(int(np.size(downdatlfp)/(4*fs)))
+		EEGmean = np.zeros(int(np.size(downdatlfp)/(4*fs)))
 		for i in np.arange(np.size(EEGamp)):
 			EEGamp[i] = np.var(downdatlfp[4*fs*(i):(4*fs*(i+1))])
+			EEGmean[i] = np.mean(np.abs(downdatlfp[4*fs*(i):(4*fs*(i+1))]))
+		EEGamp = (EEGamp - np.average(EEGamp))/np.std(EEGamp)
 
 		EEGmax = np.zeros(int(np.size(downdatlfp)/(4*fs)))
 		for i in np.arange(np.size(EEGmax)):
 			EEGmax[i] = np.max(downdatlfp[4*fs*(i):(4*fs*(i+1))])
+		EEGmax = (EEGmax - np.average(EEGmax))/np.std(EEGmax)
+
 
 		fse = 4
 		EMG = np.zeros(int(np.size(EMGamp)/(4*fse)))
@@ -596,7 +640,7 @@ if update == 'y':
 		idx_delta = np.zeros(dtype=bool, shape=freqs.shape)
 		idx_delta[idx_min:idx_max] = True
 		EEGdelta = simps(psd[:,idx_delta], freqs[idx_delta])
-		EEGdelta = (EEGdelta - np.average(EEGdelta))/np.std(EEGdelta)
+		
 
 		print('Extracting theta bandpower...')
 		EEGtheta = np.zeros(int(np.size(downdatlfp)/(4*fs)))
@@ -608,7 +652,11 @@ if update == 'y':
 		idx_theta = np.zeros(dtype=bool, shape=freqs.shape)
 		idx_theta[idx_min:idx_max] = True
 		EEGtheta = simps(psd[:,idx_theta], freqs[idx_theta])
-		EEGtheta = (EEGtheta - np.average(EEGtheta))/np.std(EEGtheta)
+
+		delt_thet = EEGdelta/EEGtheta
+		delt_thet = (delt_thet - np.average(delt_thet))/np.std(delt_thet)
+
+		EEGdelta = (EEGdelta - np.average(EEGdelta))/np.std(EEGdelta)
 
 		print('Extracting alpha bandpower...')
 		EEGalpha = np.zeros(int(np.size(downdatlfp)/(4*fs)))
@@ -656,8 +704,10 @@ if update == 'y':
 		idx_broadtheta = np.zeros(dtype=bool, shape=freqs.shape)
 		idx_broadtheta[idx_min:idx_max] = True
 		EEG_broadtheta = simps(psd[:,idx_broadtheta], freqs[idx_broadtheta])
-		EEG_broadtheta= (EEG_broadtheta - np.average(EEG_broadtheta))/np.std(EEG_broadtheta)
 		EEGnb = EEGtheta/EEG_broadtheta
+		EEGnb= (EEGnb - np.average(EEGnb))/np.std(EEGnb)
+		EEGtheta = (EEGtheta - np.average(EEGtheta))/np.std(EEGtheta)
+
 		print('Boom. Boom. FIYA POWER...')
 		EEGfire = np.zeros(int(np.size(downdatlfp)/(4*fs)))
 		win = 4*fs
@@ -682,11 +732,34 @@ if update == 'y':
 	theta_pre = np.append(0,EEGtheta)
 	theta_pre = theta_pre[0:-1]
 
+	delta_post2 = np.append(delta_post,0)
+	delta_post2 = np.delete(delta_post2,0)
+	delta_pre2 = np.append(0,delta_pre)
+	delta_pre2 = delta_pre2[0:-1]
+
+	theta_post2 = np.append(theta_post,0)
+	theta_post2 = np.delete(theta_post2,0)
+	theta_pre2 = np.append(0,theta_pre)
+	theta_pre2 = theta_pre2[0:-1]
+
+	delta_post3 = np.append(delta_post2,0)
+	delta_post3 = np.delete(delta_post3,0)
+	delta_pre3 = np.append(0,delta_pre2)
+	delta_pre3 = delta_pre3[0:-1]
+
+	theta_post3 = np.append(theta_post2,0)
+	theta_post3 = np.delete(theta_post3,0)
+	theta_pre3 = np.append(0,theta_pre2)
+	theta_pre3 = theta_pre3[0:-1]
+
 	nb_post = np.append(EEGnb,0)
 	nb_post = np.delete(nb_post,0)
 	nb_pre = np.append(0,EEGnb)
 	nb_pre = nb_pre[0:-1]
-	delt_thet = EEGdelta/EEGtheta
+	
+	State[State == 1] = 0
+	State[State == 2] = 2
+	State[State == 3] = 5
 
 	#Make a data frame with the new information and then concat to OG
 
@@ -726,19 +799,24 @@ if update == 'y':
 	nans[:] = np.nan
 
 	if (ymot == 'y' and yemg == 'n'):
-		data = np.vstack([animal_name, time_int, State, delta_pre,EEGdelta,theta_pre,EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,nans,binned_mot])	
+		data = np.vstack([animal_name, time_int, State, delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
+		EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean,nans,binned_mot])	
 
 	elif (ymot == 'n' and yemg == 'n'):
-		data = np.vstack([animal_name, time_int, State, delta_pre,EEGdelta,theta_pre,EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,nans,nans])	
+		data = np.vstack([animal_name, time_int, State, delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
+		EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean,nans,nans])	
 
 #	    FeatureList = [delta_pre,EEGdelta,theta_pre,EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGamp,mot]
 	elif (ymot == 'n' and yemg == 'y'):
-		data = np.vstack([animal_name, time_int, State, delta_pre, EEGdelta,theta_pre,EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EMG,nans])	
+		data = np.vstack([animal_name, time_int, State, delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
+		EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean,EMG,nans])		
 #	    FeatureList = [delta_pre,EEGdelta,theta_pre,EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGamp,EMG]
 	elif(ymot == 'y' and yemg == 'y'):
-		data = np.vstack([animal_name, time_int, State, delta_pre,EEGdelta,theta_pre,EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EMG,binned_mot])	
+		data = np.vstack([animal_name, time_int, State, delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
+		EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean,EMG,binned_mot])	
 #		FeatureList = [delta_pre,EEGdelta,theta_pre,EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGamp,EMG,mot]
-	FeatureList = ['Animal_Name', 'Time_Interval','State','delta_pre','EEGdelta','theta_pre','EEGtheta','EEGalpha','EEGbeta','EEGgamma','EEGnarrow','nb_pre','delta/theta','EEGfire','EEGamp','EMG', 'Motion']
+	FeatureList = ['Animal_Name', 'Time_Interval','State','delta_pre','delta_pre2','delta_pre3','delta_post','delta_post2','delta_post3','EEGdelta','theta_pre','theta_pre2','theta_pre3','theta_post',
+	'theta_post2','theta_post3','EEGtheta','EEGalpha','EEGbeta','EEGgamma','EEGnarrow','nb_pre','delta/theta','EEGfire','EEGamp','EEGmax','EEGmean','EMG', 'Motion']
 	#Features = np.column_stack((FeatureList))
 	#add delta-theta ratio
 	#narrowband theta
@@ -747,10 +825,11 @@ if update == 'y':
 
 	try:
 		Sleep_Model = np.load('/Volumes/HlabShare/Sleep_Model/' + mod_name + '_model.pkl')
+		Sleep_Model = Sleep_Model.append(df_additions)
 	except FileNotFoundError:
 		print('no model created...I will save this one')
 		df_additions.to_pickle('/Volumes/HlabShare/Sleep_Model/'+mod_name + '_model.pkl')
-	Sleep_Model = Sleep_Model.append(df_additions)
+		Sleep_Model = df_additions
 	Sleep_Model.to_pickle('/Volumes/HlabShare/Sleep_Model/'+mod_name + '_model.pkl')
 
 	x_features = copy.deepcopy(FeatureList)
