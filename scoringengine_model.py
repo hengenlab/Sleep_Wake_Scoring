@@ -82,6 +82,8 @@ rawdat_dir = '/Volumes/rawdata-2/SCF0405/SCF00005_2018-12-05_16-17-34/'
 
 
 os.chdir(rawdat_dir)
+meanEEG_perhr = np.load(rawdat_dir+'Average_EEG_perhr.npy')
+var_EEG_perhr = np.load(rawdat_dir+'Var_EEG_perhr.npy')
 animal = input('What animal is this?')
 hr  = input('What hour are you working on? (starts at 1): ')
 epochlen = int(input('Epoch length: '))
@@ -138,14 +140,34 @@ satisfaction = []
 
 #####test
 if model == 'y':
-	mod_name = input('Which model? (young rat, adult rat, mouse)')
+	mod_name = input('Which model? (young_rat, adult_rat, mouse)')
 	os.chdir('/Volumes/HlabShare/Sleep_Model/')
-	clf = load('NewModelTest.joblib')
+	if (pos == 'y' and emg == 'y'):
+		clf = load(mod_name+'_Motion_EMG.joblib')
+	if (pos == 'n' and emg == 'y'):
+		clf = load(mod_name+'_EMG.joblib')
+	if (pos == 'y' and emg == 'n'):
+		clf = load(mod_name+'_Motion.joblib')
+	if (pos == 'n' and emg == 'n'):
+		clf = load(mod_name+'_no_move.joblib')
+	#clf = load('NewModelTest.joblib')
 	os.chdir(rawdat_dir) 
 	FullFeaturesTrain = np.empty((0,9))
 	FullFeaturesTest = np.empty((0,9))
 	fs = 200
+	if int(hr)-1<12:
+		normmean = np.mean(meanEEG_perhr[0:24])
+		normvar = np.mean(var_EEG_perhr[0:24])
+	elif np.size(meanEEG_perhr)-int(hr) < 12:
+		normmean = np.mean(meanEEG_perhr[np.size(meanEEG_perhr)-24: np.size(meanEEG_perhr)])
+		normvar = np.mean(var_EEG_perhr[np.size(var_EEG_perhr)-24: np.size(var_EEG_perhr)])
+	else:
+		normmean = np.mean(meanEEG_perhr[int(hr)-12: int(hr)+12])
+		normvar = np.mean(var_EEG_perhr[int(hr)-12: int(hr)+12])
+	normstd = np.sqrt(normvar)
 
+
+	
 	#Generate average/max EEG amplitude, EEG frequency, EMG amplitude for each bin
 
 	print('Generating EEG vectors...')
@@ -157,7 +179,7 @@ if model == 'y':
 	for i in np.arange(np.size(EEGamp)):
 		EEGamp[i] = np.var(downdatlfp[4*fs*(i):(4*fs*(i+1))])
 		EEGmean[i] = np.mean(np.abs(downdatlfp[4*fs*(i):(4*fs*(i+1))]))
-	EEGamp = (EEGamp - np.average(EEGamp))/np.std(EEGamp)
+	EEGamp = (EEGamp - normmean)/normstd
 
 	EEGmax = np.zeros(int(np.size(downdatlfp)/(4*fs)))
 	for i in np.arange(np.size(EEGmax)):
@@ -305,11 +327,31 @@ if model == 'y':
 	nb_pre = np.append(0,EEGnb)
 	nb_pre = nb_pre[0:-1]
 	
+	# if (pos == 'y' and emg == 'y'):
+	# 	FeatureList = [delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
+	# 	EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean,EMG]
+	# else:
+	# 	FeatureList = [delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,		
+	# 	EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean,EMG]
 
-	FeatureList = [delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
-	EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean,EMG]
+	if (pos == 'y' and emg == 'n'):
+		FeatureList = [delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
+		EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean,binned_mot]	
+
+	elif (pos == 'n' and emg == 'n'):
+		FeatureList = [delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
+		EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean]	
+
+#	    FeatureList = [delta_pre,EEGdelta,theta_pre,EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGamp,mot]
+	elif (pos == 'n' and emg == 'y'):
+		FeatureList =[delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
+		EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean,EMG]		
+#	    FeatureList = [delta_pre,EEGdelta,theta_pre,EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGamp,EMG]
+	elif (pos == 'y' and emg == 'y'):
+		FeatureList = [delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
+		EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean,EMG,binned_mot]	
+	
 	Features = np.column_stack((FeatureList))
-
 	Predict_y = clf.predict(Features) 
 
 	plt.ion()
@@ -337,6 +379,9 @@ if model == 'y':
 			ax2.add_patch(rect7)
 		elif Predict_y[state] == 5:
 			rect7 = patch.Rectangle((state,0),3.8,height=1,color='red')
+			ax2.add_patch(rect7)
+		elif Predict_y[state] == 4:
+			rect7 = patch.Rectangle((state,0),3.8,height=1,color='#a8a485')
 			ax2.add_patch(rect7)
 	plt.ylim(0.3,1)
 	plt.xlim(0,900)
@@ -543,7 +588,7 @@ for i in np.arange(np.size(downdatlfp)/(fs*4)-4):
 			rect7 = patch.Rectangle((start/fs,0),3.8,height=2,color='red')
 			ax6.add_patch(rect7)
 		else:
-			print('Invalid entry, coded as 4')
+			print('Ambiguous State, coded as 4')
 		fig1.canvas.draw()
 		fig1.canvas.flush_events()
 		fig2.canvas.draw()
@@ -605,6 +650,16 @@ if update == 'y':
 
 	#Generate average/max EEG amplitude, EEG frequency, EMG amplitude for each bin
 	if model == 'n':
+		if int(hr)-1<12:
+			normmean = np.mean(meanEEG_perhr[0:24])
+			normvar = np.mean(var_EEG_perhr[0:24])
+		elif np.size(meanEEG_perhr)-int(hr) < 12:
+			normmean = np.mean(meanEEG_perhr[np.size(meanEEG_perhr)-24: np.size(meanEEG_perhr)])
+			normvar = np.mean(var_EEG_perhr[np.size(var_EEG_perhr)-24: np.size(var_EEG_perhr)])
+		else:
+			normmean = np.mean(meanEEG_perhr[int(hr)-12: int(hr)+12])
+			normvar = np.mean(var_EEG_perhr[int(hr)-12: int(hr)+12])
+		normstd = np.sqrt(normvar)
 		print('Generating EEG vectors...')
 		epochlen = 4
 		bin = 4 #bin size in seconds
@@ -614,7 +669,7 @@ if update == 'y':
 		for i in np.arange(np.size(EEGamp)):
 			EEGamp[i] = np.var(downdatlfp[4*fs*(i):(4*fs*(i+1))])
 			EEGmean[i] = np.mean(np.abs(downdatlfp[4*fs*(i):(4*fs*(i+1))]))
-		EEGamp = (EEGamp - np.average(EEGamp))/np.std(EEGamp)
+		EEGamp = (EEGamp - normmean)/normstd
 
 		EEGmax = np.zeros(int(np.size(downdatlfp)/(4*fs)))
 		for i in np.arange(np.size(EEGmax)):
@@ -791,6 +846,7 @@ if update == 'y':
 				a = i-1
 				med[i] = med[a]
 		binned_mot = np.nanmean(np.reshape(med, (900, 4)), axis = 1)
+		binned_mot[np.isnan(binned_mot)] = 0
 
 	animal_name = np.full(np.size(delta_pre), animal)
 	basename = movement_files[int(hr)-1][title_idx[0]:title_idx[1]]
@@ -817,9 +873,6 @@ if update == 'y':
 #		FeatureList = [delta_pre,EEGdelta,theta_pre,EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGamp,EMG,mot]
 	FeatureList = ['Animal_Name', 'Time_Interval','State','delta_pre','delta_pre2','delta_pre3','delta_post','delta_post2','delta_post3','EEGdelta','theta_pre','theta_pre2','theta_pre3','theta_post',
 	'theta_post2','theta_post3','EEGtheta','EEGalpha','EEGbeta','EEGgamma','EEGnarrow','nb_pre','delta/theta','EEGfire','EEGamp','EEGmax','EEGmean','EMG', 'Motion']
-	#Features = np.column_stack((FeatureList))
-	#add delta-theta ratio
-	#narrowband theta
 
 	df_additions = pd.DataFrame(columns = FeatureList, data = data.T)
 
@@ -834,10 +887,23 @@ if update == 'y':
 
 	x_features = copy.deepcopy(FeatureList)
 	[x_features.remove(i) for i in ['Animal_Name', 'Time_Interval','State']]
-	if ymot == 'n':
+
+	if (ymot == 'n' and yemg == 'y'):
 		x_features.remove('Motion')
-	if yemg == 'n':
+		jobname =mod_name+'_EMG.joblib'
+
+	if (yemg == 'n' and ymot == 'y'):
 		x_features.remove('EMG')
+		jobname =mod_name+'_Motion.joblib'
+
+	if (yemg == 'y' and ymot == 'y'):
+		jobname = mod_name+'_Motion_EMG.joblib'
+
+	if (yemg == 'n' and ymot == 'n'):
+		x_features.remove('EMG')
+		x_features.remove('Motion')
+		jobname = mod_name+'_no_move.joblib'
+		print('Just so you know...this model has no EMG and no Motion')
 
 	prop = 1/2
 	model_inputs = Sleep_Model[x_features][0:int((max(Sleep_Model.index)+1)*prop)].apply(pd.to_numeric)
@@ -850,10 +916,7 @@ if update == 'y':
 	model_test_states = Sleep_Model['State'][int((max(Sleep_Model.index)+1)*prop):].apply(pd.to_numeric)
 	test_y = model_test_states.values
 
-	# TrainX = Features[0:int(prop*np.size(Features[:,0])),:]
-	# TestX = Features[int(prop*np.size(Features[:,0])):None,:]
-	# TrainY = Aligned[0:int(prop*np.size(Aligned))]
-	# TestY = Aligned[int(prop*np.size(Aligned)):None]
+	model_dir = '/Volumes/HlabShare/Sleep_Model/'
 
 
 	print('Calculating tree...')
@@ -866,7 +929,7 @@ if update == 'y':
 	if Satisfaction == 'y':
 	    clf = random_forest_classifier(Sleep_Model[x_features].apply(pd.to_numeric).values, Sleep_Model['State'].apply(pd.to_numeric).values)
 	    print ("Train Accuracy :: ", accuracy_score( Sleep_Model['State'].apply(pd.to_numeric).values, clf.predict(Sleep_Model[x_features].apply(pd.to_numeric).values)))
-	    dump(clf, 'NewModelTest.joblib') 
+	    dump(clf, model_dir+jobname) 
 
 
 
