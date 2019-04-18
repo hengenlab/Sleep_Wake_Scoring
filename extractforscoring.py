@@ -17,9 +17,10 @@ import time as timer
 import glob
 from sklearn.decomposition import PCA
 from samb_work import videotimestamp
-from samb_work import DLCMovement_input
+from lizzie_work import DLCMovement_input
 import psutil
-import cv2
+import math
+#import cv2
 import sys
 
 def check1(h5files):
@@ -41,8 +42,11 @@ def check3(h5files, vidfiles):
 		sys.exit('h5 files and video files not aligned')
 # Checks to make sure that all of the h5 files are continuous
 digi_dir = '/media/bs002r/SCF0405/cam_2018-12-05_16-18-15'
-motion_dir = '/media/HlabShare/Lizzie_Work/LIT_dlc/SCF00004/Analyzed_Videos/'
-rawdat_dir = '/media/bs002r/SCF0405/SCF00004_2018-12-05_16-15-10/'
+motion_dir = '/media/HlabShare/Lizzie_Work/LIT_dlc/SCF00005/Analyzed_Videos/'
+rawdat_dir = '/media/bs002r/SCF0405/SCF00005_2018-12-05_16-17-34/'
+print(digi_dir)
+print(motion_dir)
+print(rawdat_dir)
 os.chdir(digi_dir)
 stmp = videotimestamp.vidtimestamp('Digital_64_Channels_int64_2018-12-05_16-18-15.bin')
 #stmp = (num-1)*3600*1000*1000*1000  
@@ -50,7 +54,7 @@ h5 = sorted(glob.glob(motion_dir+'*.h5'))
 vidfiles = sorted(glob.glob(motion_dir+'*labeled.mp4'))
 
 move_flag = input('Have you already created aligned movement arrays? (y/n): ')
-num = int(input('What hour are you starting on?: '))
+num = int(input('What hour are you starting on? (Starting at 0): '))
 
 os.chdir(rawdat_dir)
 files = sorted(glob.glob('*.bin'))
@@ -88,8 +92,8 @@ if move_flag == 'n':
 
 	for i in np.arange(np.size(h5)):
 		b = h5[i]
-		basename = DLCMovement_input.get_movement(b, first_vid = 0)
-		vect = np.load(basename+'_full_movement_trace.npy')
+		basename = DLCMovement_input.get_movement(b, savedir = motion_dir)
+		vect = np.load(motion_dir+basename+'_full_movement_trace.npy')
 		if np.size(vect)>leng[i]:
 			#print('removing one nan')
 			vect = vect[0:-1]
@@ -98,7 +102,7 @@ if move_flag == 'n':
 		basenames.append(basename)
 	mot_vect = np.concatenate(mot_vect)
 	dt = alignedtime[1]-alignedtime[0]
-	n_phantom_frames = int(round(offset/dt))
+	n_phantom_frames = int(math.floor((offset/dt)))
 
 
 	phantom_frames = np.zeros(n_phantom_frames)
@@ -108,7 +112,7 @@ if move_flag == 'n':
 	corrected_motvect = np.concatenate([phantom_frames, mot_vect])
 	corrected_frames  = np.concatenate([phantom_frames, frame])
 	full_alignedtime = np.concatenate([novid_time, alignedtime])
-	which_vid = np.concatenate([np.full((1, np.size(phantom_frames)), 'no video yet')[0], which_vid])
+	which_vid_full = np.concatenate([np.full((1, np.size(phantom_frames)), 'no video yet')[0], which_vid])
 
 
 	aligner = np.column_stack((full_alignedtime,full_alignedtime/(1000*1000*1000*3600), corrected_motvect))
@@ -119,7 +123,7 @@ if move_flag == 'n':
 	for h in np.arange(num, nhours):
 		tmp_idx = np.where((aligner[:,1]>(h)) & (aligner[:,1]<(h+1)))[0]      
 		time_move = (np.vstack((aligner[tmp_idx, 2], aligner[tmp_idx,1])))
-		video_key = (np.vstack((full_alignedtime[tmp_idx], which_vid[tmp_idx])))
+		video_key = (np.vstack((full_alignedtime[tmp_idx], which_vid_full[tmp_idx], corrected_frames[tmp_idx])))
 		np.save(motion_dir+basenames[h]+'_tmove.npy', time_move)
 		np.save(motion_dir+basenames[h]+'_vidkey.npy', video_key)
 
@@ -181,6 +185,7 @@ for fil in filesindex:
 	dat2	= []
 	eeg 	= []
 	emg 	= []
+	average_EEG = []
 
 	print('Working on hour ' + str(int((fil+12)/12)))
 
@@ -246,18 +251,22 @@ for fil in filesindex:
 	#downdatlfp = np.zeros(int(R*np.size(datf)))
 	downsamp = np.zeros(fs*reclen)
 	downsamp = datf[0:fs*reclen]
+	del(datf)
 	disp = fs*reclen - np.size(downsamp)
 	if disp > 0:
 		downsamp = np.pad(downsamp, (0,disp), 'constant')
 	downsamp = downsamp.reshape(-1,int(R))
 	downdatlfp = downsamp[:,1]
 	dat = []
+
+	average_EEG.append(np.mean(downdatlfp))
 	np.save('EEGhr' + str(int((fil+12)/12)),downdatlfp)
 	np.save('EMGhr' + str(int((fil+12)/12)),EMGamp)
 	print('Calculating bandpower...')
 	#print('This is usage at step 5: ' + str(psutil.virtual_memory()))
 	fsd = 200
 	f, t_spec, x_spec = signal.spectrogram(downdatlfp, fs=fsd, window='hanning', nperseg=1000, noverlap=1000-1, mode='psd')
+	del (downdatlfp)
 	fmax = 64
 	fmin = 1
 	x_mesh, y_mesh = np.meshgrid(t_spec, f[(f<fmax) & (f>fmin)])
@@ -266,6 +275,8 @@ for fil in filesindex:
 	#print('This is usage at step 5: ' + str(psutil.virtual_memory()))
 	#plt.savefig('spect2.jpg')
 	del(p1)
+	del(x_mesh)
+	del(y_mesh)
 	fsemg = 4
 	if EMGinput == -1:
 		fsemg = 1
@@ -291,9 +302,18 @@ for fil in filesindex:
 		thet = np.pad(thet, (0,dispt), 'constant')
 	if dispd > 0:
 		delt = np.pad(delt, (0,dispd), 'constant')
+
+	print('THIS IS THE USAGE AT THE END OF LOOP: ' + str(psutil.virtual_memory()))
+	np.save('delt' + str(int((fil+12)/12)) + '.npy',delt)
+	np.save('thet' + str(int((fil+12)/12)) + '.npy',thet)
+
+
+	del(delt)
+	del(thet)
+	del(thetw)
+	del(thetn)
 	del(x_spec)
 	del(f)
 	del(t_spec)
-	print('THIS IS THE USAGE AT THE END OF LOOP: ' + str(psutil.virtual_memory()))
-	#np.save('delt' + str(int((fil+12)/12)) + '.npy',delt)
-	#np.save('thet' + str(int((fil+12)/12)) + '.npy',thet)
+average_EEG = np.asarray(average_EEG)
+np.save('Average_EEG_perhr', average_EEG)
