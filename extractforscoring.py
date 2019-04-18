@@ -166,6 +166,14 @@ else:
 tic = timer.time()
 
 #time, dat = ntk.ntk_ecube.load_raw_binary(files[0], 64)
+try:
+	average_EEG = list(np.load('Average_EEG_perhr.npy'))
+except FileNotFoundError:
+	average_EEG = []
+try:
+	var_EEG = list(np.load('Var_EEG_perhr.npy'))
+except FileNotFoundError:
+	var_EEG = []
 
 for fil in filesindex:
 	print('STARTING LOOP: '+str(fil))
@@ -185,7 +193,7 @@ for fil in filesindex:
 	dat2	= []
 	eeg 	= []
 	emg 	= []
-	average_EEG = []
+
 
 	print('Working on hour ' + str(int((fil+12)/12)))
 
@@ -260,6 +268,7 @@ for fil in filesindex:
 	dat = []
 
 	average_EEG.append(np.mean(downdatlfp))
+	var_EEG.append(np.var(downdatlfp))
 	np.save('EEGhr' + str(int((fil+12)/12)),downdatlfp)
 	np.save('EMGhr' + str(int((fil+12)/12)),EMGamp)
 	print('Calculating bandpower...')
@@ -315,5 +324,8 @@ for fil in filesindex:
 	del(x_spec)
 	del(f)
 	del(t_spec)
+
 average_EEG = np.asarray(average_EEG)
-np.save('Average_EEG_perhr', average_EEG)
+var_EEG = np.asarray(var_EEG)
+np.save('Average_EEG_perhr.npy', average_EEG)
+np.save('Var_EEG_perhr.npy', var_EEG)
