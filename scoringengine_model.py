@@ -86,6 +86,9 @@ meanEEG_perhr = np.load(rawdat_dir+'Average_EEG_perhr.npy')
 var_EEG_perhr = np.load(rawdat_dir+'Var_EEG_perhr.npy')
 animal = input('What animal is this?')
 hr  = input('What hour are you working on? (starts at 1): ')
+
+mod_name = input('Which model? (young_rat, adult_rat, mouse)')
+
 epochlen = int(input('Epoch length: '))
 fs = int(input('sampling rate: '))
 delt = np.load('delt' + hr + '.npy')
@@ -142,7 +145,6 @@ satisfaction = []
 
 #####test
 if model == 'y':
-	mod_name = input('Which model? (young_rat, adult_rat, mouse)')
 	os.chdir('/Volumes/HlabShare/Sleep_Model/')
 	if (pos == 'y' and emg == 'y'):
 		clf = load(mod_name+'_Motion_EMG.joblib')
