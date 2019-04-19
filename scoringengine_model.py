@@ -77,8 +77,8 @@ def check3(h5files, vidfiles):
 		sys.exit('h5 files and video files not aligned')
 
 motion_dir = '/Volumes/HlabShare/Lizzie_Work/LIT_dlc/SCF00005/Analyzed_Videos/'
-rawvid_dir = '/Volumes/rawdata-3/Watchtower/SCF00005/'
-rawdat_dir = '/Volumes/rawdata-2/SCF0405/SCF00005_2018-12-05_16-17-34/'
+rawvid_dir = '/Volumes/rawdata-1/Watchtower/SCF00005/'
+rawdat_dir = '/Volumes/rawdata/SCF0405/SCF00005_2018-12-05_16-17-34/'
 
 
 os.chdir(rawdat_dir)
@@ -89,7 +89,9 @@ hr  = input('What hour are you working on? (starts at 1): ')
 epochlen = int(input('Epoch length: '))
 fs = int(input('sampling rate: '))
 delt = np.load('delt' + hr + '.npy')
+delt = np.concatenate((500*[0],delt,500*[0]))
 thet = np.load('thet' + hr + '.npy')
+thet = np.concatenate((500*[0],thet,500*[0]))
 downdatlfp = np.load('EEGhr' + hr + '.npy')
 movement_files = np.sort(glob.glob(motion_dir+'*tmove.npy'))
 check2(movement_files)
@@ -411,7 +413,7 @@ if emg == 'y':
 if emg == 'n':
 	EMGamp = False
 vid_samp = np.linspace(0, 3600*fs, np.size(video_key[0]))
-for i in np.arange(np.size(downdatlfp)/(fs*4)-4):
+for i in np.arange(np.size(downdatlfp)/(fs*4)-1):
 	if model == 'y':
 		Prediction = clf.predict(Features[int(i),:].reshape(1,-1))
 		if Prediction == 0:
@@ -562,11 +564,18 @@ for i in np.arange(np.size(downdatlfp)/(fs*4)-4):
 
 				cap.release()
 				continue
-	elif i == np.size(downdatlfp)/(fs*4) - 4:
-		plt.close('all')
+	elif i == np.size(downdatlfp)/(fs*4) - 2:
 		plt.figure()
 		print('Scoring done, plotting sleep states.')
+		State = State[:-1]
 		plt.plot(State)
+		first = int(input('Enter first sleep state: '))
+		first = np.array(first)
+		last = int(input('Enter last sleep state: '))
+		State = np.append(first,State)
+		State[-1] = last
+		plt.close('all')
+		break
 	else:
 		line1.set_ydata(downdatlfp[start:end])
 		if model == 'y':
@@ -678,6 +687,7 @@ if update == 'y':
 
 
 		fse = 4
+		EMGamp = EMGamp[0:-100]
 		EMG = np.zeros(int(np.size(EMGamp)/(4*fse)))
 		for i in np.arange(np.size(EMG)):
 			EMG[i] = np.average(EMGamp[4*fse*(i):(4*fse*(i+1))])
