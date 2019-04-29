@@ -634,7 +634,7 @@ decision = input('Save sleep states? y/n: ')
 if decision == 'y':
 	filename = input('File name: ')
 	np.save(filename,State)
-update = input('Update model?: ')
+update = input('Update model?(y/n): ')
 if update == 'y':
 	# os.chdir(rawdat_dir)
 	# downdatlfp = np.load('EEGhr' + hr + '.npy')
