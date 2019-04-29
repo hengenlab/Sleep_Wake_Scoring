@@ -73,7 +73,8 @@ if move_flag == 'n':
 	    lstream = 0
 	    # get video attributes
 	    v = ntk.NTKVideos(videofilename, lstream)
-	    which_vid.append(np.full((1,int(v.length)), videofilename[-96:])[0])
+	    string_idx = videofilename.find('e3v')
+	    which_vid.append(np.full((1,int(v.length)), videofilename[string_idx:])[0])
 	    leng.append(v.length)
 	    frame.append(np.arange(int(v.length)))
 	leng = np.array(leng)
