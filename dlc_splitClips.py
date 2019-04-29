@@ -13,7 +13,7 @@ def split_clips(file):
 	#os stats, find size, divide by 500e^6, divide the length of the video by 
 	for vid in vids:
 		size = os.stat(file+'/'+vid).st_size
-		chunks = int(size/500e6)
+		chunks = math.ceil(size/500e6)
 		print("loading clip...")
 		clip = VideoFileClip(file+'/'+vid)
 		length = clip.duration
