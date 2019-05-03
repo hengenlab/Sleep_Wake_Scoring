@@ -22,6 +22,7 @@ import psutil
 import math
 #import cv2
 import sys
+import Sleep_Wake_Scoring as SWS
 
 def check1(h5files):
 # Checks to make sure that all of the h5 files are the same size
@@ -29,26 +30,34 @@ def check1(h5files):
 	if np.size(np.unique(sizes))>1:
 		sys.exit('Not all of the h5 files are the same size')
 def check2(files):
-	timestamps = [files[i][79:88] for i in np.arange(np.size(files))]
+	str_idx = files[0].find('e3v') + 17 
+	timestamps = [files[i][str_idx:str_idx+9] for i in np.arange(np.size(files))]
+	if timestamps[0] == timestamps[1]:
+		chk = input('Were these videos seperated for DLC? (y/n)')
 	for i in np.arange(np.size(files)-1):
-		hr1 = timestamps[i+1][0:4]
+		hr1 = timestamps[i][0:4]
 		hr2 = timestamps[i][5:9]
-		if hr2 != hr1:
-			sys.exit('hour '+str(i) + ' is not continuous with hour ' + str(i+1))
+		hr3 = timestamps[i+1][0:4]
+		hr4 = timestamps[i+1][5:9]
+		if hr2 != hr3:
+			if chk == 'n':
+				sys.exit('hour '+str(i) + ' is not continuous with hour ' + str(i+1))
+
 def check3(h5files, vidfiles):
-	timestamps_h5 = [h5files[i][79:88] for i in np.arange(np.size(h5files))]
-	timestamps_vid = [vidfiles[i][79:88] for i in np.arange(np.size(h5files))]
+	str_idx = h5files[0].find('e3v') + 17 
+	timestamps_h5 = [h5files[i][str_idx:str_idx+9] for i in np.arange(np.size(h5files))]
+	timestamps_vid = [vidfiles[i][str_idx:str_idx+9] for i in np.arange(np.size(vidfiles))]
 	if timestamps_h5 != timestamps_vid:
 		sys.exit('h5 files and video files not aligned')
 # Checks to make sure that all of the h5 files are continuous
-digi_dir = '/media/bs002r/SCF0405/cam_2018-12-05_16-18-15'
-motion_dir = '/media/HlabShare/Lizzie_Work/LIT_dlc/SCF00005/Analyzed_Videos/'
-rawdat_dir = '/media/bs002r/SCF0405/SCF00005_2018-12-05_16-17-34/'
+digi_dir = '/media/bs002r/HellWeek/Digital/Cam_2018-10-19_18-21-31/'
+motion_dir = '/media/HlabShare/Lizzie_Work/LIT_dlc/EAB00026/'
+rawdat_dir = '/media/bs001r/HellWeek/Grounded2/EAB26_2018-10-19_18-23-50_p6c2/'
 print(digi_dir)
 print(motion_dir)
 print(rawdat_dir)
 os.chdir(digi_dir)
-stmp = videotimestamp.vidtimestamp('Digital_64_Channels_int64_2018-12-05_16-18-15.bin')
+stmp = videotimestamp.vidtimestamp('Digital_1_Channels_int64_2018-10-19_18-21-31.bin')
 #stmp = (num-1)*3600*1000*1000*1000  
 h5 = sorted(glob.glob(motion_dir+'*.h5'))
 vidfiles = sorted(glob.glob(motion_dir+'*labeled.mp4'))
@@ -60,7 +69,7 @@ os.chdir(rawdat_dir)
 files = sorted(glob.glob('*.bin'))
 
 if move_flag == 'n':
-	check1(h5)
+	#check1(h5)
 	check2(h5)
 	check2(vidfiles)
 	check3(h5, vidfiles)
@@ -91,9 +100,15 @@ if move_flag == 'n':
 	mot_vect = []
 	basenames = []
 
+	#labels = []
+	num_labels = int(input('How many labels did you use with DLC?'))
+	# if num_labels > 1:
+	# 	for n in np.arange(num_labels):
+	# 		labels.append(input('What is label #' + str(n+1)))
+
 	for i in np.arange(np.size(h5)):
 		b = h5[i]
-		basename = DLCMovement_input.get_movement(b, savedir = motion_dir)
+		basename = DLCMovement_input.get_movement(b, savedir = motion_dir, num_labels = num_labels, labels = labels)
 		vect = np.load(motion_dir+basename+'_full_movement_trace.npy')
 		if np.size(vect)>leng[i]:
 			#print('removing one nan')
@@ -103,8 +118,11 @@ if move_flag == 'n':
 		basenames.append(basename)
 	mot_vect = np.concatenate(mot_vect)
 	dt = alignedtime[1]-alignedtime[0]
-	n_phantom_frames = int(math.floor((offset/dt)))
 
+	if offset<0:
+		n_phantom_frames = 0
+	else:
+		n_phantom_frames = int(math.floor((offset/dt)))
 
 	phantom_frames = np.zeros(n_phantom_frames)
 	phantom_frames[:] = np.nan 
@@ -118,7 +136,11 @@ if move_flag == 'n':
 
 	aligner = np.column_stack((full_alignedtime,full_alignedtime/(1000*1000*1000*3600), corrected_motvect))
 	#video_aligner = np.column_stack((corrected_frames, which_vid))
-
+	neg_vals = []
+	for gg in np.arange(np.shape(aligner)[0]): 
+	    if aligner[gg,0] < 0: 
+	    	neg_vals.append(gg)
+	aligner = np.delete(aligner, neg_vals, 0)
 	reorganized_mot = []
 	nhours = int(aligner[-1,1])
 	for h in np.arange(num, nhours):
@@ -153,12 +175,29 @@ elif HS == 'eibless64':
                          4,  8,  12, 16, 18, 22, 26, 30, 20, 24, 28, 32,
                          34, 38, 42, 46, 36, 40, 44, 48, 50, 54, 58, 62,
                          52, 56, 60, 64]) - 1
-EEG2 = EEG + 1
-EEG2 = np.where(chan_map==EEG2)
-EEG3 = EEG + 2
-EEG3 = np.where(chan_map==EEG3)
-EEG = np.where(chan_map==EEG)
-EEG = EEG[0][0]
+if cort == 'n':
+	try:
+		selected_chans = np.load(rawdat_dir+'LFP_chancheck/selected_channels.npy')
+		LFP_check = input('Have you checked the average LFP that you are about to use? (y/n)')
+		if LFP_check == 'n':
+			hour = int(input('what hour did you use?'))
+			SWS.confirm_channels(selected_chans, raw_datdir, HS, hour)
+			print('Go find the individual and average spectrograms of your LFP in ' + rawdat_dir+'LFP_chancheck')
+			sys.exit()
+	except FileNotFoundError:
+		LFP_check = input('You have not selected LFP channels, would you like to do that now? (y/n)')
+		if LFP_check == 'y':
+			hour = int(input('what hour will you use?'))
+			good_chans = [9, 14, 25, 32, 49, 57, 48]
+			hstype = 'hs64'
+			SWS.checkLFPchan(rawdat_dir, HS, hour)
+			sys.exit('Exiting program now. Please run plot_LFP on local computer to choose cells')
+		if LFP_check == 'n':
+			sys.exit('Ok, I am exiting then')
+
+else:
+	EEG = np.where(chan_map==EEG)
+	EEG = EEG[0][0]
 if EMGinput!=-1:
 	EMG = np.where(chan_map==EMGinput)
 	EMG = EMG[0][0]
@@ -197,19 +236,23 @@ for fil in filesindex:
 
 
 	print('Working on hour ' + str(int((fil+12)/12)))
+	if cort == 'n':
+		eeg = np.zeros([np.size(selected_chans),1])
 
 	for a in np.arange(0,np.size(load_files)):
-
-		#print('This is usage at step 2: ' + str(psutil.virtual_memory()))
 		if cort == 'n':
 			print('Importing data from binary file...')
 			time, dat 	= ntk.ntk_ecube.load_raw_binary(load_files[a], 64)
 			dat = ntk.ntk_channelmap.channel_map_data(dat, 64, 'hs64')
 
 			print('merging file {}'.format(a))
-			eeg 		= np.concatenate((eeg,np.average((dat[EEG],np.squeeze(dat[EEG2]),np.squeeze(dat[EEG3])),axis=0)),axis=0)
 			if EMGinput != -1:
 				emg 		= np.concatenate((emg,dat[EMG]),axis=0)
+
+			selected_eeg = np.zeros([np.size(selected_chans), np.size(dat[0])])
+			for a,ch in enumerate(selected_chans):	
+				selected_eeg[a] = dat[ch]
+			eeg = np.concatenate([eeg, selected_eeg], axis = 1)
 
 		else:
 			print('Importing data from binary file...')
@@ -220,6 +263,8 @@ for fil in filesindex:
 			eeg 		= np.concatenate((eeg,dat[EEG]),axis=0)
 			if EMGinput != -1:
 				emg 		= np.concatenate((emg,dat[EMG]),axis=0)
+	if cort == 'n':
+		eeg = eeg[:,1:]
 	#	print('This is usage at step 3: ' + str(psutil.virtual_memory()))
 	#print('This is usage at step 4: ' + str(psutil.virtual_memory()))
 	#filters raw data
@@ -229,7 +274,7 @@ for fil in filesindex:
 	N  = 3    # Filter order
 	Wn = [0.5/nyq,400/nyq] # Cutoff frequencies
 	B, A = signal.butter(N, Wn, btype='bandpass',output='ba')
-	datf = signal.filtfilt(B,A, eeg)
+	datf = signal.filtfilt(B,A, np.mean(eeg, axis = 0))
 	Wn = [10/nyq] # Cutoff frequencies
 	B, A = signal.butter(N, Wn, btype='highpass',output='ba')
 	if EMGinput != -1:
@@ -260,7 +305,6 @@ for fil in filesindex:
 	#downdatlfp = np.zeros(int(R*np.size(datf)))
 	downsamp = np.zeros(fs*reclen)
 	downsamp = datf[0:fs*reclen]
-	del(datf)
 	disp = fs*reclen - np.size(downsamp)
 	if disp > 0:
 		downsamp = np.pad(downsamp, (0,disp), 'constant')
@@ -277,6 +321,7 @@ for fil in filesindex:
 	fsd = 200
 	f, t_spec, x_spec = signal.spectrogram(downdatlfp, fs=fsd, window='hanning', nperseg=1000, noverlap=1000-1, mode='psd')
 	del (downdatlfp)
+	del(datf)
 	fmax = 64
 	fmin = 1
 	x_mesh, y_mesh = np.meshgrid(t_spec, f[(f<fmax) & (f>fmin)])
