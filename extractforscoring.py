@@ -32,6 +32,7 @@ def check1(h5files):
 def check2(files):
 	str_idx = files[0].find('e3v') + 17 
 	timestamps = [files[i][str_idx:str_idx+9] for i in np.arange(np.size(files))]
+	chk = []
 	if timestamps[0] == timestamps[1]:
 		chk = input('Were these videos seperated for DLC? (y/n)')
 	for i in np.arange(np.size(files)-1):
@@ -50,6 +51,9 @@ def check3(h5files, vidfiles):
 	if timestamps_h5 != timestamps_vid:
 		sys.exit('h5 files and video files not aligned')
 # Checks to make sure that all of the h5 files are continuous
+digi_dir = '/media/bs004r/D1/2019-03-29_10-24-20_d2_c2/'
+motion_dir = '/media/bs004r/EAB00040/labeled_videos/03_29'
+
 digi_dir = '/media/bs002r/HellWeek/Digital/Cam_2018-10-19_18-21-31/'
 motion_dir = '/media/HlabShare/Lizzie_Work/LIT_dlc/EAB00026/'
 rawdat_dir = '/media/bs001r/HellWeek/Grounded2/EAB26_2018-10-19_18-23-50_p6c2/'
@@ -57,7 +61,9 @@ print(digi_dir)
 print(motion_dir)
 print(rawdat_dir)
 os.chdir(digi_dir)
-stmp = videotimestamp.vidtimestamp('Digital_1_Channels_int64_2018-10-19_18-21-31.bin')
+
+stmp = videotimestamp.vidtimestamp('Digital_1_Channels_int64_2019-03-29_10-24-20.bin')
+
 #stmp = (num-1)*3600*1000*1000*1000  
 h5 = sorted(glob.glob(motion_dir+'*.h5'))
 vidfiles = sorted(glob.glob(motion_dir+'*labeled.mp4'))
@@ -108,7 +114,7 @@ if move_flag == 'n':
 
 	for i in np.arange(np.size(h5)):
 		b = h5[i]
-		basename = DLCMovement_input.get_movement(b, savedir = motion_dir, num_labels = num_labels, labels = labels)
+		basename = DLCMovement_input.get_movement(b, savedir = motion_dir, num_labels = num_labels, labels = False)
 		vect = np.load(motion_dir+basename+'_full_movement_trace.npy')
 		if np.size(vect)>leng[i]:
 			#print('removing one nan')
@@ -140,24 +146,28 @@ if move_flag == 'n':
 	for gg in np.arange(np.shape(aligner)[0]): 
 	    if aligner[gg,0] < 0: 
 	    	neg_vals.append(gg)
+
 	aligner = np.delete(aligner, neg_vals, 0)
+	which_vid_full = np.delete(which_vid_full, neg_vals, 0)
+	corrected_frames = np.delete(corrected_frames, neg_vals, 0)
+
 	reorganized_mot = []
 	nhours = int(aligner[-1,1])
 	for h in np.arange(num, nhours):
 		tmp_idx = np.where((aligner[:,1]>(h)) & (aligner[:,1]<(h+1)))[0]      
 		time_move = (np.vstack((aligner[tmp_idx, 2], aligner[tmp_idx,1])))
-		video_key = (np.vstack((full_alignedtime[tmp_idx], which_vid_full[tmp_idx], corrected_frames[tmp_idx])))
-		np.save(motion_dir+basenames[h]+'_tmove.npy', time_move)
-		np.save(motion_dir+basenames[h]+'_vidkey.npy', video_key)
+		video_key = (np.vstack((aligner[tmp_idx, 0], which_vid_full[tmp_idx], corrected_frames[tmp_idx])))
+		np.save(motion_dir+'hr' + str(h) +'_tmove.npy', time_move)
+		np.save(motion_dir+'hr' + str(h)+'_vidkey.npy', video_key)
 
 
 os.chdir(rawdat_dir)
 filesindex = np.arange((num*12),np.size(files),12)
 
 cort = input('Cortical screw? (y/n): ')
-EEG = int(input('Enter EEG channel: ')) - 1
 EMGinput = int(input('Enter EMG channel (0 if using motion): ')) - 1
-HS = input('Enter array type (hs64, eibless64): ')
+numchan = int(input('How many channels are on the headstage?'))
+HS = input('Enter array type (hs64, eibless64, silicon_probex): ')
 #reclen = int(input('Enter recording length in seconds: ')) #recording length in seconds
 reclen = 3600
 
@@ -175,6 +185,26 @@ elif HS == 'eibless64':
                          4,  8,  12, 16, 18, 22, 26, 30, 20, 24, 28, 32,
                          34, 38, 42, 46, 36, 40, 44, 48, 50, 54, 58, 62,
                          52, 56, 60, 64]) - 1
+
+elif HS == 'silicon_probe1':
+    chan_map = np.arange(0, 64)
+    silicon_flag = 1
+elif HS == 'silicon_probe2':
+    chan_map = np.arange(64, 129)
+    silicon_flag = 1
+elif HS == 'silicon_probe3':
+    chan_map = np.arange(129, 193)
+    silicon_flag = 1
+elif HS == 'silicon_probe4':
+    chan_map = np.arange(193, 257)
+    silicon_flag = 1
+elif HS == 'silicon_probe5':
+    chan_map = np.arange(257, 321)
+    silicon_flag = 1
+elif HS == 'silicon_probe6':
+    chan_map = np.arange(321, 385)
+    silicon_flag = 1
+
 if cort == 'n':
 	try:
 		selected_chans = np.load(rawdat_dir+'LFP_chancheck/selected_channels.npy')
@@ -188,7 +218,7 @@ if cort == 'n':
 		LFP_check = input('You have not selected LFP channels, would you like to do that now? (y/n)')
 		if LFP_check == 'y':
 			hour = int(input('what hour will you use?'))
-			good_chans = [9, 14, 25, 32, 49, 57, 48]
+			#good_chans = [9, 14, 25, 32, 49, 57, 48]
 			hstype = 'hs64'
 			SWS.checkLFPchan(rawdat_dir, HS, hour)
 			sys.exit('Exiting program now. Please run plot_LFP on local computer to choose cells')
@@ -196,6 +226,7 @@ if cort == 'n':
 			sys.exit('Ok, I am exiting then')
 
 else:
+	EEG = int(input('Enter EEG channel: ')) - 1
 	EEG = np.where(chan_map==EEG)
 	EEG = EEG[0][0]
 if EMGinput!=-1:
@@ -218,8 +249,8 @@ except FileNotFoundError:
 for fil in filesindex:
 	print('STARTING LOOP: '+str(fil))
 	print('THIS IS THE STARTING USAGE: ' + str(psutil.virtual_memory()))
-	start_label = files[fil][29:-4]
-	end_label = files[fil+12][29:-4]
+	start_label = files[fil][30:-4]
+	end_label = files[fil+12][30:-4]
 	# THIS CAN BE CONSOLIDATED INTO A FEW LINES LATER. THIS IS WHEN SAM IS LEARNING...
 	# start importing your data
 
@@ -231,7 +262,7 @@ for fil in filesindex:
 	time 	= []
 	dat 	= []
 	dat2	= []
-	eeg 	= []
+	full_selected_eeg 	= np.zeros([np.size(selected_chans), 1])
 	emg 	= []
 
 
@@ -241,18 +272,28 @@ for fil in filesindex:
 
 	for a in np.arange(0,np.size(load_files)):
 		if cort == 'n':
-			print('Importing data from binary file...')
-			time, dat 	= ntk.ntk_ecube.load_raw_binary(load_files[a], 64)
-			dat = ntk.ntk_channelmap.channel_map_data(dat, 64, 'hs64')
-
 			print('merging file {}'.format(a))
 			if EMGinput != -1:
 				emg 		= np.concatenate((emg,dat[EMG]),axis=0)
+			for n,c in enumerate(selected_chans):
+				print('Importing data from binary file...')
+				if silicon_flag:
+					idx = chan_map[c]
+					dat = ntk.ntk_ecube.load_a_ch(load_files[a], numchan, idx)
+				else:
+					idx = np.where(chan_map == c)[0][0]
+					dat 	= ntk.ntk_ecube.load_a_ch(load_files[a], numchan, idx)
+				if n == 0:
+					temp = np.zeros(np.size(dat))
+					eeg = np.vstack([temp,dat])
+				else:
+					eeg = np.vstack([eeg, dat])
+			selected_eeg = np.delete(eeg,0, axis = 0)
 
-			selected_eeg = np.zeros([np.size(selected_chans), np.size(dat[0])])
-			for a,ch in enumerate(selected_chans):	
-				selected_eeg[a] = dat[ch]
-			eeg = np.concatenate([eeg, selected_eeg], axis = 1)
+			# selected_eeg = np.zeros([np.size(selected_chans), np.size(dat[0])])
+			# for a,ch in enumerate(selected_chans):	
+			# 	selected_eeg[a] = dat[ch]
+			full_selected_eeg = np.concatenate([full_selected_eeg, selected_eeg], axis = 1)
 
 		else:
 			print('Importing data from binary file...')
@@ -264,7 +305,8 @@ for fil in filesindex:
 			if EMGinput != -1:
 				emg 		= np.concatenate((emg,dat[EMG]),axis=0)
 	if cort == 'n':
-		eeg = eeg[:,1:]
+		eeg = full_selected_eeg[:,1:]
+
 	#	print('This is usage at step 3: ' + str(psutil.virtual_memory()))
 	#print('This is usage at step 4: ' + str(psutil.virtual_memory()))
 	#filters raw data
@@ -296,8 +338,6 @@ for fil in filesindex:
 		#	print (i)
 		EMGfor = (EMGfor - np.average(EMGfor))/np.std(EMGfor)
 		#np.save('EMGfor' + str(int((fil+12)/12)) + '.npy',EMGfor)
-	elif EMGinput == -1:
-		EMGamp = mot[int(3600*(fil/12)):int((3600*fil/12+3600))]
 	#downsample the data for LFP
 	finalfs = 200
 	R = fs/finalfs
@@ -315,7 +355,7 @@ for fil in filesindex:
 	average_EEG.append(np.mean(downdatlfp))
 	var_EEG.append(np.var(downdatlfp))
 	np.save('EEGhr' + str(int((fil+12)/12)),downdatlfp)
-	np.save('EMGhr' + str(int((fil+12)/12)),EMGamp)
+	
 	print('Calculating bandpower...')
 	#print('This is usage at step 5: ' + str(psutil.virtual_memory()))
 	fsd = 200
@@ -333,10 +373,10 @@ for fil in filesindex:
 	del(x_mesh)
 	del(y_mesh)
 	fsemg = 4
-	if EMGinput == -1:
-		fsemg = 1
-	realtime = np.arange(np.size(EMGamp))/fsemg
-	plt.plot(realtime,(EMGamp - np.nanmean(EMGamp))/np.nanstd(EMGamp))
+	if EMGinput >= 0:
+		realtime = np.arange(np.size(EMGamp))/fsemg
+		plt.plot(realtime,(EMGamp - np.nanmean(EMGamp))/np.nanstd(EMGamp))
+		np.save('EMGhr' + str(int((fil+12)/12)),EMGamp)
 	plt.ylim(1,64)
 	plt.xlim(0,3600)
 	plt.yscale('log')
