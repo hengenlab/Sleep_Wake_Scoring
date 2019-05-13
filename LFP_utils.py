@@ -18,7 +18,8 @@ import psutil
 import math
 import sys
 
-def checkLFPchan(rawdat_dir, hstype, hour, start_chan = 0, fs = 25000):
+def checkLFPchan(rawdat_dir, hstype, hour, start_chan = 0, fs = 25000, num_chans = 64):
+	silicon_flag = 0
 	os.chdir(rawdat_dir)
 	files = sorted(glob.glob('*.bin'))
 	if hstype == 'hs64':
@@ -35,6 +36,26 @@ def checkLFPchan(rawdat_dir, hstype, hour, start_chan = 0, fs = 25000):
 	                         4,  8,  12, 16, 18, 22, 26, 30, 20, 24, 28, 32,
 	                         34, 38, 42, 46, 36, 40, 44, 48, 50, 54, 58, 62,
 	                         52, 56, 60, 64]) - 1
+	elif hstype == 'silicon_probe1':
+	    chan_map = np.arange(0, 64)
+	    silicon_flag = 1
+	elif hstype == 'silicon_probe2':
+	    chan_map = np.arange(64, 129)
+	    silicon_flag = 1
+	elif hstype == 'silicon_probe3':
+	    chan_map = np.arange(129, 193)
+	    silicon_flag = 1
+	elif hstype == 'silicon_probe4':
+	    chan_map = np.arange(193, 257)
+	    silicon_flag = 1
+	elif hstype == 'silicon_probe5':
+	    chan_map = np.arange(257, 321)
+	    silicon_flag = 1
+	elif hstype == 'silicon_probe6':
+	    chan_map = np.arange(321, 385)
+	    silicon_flag = 1
+
+
 	fil = hour*12
 	load_files = files[fil:fil+12]
 
@@ -44,14 +65,20 @@ def checkLFPchan(rawdat_dir, hstype, hour, start_chan = 0, fs = 25000):
 	emg 	= []
 	
 	print('Importing first data from binary file...')
-	time, dat 	= ntk.ntk_ecube.load_raw_binary(load_files[0], 64)
-	eeg = ntk.ntk_channelmap.channel_map_data(dat, 64, hstype)
-
+	time, dat 	= ntk.ntk_ecube.load_raw_binary(load_files[0], num_chans)
+	if silicon_flag:
+		eeg = dat[chan_map[0]:chan_map[-1]+1,:]
+	else:
+		eeg = ntk.ntk_channelmap.channel_map_data(dat, num_chans, hstype)
 
 	for a in np.arange(1,np.size(load_files)):
 		print('Importing next data from binary file...')
-		time, dat 	= ntk.ntk_ecube.load_raw_binary(load_files[a], 64)
-		dat = ntk.ntk_channelmap.channel_map_data(dat, 64, hstype)
+		time, dat 	= ntk.ntk_ecube.load_raw_binary(load_files[a], num_chans)
+		if silicon_flag:
+			dat = dat[chan_map[0]:chan_map[-1]+1,:]
+		else:
+			dat = ntk.ntk_channelmap.channel_map_data(dat, num_chans, hstype)
+
 		print('merging file {}'.format(a))
 		eeg = np.concatenate([eeg, dat], axis = 1)
 	try:
@@ -93,6 +120,12 @@ def checkLFPchan(rawdat_dir, hstype, hour, start_chan = 0, fs = 25000):
 		x_mesh, y_mesh = np.meshgrid(t_spec, f[(f<fmax) & (f>fmin)])
 		plt.figure(figsize=(16,2))
 		p1 = plt.pcolormesh(x_mesh, y_mesh, np.log10(x_spec[(f<fmax) & (f>fmin)]), cmap='jet')
+
+		plt.ylim(1,64)
+		plt.xlim(0,3600)
+		plt.yscale('log')
+		plt.savefig(rawdat_dir + 'LFP_chancheck/spect_ch' + str(chan)+'.jpg')
+		plt.close('all')
 		#print('This is usage at step 5: ' + str(psutil.virtual_memory()))
 		#plt.savefig('spect2.jpg')
 		del(p1)
@@ -101,11 +134,9 @@ def checkLFPchan(rawdat_dir, hstype, hour, start_chan = 0, fs = 25000):
 		del(f)
 		del(t_spec)
 		del(x_spec)
+		#del(downdatlfp)
 
-		plt.ylim(1,64)
-		plt.xlim(0,3600)
-		plt.yscale('log')
-		plt.close('all')
+
 	
 
 def plot_LFP(spect_dir):
