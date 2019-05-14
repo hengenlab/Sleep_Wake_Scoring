@@ -403,250 +403,509 @@ if satisfaction == 'y':
 	sys.exit()
 
 fix = input("Do you want to fix states?")
-
 if fix == 'y':
 	idxs = []
 	inp = input('Which bins? (#-#, done)')
-	idxs.append(inp)
-	while(inp not 'done'):
-		inp = input('Which bins? (#-#, done)')
+	while(inp != 'done'):
 		idxs.append(inp)
+		inp = input('Which bins? (#-#, done)')
+
 	indicies=[]
+	for i in idxs:
+		bin1 = int(i[:i.index('-')])
+		bin2 = int(i[i.index('-')+1:])
+		indicies.extend(np.arange(bin1-1, bin2))
+	if indicies[0]<0:
+		inidicies = inidicies[1:]
+	if 0 not in indicies:
+		indicies.insert(0,0)
+
+	print('Ready for scoring, opening GUI.')
+	#for scoring
+	plt.ion()
+	State = Predict_y
+	realtime = np.arange(np.size(downdatlfp))/fs
+	if emg == 'y':
+		EMGamp = np.pad(EMGamp, (0,100), 'constant')
+	if emg == 'n':
+		EMGamp = False
+	vid_samp = np.linspace(0, 3600*fs, np.size(video_key[0]))
+
+
 	for i in indicies:
-		bin1 = i[:i.index('-')]
-		bin2 = i[i.index('-')+1:]
-		indicies.append([bin1, bin2])
-
-#####
-#end random forest test
-
-
-print('Ready for scoring, opening GUI.')
-#for scoring
-plt.ion()
-State = np.zeros(int(np.size(downdatlfp)/(4*fs)))
-realtime = np.arange(np.size(downdatlfp))/fs
-if emg == 'y':
-	EMGamp = np.pad(EMGamp, (0,100), 'constant')
-if emg == 'n':
-	EMGamp = False
-vid_samp = np.linspace(0, 3600*fs, np.size(video_key[0]))
-for i in np.arange(np.size(downdatlfp)/(fs*4)-1):
-	if model == 'y':
-		Prediction = clf.predict(Features[int(i),:].reshape(1,-1))
-		if Prediction == 0:
-			Prediction='Wake'
-		elif Prediction == 2:
-			Prediction='NREM'
-		elif Prediction == 5:
-			Prediction='REM'
-		Predictions  = clf.predict_proba(Features[int(i),:].reshape(1,-1))
-		predConf = np.max(Predictions,1)
-	print(i)
-	clicks = []
-	start = int(i*fs*epochlen)
-	end = int(i*fs*epochlen+fs*3*epochlen)
-	vid_win_idx = np.where(np.logical_and(vid_samp>=start, vid_samp<end))[0]
-	vid_win = video_key[2][vid_win_idx]
-	if np.size(np.where(vid_win == 'nan')[0])>0:
-		print('There is no video here')
-	else:
-		vid_win = [int(float(i)) for i in vid_win]
-		if np.size(np.unique(video_key[1][vid_win_idx]))>1:
-			print('This period is between two windows. No video to display')
-		else:
-			vidfilename =  np.unique(video_key[1][vid_win_idx])[0]
-			score_win = np.arange(int(vid_win[0]) + int(np.size(vid_win)/3), int(vid_win[0]) + int((np.size(vid_win)/3)*2))
-	x = (end-start)/ratio2
-	length = np.arange(int(end/x-start/x))
-	bottom = np.zeros(int(end/x-start/x))
-	if i == 0:
-		fig1 = plt.figure(figsize=(11,6))
-		ax1 = plt.subplot2grid((4, 1), (0, 0))
-		line1, = ax1.plot(realtime[start:end],downdatlfp[start:end])
-		plt.xlim(start/fs,end/fs)
-		plt.title('LFP')
-		plt.ylim(-5000,5000)
-		bot = ax1.get_ylim()[0]
-		rect = patch.Rectangle((start/fs+4,bot),4,height=-bot/5)
-		ax1.add_patch(rect)
-		ax2 = plt.subplot2grid((4, 1), (1, 0))
-		line2, = ax2.plot(delt[start:end])
-		plt.xlim(0,end-start)
-		plt.ylim(np.min(delt),np.max(delt)/3)
-		bot2 = ax2.get_ylim()[0]
-		rect2 = patch.Rectangle((fs*4,bot2),fs*4,height=float(-bot2/5))
-		ax2.add_patch(rect2)
-		plt.title('Delta power (0.5 - 4 Hz)')
-		ax3 = plt.subplot2grid((4, 1), (2, 0))
-		line3, = ax3.plot(thet[start:end])
-		plt.xlim(0,end-start)
-		plt.ylim(np.min(thet),np.max(thet)/3)
-		plt.title('Theta power (4 - 8 Hz)')
-		bot3 = ax3.get_ylim()[0]
-		rect3 = patch.Rectangle((fs*4,bot3),fs*4,height=-bot3/5)
-		ax3.add_patch(rect3)
-		ax5 = plt.subplot2grid((4, 1), (3, 0))
-		if EMGamp.any() == False:
-			plt.text(0.5, 0.5, 'There is no EMG')
-		else:
-			plt.fill_between(length,bottom,EMGamp[int(i*4*epochlen):int(i*4*epochlen)+int(end/x-start/x)],color='red')
-			plt.title('EMG power')
-			plt.xlim(0,int((end-start)/x)-1)
-			plt.ylim(-1,5)
-
-		plt.tight_layout()
-
-		fig2 = plt.figure(figsize = (11,8))
-		ax6 = plt.subplot2grid((7, 1), (0, 0), rowspan = 2)
-		rect6 = patch.Rectangle((4.1,0),3.8,height=2)
-		ax6.add_patch(rect6)
-		plt.title('States')
 		if model == 'y':
-			t1 = plt.text(1800,1,str(Prediction))
-			t2 = plt.text(1800,0.75,str(predConf))
-		ax6.set_xlim(0,3600)
-		ax6.set_xticks(np.linspace(0,3600, 13))
-		ax6.set_xticklabels(np.arange(0, 65, 5))
-		plt.ylim(0.5,2)
-		fig2.canvas.mpl_connect('key_press_event', press)
-		ax7= plt.subplot2grid((7, 1), (2, 0),rowspan=3)
-		img=mpimg.imread(rawdat_dir+'specthr'+ hr + '.jpg')
-		imgplot = plt.imshow(img,aspect='auto')
-		plt.xlim(199,1441)
-		plt.ylim(178,0)
-		ax7.set_xticks(np.linspace(199,1441, 13))
-		ax7.set_xticklabels(np.arange(0, 65, 5))
-		ticksy = [50,150]
-		labelsy = [10,2.5]
-		plt.yticks(ticksy, labelsy)
-
-		ax8= plt.subplot2grid((7, 1), (5, 0), rowspan = 2)
-		x_vals = np.linspace(0,60,np.size(med))
-		plt.plot(x_vals, med)
-		ax8.set_xlim(0, 60)
-		ax8.set_xticks(np.linspace(0,60, 13))
-		title_idx = [movement_files[int(hr)-1].find('e3v'), movement_files[int(hr)-1].find('DeepCut')]
-		plt.title(movement_files[int(hr)-1][title_idx[0]:title_idx[1]])
-		sorted_med = np.sort(med)
-		idx = np.where(sorted_med>int(max(sorted_med)*0.05))[0][0]
-
-		if idx == 0:
-			thresh = sorted_med[idx]
-		#print(int(max(sorted_med)*0.50))
+			Prediction = clf.predict(Features[int(i),:].reshape(1,-1))
+			if Prediction == 0:
+				Prediction='Wake'
+			elif Prediction == 2:
+				Prediction='NREM'
+			elif Prediction == 5:
+				Prediction='REM'
+			Predictions  = clf.predict_proba(Features[int(i),:].reshape(1,-1))
+			predConf = np.max(Predictions,1)
+		print(i)
+		clicks = []
+		start = int(i*fs*epochlen)
+		end = int(i*fs*epochlen+fs*3*epochlen)
+		vid_win_idx = np.where(np.logical_and(vid_samp>=start, vid_samp<end))[0]
+		vid_win = video_key[2][vid_win_idx]
+		if np.size(np.where(vid_win == 'nan')[0])>0:
+			print('There is no video here')
 		else:
-			thresh = np.nanmean(sorted_med[0:idx])
+			vid_win = [int(float(i)) for i in vid_win]
+			if np.size(np.unique(video_key[1][vid_win_idx]))>1:
+				print('This period is between two windows. No video to display')
+			else:
+				vidfilename =  np.unique(video_key[1][vid_win_idx])[0]
+				score_win = np.arange(int(vid_win[0]) + int(np.size(vid_win)/3), int(vid_win[0]) + int((np.size(vid_win)/3)*2))
+		x = (end-start)/ratio2
+		length = np.arange(int(end/x-start/x))
+		bottom = np.zeros(int(end/x-start/x))
+		if i == 0:
+			fig1 = plt.figure(figsize=(11,6))
+			ax1 = plt.subplot2grid((4, 1), (0, 0))
+			line1, = ax1.plot(realtime[start:end],downdatlfp[start:end])
+			plt.xlim(start/fs,end/fs)
+			plt.title('LFP')
+			plt.ylim(-5000,5000)
+			bot = ax1.get_ylim()[0]
+			rect = patch.Rectangle((start/fs+4,bot),4,height=-bot/5)
+			ax1.add_patch(rect)
+			ax2 = plt.subplot2grid((4, 1), (1, 0))
+			line2, = ax2.plot(delt[start:end])
+			plt.xlim(0,end-start)
+			plt.ylim(np.min(delt),np.max(delt)/3)
+			bot2 = ax2.get_ylim()[0]
+			rect2 = patch.Rectangle((fs*4,bot2),fs*4,height=float(-bot2/5))
+			ax2.add_patch(rect2)
+			plt.title('Delta power (0.5 - 4 Hz)')
+			ax3 = plt.subplot2grid((4, 1), (2, 0))
+			line3, = ax3.plot(thet[start:end])
+			plt.xlim(0,end-start)
+			plt.ylim(np.min(thet),np.max(thet)/3)
+			plt.title('Theta power (4 - 8 Hz)')
+			bot3 = ax3.get_ylim()[0]
+			rect3 = patch.Rectangle((fs*4,bot3),fs*4,height=-bot3/5)
+			ax3.add_patch(rect3)
+			ax5 = plt.subplot2grid((4, 1), (3, 0))
+			if EMGamp.any() == False:
+				plt.text(0.5, 0.5, 'There is no EMG')
+			else:
+				plt.fill_between(length,bottom,EMGamp[int(i*4*epochlen):int(i*4*epochlen)+int(end/x-start/x)],color='red')
+				plt.title('EMG power')
+				plt.xlim(0,int((end-start)/x)-1)
+				plt.ylim(-1,5)
 
-		moving = np.where(dxy > thresh)[0]
-		h = plt.gca().get_ylim()[1]
-		# consec = group_consecutives(np.where(med > thresh)[0])
-		consec = DLCMovement_input.group_consecutives(np.where(med > thresh)[0])
-		for vals in consec:
-			if len(vals)>5:
-				x = x_vals[vals[0]]
-				#x = time_min[vals[0]]
-				y = 0
-				width = x_vals[vals[-1]]-x
-				#width = time_min[vals[-1]]-x
-				rect = patch.Rectangle((x,y), width, h, color = '#b7e1a1', alpha = 0.5)
-				ax8.add_patch(rect)
+			plt.tight_layout()
 
-		plt.show()
-		plt.xlim([0,60])
-		#plt.title("Find this video at: " + vidfile)
+			fig2 = plt.figure(figsize = (11,8))
+			ax6 = plt.subplot2grid((7, 1), (0, 0), rowspan = 2)
+			rect6 = patch.Rectangle((4.1,0),3.8,height=2)
+			ax6.add_patch(rect6)
+			plt.title('States')
+			if model == 'y':
+				t1 = plt.text(1800,1,str(Prediction))
+				t2 = plt.text(1800,0.75,str(predConf))
+			ax6.set_xlim(0,3600)
+			ax6.set_xticks(np.linspace(0,3600, 13))
+			ax6.set_xticklabels(np.arange(0, 65, 5))
+			plt.ylim(0.5,2)
 
-		plt.tight_layout()
-		plt.show()
-		keyboardClick=None
-		while keyboardClick != True:
-			# keyboard function ------ void
-			keyboardClick=plt.waitforbuttonpress()
-			if keyboardClick == False:
-				print('pulling up video: '+ vidfilename)
-				cap = cv2.VideoCapture(motion_dir +vidfilename)
+			for s in np.arange(np.size(Predict_y)):
+				st = s*epochlen
+				if s in indicies:
+					print ("BIN (white): ", str(st))
+					rect7 = patch.Rectangle((st,0),3.8,height=2,color='white')
+					ax6.add_patch(rect7)
+				else:
+					if Predict_y[s] == 0:
+						rect7 = patch.Rectangle((st,0),3.8,height=2,color='green')
+						ax6.add_patch(rect7)
+					elif Predict_y[s] == 2:
+						rect7 = patch.Rectangle((st,0),3.8,height=2,color='blue')
+						ax6.add_patch(rect7)
+					elif Predict_y[s] == 5:
+						rect7 = patch.Rectangle((st,0),3.8,height=2,color='red')
+						ax6.add_patch(rect7)
+					elif Predict_y[s] == 4:
+						rect7 = patch.Rectangle((st,0),3.8,height=2,color='#a8a485')
+						ax6.add_patch(rect7)
 
-				# Check if camera opened successfully
-				if (cap.isOpened()== False):
-				  print("Error opening video stream or file")
-				for f in np.arange(vid_win[0], vid_win[-1]):
-					cap.set(1, f)
-					ret, frame = cap.read()
-					if ret == True:
+			fig2.canvas.mpl_connect('key_press_event', press)
+			ax7= plt.subplot2grid((7, 1), (2, 0),rowspan=3)
+			img=mpimg.imread(rawdat_dir+'specthr'+ hr + '.jpg')
+			imgplot = plt.imshow(img,aspect='auto')
+			plt.xlim(199,1441)
+			plt.ylim(178,0)
+			ax7.set_xticks(np.linspace(199,1441, 13))
+			ax7.set_xticklabels(np.arange(0, 65, 5))
+			ticksy = [50,150]
+			labelsy = [10,2.5]
+			plt.yticks(ticksy, labelsy)
 
-				    # Display the resulting frame
-						if f in score_win:
-							cv2.putText(frame, "SCORE WINDOW",(50, 105),cv2.FONT_HERSHEY_PLAIN,4,(225,0,0), 2)
+			ax8= plt.subplot2grid((7, 1), (5, 0), rowspan = 2)
+			x_vals = np.linspace(0,60,np.size(med))
+			plt.plot(x_vals, med)
+			ax8.set_xlim(0, 60)
+			ax8.set_xticks(np.linspace(0,60, 13))
+			title_idx = [movement_files[int(hr)-1].find('e3v'), movement_files[int(hr)-1].find('DeepCut')]
+			plt.title(movement_files[int(hr)-1][title_idx[0]:title_idx[1]])
+			sorted_med = np.sort(med)
+			idx = np.where(sorted_med>int(max(sorted_med)*0.05))[0][0]
 
-						cv2.imshow('Frame',frame)
-							#cv2.waitKey(int((dt*10e2)/2))
-						cv2.waitKey(int((dt*10e2)/4))
+			if idx == 0:
+				thresh = sorted_med[idx]
+			#print(int(max(sorted_med)*0.50))
+			else:
+				thresh = np.nanmean(sorted_med[0:idx])
 
-				cap.release()
-				continue
-	elif i == np.size(downdatlfp)/(fs*4) - 2:
-		plt.figure()
-		print('Scoring done, plotting sleep states.')
-		State = State[:-1]
-		plt.plot(State)
-		first = int(input('Enter first sleep state: '))
-		first = np.array(first)
-		last = int(input('Enter last sleep state: '))
-		State = np.append(first,State)
-		State[-1] = last
-		plt.close('all')
-		break
-	else:
-		line1.set_ydata(downdatlfp[start:end])
+			moving = np.where(dxy > thresh)[0]
+			h = plt.gca().get_ylim()[1]
+			# consec = group_consecutives(np.where(med > thresh)[0])
+			consec = DLCMovement_input.group_consecutives(np.where(med > thresh)[0])
+			for vals in consec:
+				if len(vals)>5:
+					x = x_vals[vals[0]]
+					#x = time_min[vals[0]]
+					y = 0
+					width = x_vals[vals[-1]]-x
+					#width = time_min[vals[-1]]-x
+					rect = patch.Rectangle((x,y), width, h, color = '#b7e1a1', alpha = 0.5)
+					ax8.add_patch(rect)
+
+			plt.show()
+			plt.xlim([0,60])
+			#plt.title("Find this video at: " + vidfile)
+
+			plt.tight_layout()
+			plt.show()
+			keyboardClick=None
+			while keyboardClick != True:
+				# keyboard function ------ void
+				keyboardClick=plt.waitforbuttonpress()
+				if keyboardClick == False:
+					print('pulling up video: '+ vidfilename)
+					cap = cv2.VideoCapture(motion_dir +vidfilename)
+
+					# Check if camera opened successfully
+					if (cap.isOpened()== False):
+					  print("Error opening video stream or file")
+					for f in np.arange(vid_win[0], vid_win[-1]):
+						cap.set(1, f)
+						ret, frame = cap.read()
+						if ret == True:
+
+					    # Display the resulting frame
+							if f in score_win:
+								cv2.putText(frame, "SCORE WINDOW",(50, 105),cv2.FONT_HERSHEY_PLAIN,4,(225,0,0), 2)
+
+							cv2.imshow('Frame',frame)
+								#cv2.waitKey(int((dt*10e2)/2))
+							cv2.waitKey(int((dt*10e2)/4))
+
+					cap.release()
+					continue
+		elif i == np.size(downdatlfp)/(fs*4) - 2:
+			plt.figure()
+			print('Scoring done, plotting sleep states.')
+			State = State[:-1]
+			plt.plot(State)
+			first = int(input('Enter first sleep state: '))
+			first = np.array(first)
+			last = int(input('Enter last sleep state: '))
+			State = np.append(first,State)
+			State[-1] = last
+			plt.close('all')
+			#break
+		else:
+			line1.set_ydata(downdatlfp[start:end])
+			if model == 'y':
+				t1.set_text(str(Prediction))
+				t2.set_text(str(predConf))
+			line2.set_ydata(delt[start:end])
+			line3.set_ydata(thet[start:end])
+			ax5.collections.clear()
+			ax5.fill_between(length,bottom,EMGamp[int(i*4*epochlen):int(i*4*epochlen+4*3*epochlen)],color='red')
+			rect6 = patch.Rectangle((start/fs+4.1,0),3.8,height=2)
+			ax6.add_patch(rect6)
+			print ("BIN (scoring): ", str(start/fs))
+			if State[int(i-1)] == 1:
+				rect7 = patch.Rectangle((start/fs,0),3.8,height=2,color='green')
+				ax6.add_patch(rect7)
+			elif State[int(i-1)] == 2:
+				rect7 = patch.Rectangle((start/fs,0),3.8,height=2,color='blue')
+				ax6.add_patch(rect7)
+			elif State[int(i-1)] == 3:
+				rect7 = patch.Rectangle((start/fs,0),3.8,height=2,color='red')
+				ax6.add_patch(rect7)
+			else:
+				print('Ambiguous State, coded as 4')
+			fig1.canvas.draw()
+			fig1.canvas.flush_events()
+			fig2.canvas.draw()
+			fig2.canvas.flush_events()
+			keyboardClick=None
+			while keyboardClick != True:
+				#----keybboard function
+				keyboardClick=plt.waitforbuttonpress()
+				if keyboardClick == False:
+					print('pulling up video: '+ vidfilename)
+					cap = cv2.VideoCapture(motion_dir +vidfilename)
+
+					# Check if camera opened successfully
+					if (cap.isOpened()== False):
+					  print("Error opening video stream or file")
+					for f in np.arange(vid_win[0], vid_win[-1]):
+						cap.set(1, f)
+						ret, frame = cap.read()
+						if ret == True:
+
+					    # Display the resulting frame
+							if f in score_win:
+								cv2.putText(frame, "SCORE WINDOW",(50, 105),cv2.FONT_HERSHEY_PLAIN,4,(225,0,0), 2)
+
+							cv2.imshow('Frame',frame)
+								#cv2.waitKey(int((dt*10e2)/2))
+							cv2.waitKey(int((dt*10e2)/4))
+
+					cap.release()
+					continue
+		if i == indicies[-1]:
+			plt.figure()
+			print('Scoring done, plotting sleep states.')
+			State = State[:-1]
+			plt.plot(State)
+			plt.close('all')
+			break
+
+else:
+	print('Ready for scoring, opening GUI.')
+	#for scoring
+	plt.ion()
+	State = np.zeros(int(np.size(downdatlfp)/(4*fs)))
+	realtime = np.arange(np.size(downdatlfp))/fs
+	if emg == 'y':
+		EMGamp = np.pad(EMGamp, (0,100), 'constant')
+	if emg == 'n':
+		EMGamp = False
+	vid_samp = np.linspace(0, 3600*fs, np.size(video_key[0]))
+	for i in np.arange(np.size(downdatlfp)/(fs*4)-1):
 		if model == 'y':
-			t1.set_text(str(Prediction))
-			t2.set_text(str(predConf))
-		line2.set_ydata(delt[start:end])
-		line3.set_ydata(thet[start:end])
-		ax5.collections.clear()
-		ax5.fill_between(length,bottom,EMGamp[int(i*4*epochlen):int(i*4*epochlen+4*3*epochlen)],color='red')
-		rect6 = patch.Rectangle((start/fs+4.1,0),3.8,height=2)
-		ax6.add_patch(rect6)
-		if State[int(i-1)] == 1:
-			rect7 = patch.Rectangle((start/fs,0),3.8,height=2,color='green')
-			ax6.add_patch(rect7)
-		elif State[int(i-1)] == 2:
-			rect7 = patch.Rectangle((start/fs,0),3.8,height=2,color='blue')
-			ax6.add_patch(rect7)
-		elif State[int(i-1)] == 3:
-			rect7 = patch.Rectangle((start/fs,0),3.8,height=2,color='red')
-			ax6.add_patch(rect7)
+			Prediction = clf.predict(Features[int(i),:].reshape(1,-1))
+			if Prediction == 0:
+				Prediction='Wake'
+			elif Prediction == 2:
+				Prediction='NREM'
+			elif Prediction == 5:
+				Prediction='REM'
+			Predictions  = clf.predict_proba(Features[int(i),:].reshape(1,-1))
+			predConf = np.max(Predictions,1)
+		print(i)
+		clicks = []
+		start = int(i*fs*epochlen)
+		end = int(i*fs*epochlen+fs*3*epochlen)
+		vid_win_idx = np.where(np.logical_and(vid_samp>=start, vid_samp<end))[0]
+		vid_win = video_key[2][vid_win_idx]
+		if np.size(np.where(vid_win == 'nan')[0])>0:
+			print('There is no video here')
 		else:
-			print('Ambiguous State, coded as 4')
-		fig1.canvas.draw()
-		fig1.canvas.flush_events()
-		fig2.canvas.draw()
-		fig2.canvas.flush_events()
-		keyboardClick=None
-		while keyboardClick != True:
-			#----keybboard function
-			keyboardClick=plt.waitforbuttonpress()
-			if keyboardClick == False:
-				print('pulling up video: '+ vidfilename)
-				cap = cv2.VideoCapture(motion_dir +vidfilename)
+			vid_win = [int(float(i)) for i in vid_win]
+			if np.size(np.unique(video_key[1][vid_win_idx]))>1:
+				print('This period is between two windows. No video to display')
+			else:
+				vidfilename =  np.unique(video_key[1][vid_win_idx])[0]
+				score_win = np.arange(int(vid_win[0]) + int(np.size(vid_win)/3), int(vid_win[0]) + int((np.size(vid_win)/3)*2))
+		x = (end-start)/ratio2
+		length = np.arange(int(end/x-start/x))
+		bottom = np.zeros(int(end/x-start/x))
+		if i == 0:
+			fig1 = plt.figure(figsize=(11,6))
+			ax1 = plt.subplot2grid((4, 1), (0, 0))
+			line1, = ax1.plot(realtime[start:end],downdatlfp[start:end])
+			plt.xlim(start/fs,end/fs)
+			plt.title('LFP')
+			plt.ylim(-5000,5000)
+			bot = ax1.get_ylim()[0]
+			rect = patch.Rectangle((start/fs+4,bot),4,height=-bot/5)
+			ax1.add_patch(rect)
+			ax2 = plt.subplot2grid((4, 1), (1, 0))
+			line2, = ax2.plot(delt[start:end])
+			plt.xlim(0,end-start)
+			plt.ylim(np.min(delt),np.max(delt)/3)
+			bot2 = ax2.get_ylim()[0]
+			rect2 = patch.Rectangle((fs*4,bot2),fs*4,height=float(-bot2/5))
+			ax2.add_patch(rect2)
+			plt.title('Delta power (0.5 - 4 Hz)')
+			ax3 = plt.subplot2grid((4, 1), (2, 0))
+			line3, = ax3.plot(thet[start:end])
+			plt.xlim(0,end-start)
+			plt.ylim(np.min(thet),np.max(thet)/3)
+			plt.title('Theta power (4 - 8 Hz)')
+			bot3 = ax3.get_ylim()[0]
+			rect3 = patch.Rectangle((fs*4,bot3),fs*4,height=-bot3/5)
+			ax3.add_patch(rect3)
+			ax5 = plt.subplot2grid((4, 1), (3, 0))
+			if EMGamp.any() == False:
+				plt.text(0.5, 0.5, 'There is no EMG')
+			else:
+				plt.fill_between(length,bottom,EMGamp[int(i*4*epochlen):int(i*4*epochlen)+int(end/x-start/x)],color='red')
+				plt.title('EMG power')
+				plt.xlim(0,int((end-start)/x)-1)
+				plt.ylim(-1,5)
 
-				# Check if camera opened successfully
-				if (cap.isOpened()== False):
-				  print("Error opening video stream or file")
-				for f in np.arange(vid_win[0], vid_win[-1]):
-					cap.set(1, f)
-					ret, frame = cap.read()
-					if ret == True:
+			plt.tight_layout()
 
-				    # Display the resulting frame
-						if f in score_win:
-							cv2.putText(frame, "SCORE WINDOW",(50, 105),cv2.FONT_HERSHEY_PLAIN,4,(225,0,0), 2)
+			fig2 = plt.figure(figsize = (11,8))
+			ax6 = plt.subplot2grid((7, 1), (0, 0), rowspan = 2)
+			rect6 = patch.Rectangle((4.1,0),3.8,height=2)
+			ax6.add_patch(rect6)
+			plt.title('States')
+			if model == 'y':
+				t1 = plt.text(1800,1,str(Prediction))
+				t2 = plt.text(1800,0.75,str(predConf))
+			ax6.set_xlim(0,3600)
+			ax6.set_xticks(np.linspace(0,3600, 13))
+			ax6.set_xticklabels(np.arange(0, 65, 5))
+			plt.ylim(0.5,2)
+			fig2.canvas.mpl_connect('key_press_event', press)
+			ax7= plt.subplot2grid((7, 1), (2, 0),rowspan=3)
+			img=mpimg.imread(rawdat_dir+'specthr'+ hr + '.jpg')
+			imgplot = plt.imshow(img,aspect='auto')
+			plt.xlim(199,1441)
+			plt.ylim(178,0)
+			ax7.set_xticks(np.linspace(199,1441, 13))
+			ax7.set_xticklabels(np.arange(0, 65, 5))
+			ticksy = [50,150]
+			labelsy = [10,2.5]
+			plt.yticks(ticksy, labelsy)
 
-						cv2.imshow('Frame',frame)
-							#cv2.waitKey(int((dt*10e2)/2))
-						cv2.waitKey(int((dt*10e2)/4))
+			ax8= plt.subplot2grid((7, 1), (5, 0), rowspan = 2)
+			x_vals = np.linspace(0,60,np.size(med))
+			plt.plot(x_vals, med)
+			ax8.set_xlim(0, 60)
+			ax8.set_xticks(np.linspace(0,60, 13))
+			title_idx = [movement_files[int(hr)-1].find('e3v'), movement_files[int(hr)-1].find('DeepCut')]
+			plt.title(movement_files[int(hr)-1][title_idx[0]:title_idx[1]])
+			sorted_med = np.sort(med)
+			idx = np.where(sorted_med>int(max(sorted_med)*0.05))[0][0]
 
-				cap.release()
-				continue
+			if idx == 0:
+				thresh = sorted_med[idx]
+			#print(int(max(sorted_med)*0.50))
+			else:
+				thresh = np.nanmean(sorted_med[0:idx])
+
+			moving = np.where(dxy > thresh)[0]
+			h = plt.gca().get_ylim()[1]
+			# consec = group_consecutives(np.where(med > thresh)[0])
+			consec = DLCMovement_input.group_consecutives(np.where(med > thresh)[0])
+			for vals in consec:
+				if len(vals)>5:
+					x = x_vals[vals[0]]
+					#x = time_min[vals[0]]
+					y = 0
+					width = x_vals[vals[-1]]-x
+					#width = time_min[vals[-1]]-x
+					rect = patch.Rectangle((x,y), width, h, color = '#b7e1a1', alpha = 0.5)
+					ax8.add_patch(rect)
+
+			plt.show()
+			plt.xlim([0,60])
+			#plt.title("Find this video at: " + vidfile)
+
+			plt.tight_layout()
+			plt.show()
+			keyboardClick=None
+			while keyboardClick != True:
+				# keyboard function ------ void
+				keyboardClick=plt.waitforbuttonpress()
+				if keyboardClick == False:
+					print('pulling up video: '+ vidfilename)
+					cap = cv2.VideoCapture(motion_dir +vidfilename)
+
+					# Check if camera opened successfully
+					if (cap.isOpened()== False):
+					  print("Error opening video stream or file")
+					for f in np.arange(vid_win[0], vid_win[-1]):
+						cap.set(1, f)
+						ret, frame = cap.read()
+						if ret == True:
+
+					    # Display the resulting frame
+							if f in score_win:
+								cv2.putText(frame, "SCORE WINDOW",(50, 105),cv2.FONT_HERSHEY_PLAIN,4,(225,0,0), 2)
+
+							cv2.imshow('Frame',frame)
+								#cv2.waitKey(int((dt*10e2)/2))
+							cv2.waitKey(int((dt*10e2)/4))
+
+					cap.release()
+					continue
+		elif i == np.size(downdatlfp)/(fs*4) - 2:
+			plt.figure()
+			print('Scoring done, plotting sleep states.')
+			State = State[:-1]
+			plt.plot(State)
+			first = int(input('Enter first sleep state: '))
+			first = np.array(first)
+			last = int(input('Enter last sleep state: '))
+			State = np.append(first,State)
+			State[-1] = last
+			plt.close('all')
+			break
+		else:
+			line1.set_ydata(downdatlfp[start:end])
+			if model == 'y':
+				t1.set_text(str(Prediction))
+				t2.set_text(str(predConf))
+			line2.set_ydata(delt[start:end])
+			line3.set_ydata(thet[start:end])
+			ax5.collections.clear()
+			ax5.fill_between(length,bottom,EMGamp[int(i*4*epochlen):int(i*4*epochlen+4*3*epochlen)],color='red')
+			rect6 = patch.Rectangle((start/fs+4.1,0),3.8,height=2)
+			ax6.add_patch(rect6)
+			if State[int(i-1)] == 1:
+				rect7 = patch.Rectangle((start/fs,0),3.8,height=2,color='green')
+				ax6.add_patch(rect7)
+			elif State[int(i-1)] == 2:
+				rect7 = patch.Rectangle((start/fs,0),3.8,height=2,color='blue')
+				ax6.add_patch(rect7)
+			elif State[int(i-1)] == 3:
+				rect7 = patch.Rectangle((start/fs,0),3.8,height=2,color='red')
+				ax6.add_patch(rect7)
+			else:
+				print('Ambiguous State, coded as 4')
+			fig1.canvas.draw()
+			fig1.canvas.flush_events()
+			fig2.canvas.draw()
+			fig2.canvas.flush_events()
+			keyboardClick=None
+			while keyboardClick != True:
+				#----keybboard function
+				keyboardClick=plt.waitforbuttonpress()
+				if keyboardClick == False:
+					print('pulling up video: '+ vidfilename)
+					cap = cv2.VideoCapture(motion_dir +vidfilename)
+
+					# Check if camera opened successfully
+					if (cap.isOpened()== False):
+					  print("Error opening video stream or file")
+					for f in np.arange(vid_win[0], vid_win[-1]):
+						cap.set(1, f)
+						ret, frame = cap.read()
+						if ret == True:
+
+					    # Display the resulting frame
+							if f in score_win:
+								cv2.putText(frame, "SCORE WINDOW",(50, 105),cv2.FONT_HERSHEY_PLAIN,4,(225,0,0), 2)
+
+							cv2.imshow('Frame',frame)
+								#cv2.waitKey(int((dt*10e2)/2))
+							cv2.waitKey(int((dt*10e2)/4))
+
+					cap.release()
+					continue
+
 plt.show(block=True)
 decision = input('Save sleep states? y/n: ')
 if decision == 'y':
