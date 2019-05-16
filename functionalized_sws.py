@@ -161,6 +161,76 @@ def post_pre(post, pre):
 	pre = pre[0:-1]
 	return post, pre
 
+def plot_predicted():
+	figy = plt.figure(figsize=(11,6))
+	plt.ion()
+	ax1 = plt.subplot2grid((3, 1), (0, 0))
+	plt.title('Spectrogram w/ EMG')
+	img=mpimg.imread(rawdat_dir+'specthr'+ hr + '.jpg')
+	imgplot = plt.imshow(img,aspect='auto')
+	plt.xlim(199,1441)
+	plt.ylim(178,24)
+	ax1.set_xticks(np.linspace(199,1441, 13))
+	ax1.set_xticklabels(np.arange(0, 65, 5))
+	ticksy = [35,100,150]
+	labelsy = [60,6,2]
+	plt.yticks(ticksy, labelsy)
+	ax2 = plt.subplot2grid((3, 1), (1, 0))
+	plt.title('Predicted States')
+	for state in np.arange(np.size(Predict_y)):
+		if Predict_y[state] == 0:
+			rect7 = patch.Rectangle((state,0),3.8,height=1,color='green')
+			ax2.add_patch(rect7)
+		elif Predict_y[state] == 2:
+			rect7 = patch.Rectangle((state,0),3.8,height=1,color='blue')
+			ax2.add_patch(rect7)
+		elif Predict_y[state] == 5:
+			rect7 = patch.Rectangle((state,0),3.8,height=1,color='red')
+			ax2.add_patch(rect7)
+		elif Predict_y[state] == 4:
+			rect7 = patch.Rectangle((state,0),3.8,height=1,color='#a8a485')
+			ax2.add_patch(rect7)
+	plt.ylim(0.3,1)
+	plt.xlim(0,900)
+	Predictions  = clf.predict_proba(Features)
+	predConf = np.max(Predictions,1)
+	plt.plot(predConf, color= 'k')
+	ax3 = plt.subplot2grid((3, 1), (2, 0))
+	x_vals = np.linspace(0,60,np.size(med))
+	plt.plot(x_vals, med)
+	ax3.set_xlim(0, 60)
+	ax3.set_xticks(np.linspace(0,60, 13))
+	#title_idx = [movement_files[int(hr)-1].find('e3v'), movement_files[int(hr)-1].find('DeepCut')]
+	title = [np.unique(video_key[1,:])[i][0:42]+' \n ' for i in np.arange(np.size(np.unique(video_key[1,:])))]
+	title = ''.join(title)
+	title = title[0:-3]   
+	plt.title(title)
+	sorted_med = np.sort(med)
+	idx = np.where(sorted_med>max(sorted_med)*0.50)[0][0]
+
+	if idx == 0:
+		thresh = sorted_med[idx]
+	#print(int(max(sorted_med)*0.50))
+	else:
+		thresh = np.nanmean(sorted_med[0:idx])
+
+	moving = np.where(dxy > thresh)[0] 
+	h = plt.gca().get_ylim()[1]
+	# consec = group_consecutives(np.where(med > thresh)[0])
+	consec = DLCMovement_input.group_consecutives(np.where(med > thresh)[0])
+	for vals in consec:
+		if len(vals)>5:
+			x = x_vals[vals[0]]
+			#x = time_min[vals[0]]
+			y = 0
+			width = x_vals[vals[-1]]-x
+			#width = time_min[vals[-1]]-x
+			rect = patch.Rectangle((x,y), width, h, color = '#b7e1a1', alpha = 0.5)
+			ax3.add_patch(rect)
+
+	plt.xlim([0,60])
+
+
 motion_dir = '/Volumes/rawdata/HellWeek/Grounded2/sleep_scoring_videos/'  
 rawdat_dir = '/Volumes/rawdata/HellWeek/Grounded2/EAB26_2018-10-19_18-23-50_p6c2/'
 
@@ -323,75 +393,8 @@ if model == 'y':
 	Predict_y = clf.predict(Features)
 
 	#lizzie ------------
-	figy = plt.figure(figsize=(11,6))
-	plt.ion()
-	ax1 = plt.subplot2grid((3, 1), (0, 0))
-	plt.title('Spectrogram w/ EMG')
-	img=mpimg.imread(rawdat_dir+'specthr'+ hr + '.jpg')
-	imgplot = plt.imshow(img,aspect='auto')
-	plt.xlim(199,1441)
-	plt.ylim(178,24)
-	ax1.set_xticks(np.linspace(199,1441, 13))
-	ax1.set_xticklabels(np.arange(0, 65, 5))
-	ticksy = [35,100,150]
-	labelsy = [60,6,2]
-	plt.yticks(ticksy, labelsy)
-	ax2 = plt.subplot2grid((3, 1), (1, 0))
-	plt.title('Predicted States')
-	for state in np.arange(np.size(Predict_y)):
-		if Predict_y[state] == 0:
-			rect7 = patch.Rectangle((state,0),3.8,height=1,color='green')
-			ax2.add_patch(rect7)
-		elif Predict_y[state] == 2:
-			rect7 = patch.Rectangle((state,0),3.8,height=1,color='blue')
-			ax2.add_patch(rect7)
-		elif Predict_y[state] == 5:
-			rect7 = patch.Rectangle((state,0),3.8,height=1,color='red')
-			ax2.add_patch(rect7)
-		elif Predict_y[state] == 4:
-			rect7 = patch.Rectangle((state,0),3.8,height=1,color='#a8a485')
-			ax2.add_patch(rect7)
-	plt.ylim(0.3,1)
-	plt.xlim(0,900)
-	Predictions  = clf.predict_proba(Features)
-	predConf = np.max(Predictions,1)
-	plt.plot(predConf, color= 'k')
-	ax3 = plt.subplot2grid((3, 1), (2, 0))
-	x_vals = np.linspace(0,60,np.size(med))
-	plt.plot(x_vals, med)
-	ax3.set_xlim(0, 60)
-	ax3.set_xticks(np.linspace(0,60, 13))
-	#title_idx = [movement_files[int(hr)-1].find('e3v'), movement_files[int(hr)-1].find('DeepCut')]
-	title = [np.unique(video_key[1,:])[i][0:42]+' \n ' for i in np.arange(np.size(np.unique(video_key[1,:])))]
-	title = ''.join(title)
-	title = title[0:-3]   
-	plt.title(title)
-	sorted_med = np.sort(med)
-	idx = np.where(sorted_med>max(sorted_med)*0.50)[0][0]
-
-	if idx == 0:
-		thresh = sorted_med[idx]
-	#print(int(max(sorted_med)*0.50))
-	else:
-		thresh = np.nanmean(sorted_med[0:idx])
-
-	moving = np.where(dxy > thresh)[0] 
-	h = plt.gca().get_ylim()[1]
-	# consec = group_consecutives(np.where(med > thresh)[0])
-	consec = DLCMovement_input.group_consecutives(np.where(med > thresh)[0])
-	for vals in consec:
-		if len(vals)>5:
-			x = x_vals[vals[0]]
-			#x = time_min[vals[0]]
-			y = 0
-			width = x_vals[vals[-1]]-x
-			#width = time_min[vals[-1]]-x
-			rect = patch.Rectangle((x,y), width, h, color = '#b7e1a1', alpha = 0.5)
-			ax3.add_patch(rect)
-
-	plt.xlim([0,60])
+	plot_predicted()
 	#lizzie end -----------
-
 
 	plt.tight_layout()
 	plt.show()
@@ -514,7 +517,6 @@ if fix == 'y':
 			for s in np.arange(np.size(Predict_y)):
 				st = s*epochlen
 				if s in indicies:
-					print ("BIN (white): ", str(st))
 					rect7 = patch.Rectangle((st,0),3.8,height=2,color='white')
 					ax6.add_patch(rect7)
 				else:
