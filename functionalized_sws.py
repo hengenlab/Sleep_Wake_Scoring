@@ -20,6 +20,12 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import confusion_matrix
 from joblib import dump, load
 import pandas as pd
+import warnings
+
+
+#this is bad. i feel bad doing it. but here we are
+print('this code is supressing warnings because they were excessive and annoying. \nIf someething weird is happening delete line 26 and try again\n')
+warnings.filterwarnings("ignore")
 
 
 def create_new_df(features):
