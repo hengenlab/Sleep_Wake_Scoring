@@ -40,7 +40,7 @@ def random_forest_classifier(features, target):
     :param target:
     :return: trained random forest classifier
     """
-    clf = RandomForestClassifier(n_estimators=200)
+    clf = RandomForestClassifier(n_estimators=300)
     clf.fit(features, target)
     return clf
 def press(event):
@@ -127,10 +127,11 @@ def EEG(downdatlfp):
 
 def EMG(EMGamp):
 	#-----function (emgamp) returns EMG
-	fse = 4
-	EMG = np.zeros(int(np.size(EMGamp)/(4*fse)))
+	fse = int(np.size(EMGamp)/900)
+	EMG_idx = np.arange(0, 900*fse+fse , fse)
+	EMG = np.zeros(900)
 	for i in np.arange(np.size(EMG)):
-		EMG[i] = np.average(EMGamp[4*fse*(i):(4*fse*(i+1))])
+		EMG[i] = np.average(EMGamp[EMG_idx[i]:EMG_idx[i+1]])
 	return EMG
 	#-----function end
 
@@ -166,6 +167,24 @@ def post_pre(post, pre):
 	pre = np.append(0, pre)
 	pre = pre[0:-1]
 	return post, pre
+
+def fix_states(states, alter_nums = False):
+	if alter_nums == True:
+		states[states == 1] = 0
+		states[states == 3] = 5
+
+	for ss in np.arange(np.size(states)-1):
+		#check if it is a flicker state
+		if (ss != 0 and ss < np.size(states)-1):
+			if states[ss+1] == states[ss-1]:
+				states[ss] = states[ss+1]
+
+		if (states[ss] == 0 and states[ss+1] == 5):
+			states[ss] = 2
+	if alter_nums == True:
+		states[states == 0] = 1
+		states[states == 5] = 3
+	return states
 
 def plot_predicted():
 	figy = plt.figure(figsize=(11,6))
@@ -237,9 +256,9 @@ def plot_predicted():
 	plt.xlim([0,60])
 
 
-motion_dir = '/Volumes/rawdata/HellWeek/Grounded2/sleep_scoring_videos/'  
-rawdat_dir = '/Volumes/rawdata/HellWeek/Grounded2/EAB26_2018-10-19_18-23-50_p6c2/'
-rawvid_dir = '/Volumes/rawdata-1/Watchtower/SCF00005/'
+motion_dir = '/Volumes/rawdata/HellWeek/EAB00023/labeled_videos/'
+rawdat_dir = '/Volumes/rawdata/HellWeek/EAB00023/EAB23_2018-10-19_18-28-50_p10c5_grounded2/'
+
 
 
 os.chdir(rawdat_dir)
@@ -298,8 +317,11 @@ if pos == 'y':
 	outliers = np.where(med>hist[1][outliers_idx])[0]
 
 	for i in outliers:
-		med[i] = med[i-1]
-		a = i-1
+		if i == 0:
+			med[i] = med[i+2]
+		else:
+			med[i] = med[i-1]
+			a = i-1
 		while med[i] > hist[1][outliers_idx]:
 			a = i-1
 			med[i] = med[a]
@@ -324,8 +346,6 @@ if model == 'y':
 
 	#creates normalizing value around surrounding 24 hours
 	os.chdir(rawdat_dir)
-	FullFeaturesTrain = np.empty((0,9))
-	FullFeaturesTest = np.empty((0,9))
 
 	normmean, normstd = normMean(hr)
 
@@ -333,7 +353,8 @@ if model == 'y':
 	print('Generating EEG vectors...')
 	EEGamp, EEGmax, EEGmean = EEG(downdatlfp)
 
-	EMG = EMG(EMGamp)
+	if emg == 'y':
+		EMG = EMG(EMGamp)
 
 	#BANDPOWER
 	print('Extracting delta bandpower...')
@@ -399,19 +420,26 @@ if model == 'y':
 		EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean,EMG,binned_mot]
 
 	#runs random forest 
-	Features = np.column_stack((FeatureList))
+	FeatureList_smoothed = []
+	for f in FeatureList:
+		FeatureList_smoothed.append(signal.medfilt(f, 5))
+
+	Features = np.column_stack((FeatureList_smoothed))
 	Predict_y = clf.predict(Features)
 
-	#lizzie ------------
+	#Making changes to predicted states
+	Predict_y = fix_states(Predict_y)
+
+
 	plot_predicted()
-	#lizzie end -----------
+
 
 	plt.tight_layout()
 	plt.show()
 	satisfaction = input('Satisfied?: ')
 
 if satisfaction == 'y':
-	filename = input('File name: ')
+	filename = animal+'_SleepStates' + hr + '.npy'
 	np.save(filename,Predict_y)
 	sys.exit()
 
@@ -431,14 +459,18 @@ if fix == 'y':
 		bin2 = int(i[i.index('-')+1:])
 		indicies.extend(np.arange(bin1-1, bin2))
 	if indicies[0]<0:
-		inidicies = inidicies[1:]
+		indicies = indicies[1:]
 	if 0 not in indicies:
 		indicies.insert(0,0)
 
 	print('Ready for scoring, opening GUI.')
 	#for scoring
 	plt.ion()
-	State = Predict_y
+	State = copy.deepcopy(Predict_y)
+	State[State == 0] = 1
+	State[State == 2] = 2
+	State[State == 5] = 3
+
 	realtime = np.arange(np.size(downdatlfp))/fs
 	if emg == 'y':
 		EMGamp = np.pad(EMGamp, (0,100), 'constant')
@@ -448,7 +480,10 @@ if fix == 'y':
 
 
 	for a,i in enumerate(indicies):
+		print('a = ' + str(a))
+		print('i = ' + str(i))
 		if i > indicies[a-1] + 1:
+			print('adding last state before jumping')
 			if State[int(indicies[a-1])] == 1:
 				rect7 = patch.Rectangle(((start/fs)-epochlen,0),3.8,height=2,color='green')
 				ax6.add_patch(rect7)
@@ -494,7 +529,10 @@ if fix == 'y':
 			line1, = ax1.plot(realtime[start:end],downdatlfp[start:end])
 			plt.xlim(start/fs,end/fs)
 			plt.title('LFP')
-			plt.ylim(-5000,5000)
+			if mod_name == 'mouse':
+				plt.ylim(-1000,1000)
+			else:
+				plt.ylim(-5000,5000)
 			bot = ax1.get_ylim()[0]
 			rect = patch.Rectangle((start/fs+4,bot),4,height=-bot/5)
 			ax1.add_patch(rect)
@@ -515,7 +553,7 @@ if fix == 'y':
 			rect3 = patch.Rectangle((fs*4,bot3),fs*4,height=-bot3/5)
 			ax3.add_patch(rect3)
 			ax5 = plt.subplot2grid((4, 1), (3, 0))
-			if EMGamp.any() == False:
+			if np.size(EMGamp)<2:
 				plt.text(0.5, 0.5, 'There is no EMG')
 			else:
 				plt.fill_between(length,bottom,EMGamp[int(i*4*epochlen):int(i*4*epochlen)+int(end/x-start/x)],color='red')
@@ -560,6 +598,7 @@ if fix == 'y':
 			fig2.canvas.mpl_connect('key_press_event', press)
 			ax7= plt.subplot2grid((7, 1), (2, 0),rowspan=3)
 			img=mpimg.imread(rawdat_dir+'specthr'+ hr + '.jpg')
+			spect_x = np.linspace(199, 1442, np.size(State))
 			imgplot = plt.imshow(img,aspect='auto')
 			plt.xlim(199,1441)
 			plt.ylim(178,0)
@@ -571,13 +610,25 @@ if fix == 'y':
 
 			ax8= plt.subplot2grid((7, 1), (5, 0), rowspan = 2)
 			x_vals = np.linspace(0,60,np.size(med))
+			move_x = np.linspace(0,60, np.size(State))
 			plt.plot(x_vals, med)
 			ax8.set_xlim(0, 60)
 			ax8.set_xticks(np.linspace(0,60, 13))
 			title_idx = [movement_files[int(hr)-1].find('e3v'), movement_files[int(hr)-1].find('DeepCut')]
 			plt.title(movement_files[int(hr)-1][title_idx[0]:title_idx[1]])
+
+			ylims = ax7.get_ylim()
+			marker_line1 = ax7.plot([0, 0], [ylims[0], ylims[1]], linewidth = 0.5, color = 'k')
+			ml1 = marker_line1.pop(0)
+			ax7.set_ylim([ylims[0], ylims[1]])
+
+			ylims = ax8.get_ylim()
+			marker_line2 = ax8.plot([0, 0], [ylims[0], ylims[1]], linewidth = 0.5, color = 'k')
+			ml2 = marker_line2.pop(0)
+			ax8.set_ylim([ylims[0], ylims[1]])
+
 			sorted_med = np.sort(med)
-			idx = np.where(sorted_med>int(max(sorted_med)*0.05))[0][0]
+			idx = np.where(sorted_med>max(sorted_med)*0.50)[0][0]
 
 			if idx == 0:
 				thresh = sorted_med[idx]
@@ -585,7 +636,7 @@ if fix == 'y':
 			else:
 				thresh = np.nanmean(sorted_med[0:idx])
 
-			moving = np.where(dxy > thresh)[0]
+			moving = np.where(dxy > thresh)[0] 
 			h = plt.gca().get_ylim()[1]
 			# consec = group_consecutives(np.where(med > thresh)[0])
 			consec = DLCMovement_input.group_consecutives(np.where(med > thresh)[0])
@@ -642,7 +693,7 @@ if fix == 'y':
 			State = np.append(first,State)
 			State[-1] = last
 			plt.close('all')
-			#break
+			break
 		else:
 			line1.set_ydata(downdatlfp[start:end])
 			if model == 'y':
@@ -650,9 +701,24 @@ if fix == 'y':
 				t2.set_text(str(predConf))
 			line2.set_ydata(delt[start:end])
 			line3.set_ydata(thet[start:end])
-			ax5.collections.clear()
-			ax5.fill_between(length,bottom,EMGamp[int(i*4*epochlen):int(i*4*epochlen+4*3*epochlen)],color='red')
+			if np.size(EMGamp)>1:
+				ax5.collections.clear()
+				ax5.fill_between(length,bottom,EMGamp[int(i*4*epochlen):int(i*4*epochlen+4*3*epochlen)],color='red')
 			
+			ml1.remove()
+			ml2.remove()
+
+			ylims = ax7.get_ylim()
+			marker_line1 = ax7.plot([spect_x[int(i)], spect_x[int(i)]], [ylims[0], ylims[1]], linewidth = 0.5, color = 'k')
+			ml1 = marker_line1.pop(0)
+			ax7.set_ylim([ylims[0], ylims[1]])
+
+			ylims = ax8.get_ylim()
+			marker_line2 = ax8.plot([move_x[int(i)], move_x[int(i)]], [ylims[0], ylims[1]], linewidth = 0.5, color = 'k')
+			ml2 = marker_line2.pop(0)
+			ax8.set_ylim([ylims[0], ylims[1]])
+
+
 			if State[int(i-1)] == 1:
 				rect7 = patch.Rectangle(((start/fs)-epochlen,0),3.8,height=2,color='green')
 				ax6.add_patch(rect7)
@@ -697,7 +763,6 @@ if fix == 'y':
 		if i == indicies[-1]:
 			plt.figure()
 			print('Scoring done, plotting sleep states.')
-			State = State[:-1]
 			plt.plot(State)
 			plt.close('all')
 			break
@@ -770,7 +835,10 @@ else:
 				line1, = ax1.plot(realtime[start:end],downdatlfp[start:end])
 				plt.xlim(start/fs,end/fs)
 				plt.title('LFP')
-				plt.ylim(-5000,5000)
+				if mod_name == 'mouse':
+					plt.ylim(-1000,1000)
+				else:
+					plt.ylim(-5000,5000)
 				bot = ax1.get_ylim()[0]
 				rect = patch.Rectangle((start/fs+4,bot),4,height=-bot/5)
 				ax1.add_patch(rect)
@@ -791,7 +859,7 @@ else:
 				rect3 = patch.Rectangle((fs*4,bot3),fs*4,height=-bot3/5)
 				ax3.add_patch(rect3)
 				ax5 = plt.subplot2grid((4, 1), (3, 0))
-				if EMGamp.any() == False:
+				if np.size(EMGamp)<2:
 					plt.text(0.5, 0.5, 'There is no EMG')
 				else:
 					plt.fill_between(length,bottom,EMGamp[int(i*4*epochlen):int(i*4*epochlen)+int(end/x-start/x)],color='red')
@@ -825,6 +893,7 @@ else:
 				ax7= plt.subplot2grid((7, 1), (2, 0),rowspan=3)
 				img=mpimg.imread(rawdat_dir+'specthr'+ hr + '.jpg')
 				imgplot = plt.imshow(img,aspect='auto')
+				spect_x = np.linspace(199, 1442, np.size(State))
 				plt.xlim(199,1441)
 				plt.ylim(178,0)
 				ax7.set_xticks(np.linspace(199,1441, 13))
@@ -843,8 +912,18 @@ else:
 				sorted_med = np.sort(med)
 				idx = np.where(sorted_med>int(max(sorted_med)*0.05))[0][0]
 
+				ylims = ax7.get_ylim()
+				marker_line1 = ax7.plot([0, 0], [ylims[0], ylims[1]], linewidth = 0.5, color = 'k')
+				ml1 = marker_line1.pop(0)
+				ax7.set_ylim([ylims[0], ylims[1]])
+
+				ylims = ax8.get_ylim()
+				marker_line2 = ax8.plot([0, 0], [ylims[0], ylims[1]], linewidth = 0.5, color = 'k')
+				ml2 = marker_line2.pop(0)
+				ax8.set_ylim([ylims[0], ylims[1]])
+
 				if idx == 0:
-					thresh = sorted_med[idx] 
+					thresh = sorted_med[idx]
 				#print(int(max(sorted_med)*0.50))
 				else:
 					thresh = np.nanmean(sorted_med[0:idx])
@@ -862,6 +941,7 @@ else:
 						#width = time_min[vals[-1]]-x
 						rect = patch.Rectangle((x,y), width, h, color = '#b7e1a1', alpha = 0.5)
 						ax8.add_patch(rect)
+
 
 				plt.show()
 				plt.xlim([0,60])
@@ -900,7 +980,10 @@ else:
 				line1, = ax1.plot(realtime[start:end],downdatlfp[start:end])
 				plt.xlim(start/fs,end/fs)
 				plt.title('LFP')
-				plt.ylim(-5000,5000)
+				if mod_name == 'mouse':
+					plt.ylim(-1000,1000)
+				else:
+					plt.ylim(-5000,5000)
 				bot = ax1.get_ylim()[0]
 				rect = patch.Rectangle((start/fs+4,bot),4,height=-bot/5)
 				ax1.add_patch(rect)
@@ -921,9 +1004,7 @@ else:
 				rect3 = patch.Rectangle((fs*4,bot3),fs*4,height=-bot3/5)
 				ax3.add_patch(rect3)
 				ax5 = plt.subplot2grid((4, 1), (3, 0))
-				if EMGamp.any() == False:
-					plt.text(0.5, 0.5, 'There is no EMG')
-				else:
+				if np.size(EMGamp)>1:
 					plt.fill_between(length,bottom,EMGamp[int(i*4*epochlen):int(i*4*epochlen)+int(end/x-start/x)],color='red')
 					plt.title('EMG power')
 					plt.xlim(0,int((end-start)/x)-1)
@@ -1035,8 +1116,9 @@ else:
 				t2.set_text(str(predConf))
 			line2.set_ydata(delt[start:end])
 			line3.set_ydata(thet[start:end])
-			ax5.collections.clear()
-			ax5.fill_between(length,bottom,EMGamp[int(i*4*epochlen):int(i*4*epochlen+4*3*epochlen)],color='red')
+			if np.size(EMG)>1:
+				ax5.collections.clear()
+				ax5.fill_between(length,bottom,EMGamp[int(i*4*epochlen):int(i*4*epochlen+4*3*epochlen)],color='red')
 			rect6 = patch.Rectangle((start/fs+4.1,0),3.8,height=2)
 			ax6.add_patch(rect6)
 			if State[int(i-1)] == 1:
@@ -1079,11 +1161,12 @@ else:
 
 					cap.release()
 					continue
-			np.save(filename,State)	 
+			np.save(filename,State)
+State = fix_states(State, alter_nums = True)	 
 plt.show(block=True)
 decision = input('Save sleep states? y/n: ')
 if decision == 'y':
-	filename = input('File name: ')
+	filename = animal + '_SleepStates' + hr + '.npy'
 	np.save(filename,State)
 update = input('Update model?(y/n): ')
 if update == 'y':
@@ -1186,6 +1269,8 @@ if update == 'y':
 	time_int = [video_key[1,i][0:26] for i in np.arange(0, np.size(video_key[1,:]),int(np.size(video_key[1,:])/np.size(animal_name)))]
 	nans = np.zeros(np.size(animal_name))
 	nans[:] = np.nan
+	if np.size(np.where(np.isnan(EMG))[0]) > 0:
+		 EMG[np.isnan(EMG)] = 0
 
 	#creating correct feature list
 	if (ymot == 'y' and yemg == 'n'):
@@ -1235,6 +1320,9 @@ if update == 'y':
 		x_features.remove('Motion')
 		jobname = mod_name+'_no_move.joblib'
 		print('Just so you know...this model has no EMG and no Motion')
+
+	if yemg == 'y':
+		Sleep_Model = Sleep_Model.drop(index = np.where(Sleep_Model['EMG'].isin(['nan']))[0])
 
 	#retrain the model!!
 	prop = 1/2
