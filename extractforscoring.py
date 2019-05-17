@@ -30,7 +30,7 @@ def check1(h5files):
 	if np.size(np.unique(sizes))>1:
 		sys.exit('Not all of the h5 files are the same size')
 def check2(files):
-	str_idx = files[0].find('e3v') + 17 
+	str_idx = files[0].find('e3v') + 17
 	timestamps = [files[i][str_idx:str_idx+9] for i in np.arange(np.size(files))]
 	chk = []
 	if timestamps[0] == timestamps[1]:
@@ -45,26 +45,26 @@ def check2(files):
 				sys.exit('hour '+str(i) + ' is not continuous with hour ' + str(i+1))
 
 def check3(h5files, vidfiles):
-	str_idx = h5files[0].find('e3v') + 17 
+	str_idx = h5files[0].find('e3v') + 17
 	timestamps_h5 = [h5files[i][str_idx:str_idx+9] for i in np.arange(np.size(h5files))]
 	timestamps_vid = [vidfiles[i][str_idx:str_idx+9] for i in np.arange(np.size(vidfiles))]
 	if timestamps_h5 != timestamps_vid:
 		sys.exit('h5 files and video files not aligned')
 # Checks to make sure that all of the h5 files are continuous
-digi_dir = '/media/bs004r/D1/2019-03-29_10-24-20_d2_c2/'
-motion_dir = '/media/bs004r/EAB00040/labeled_videos/03_29'
+# digi_dir = '/media/bs004r/D1/2019-03-29_10-24-20_d2_c2/'
+# motion_dir = '/media/bs004r/EAB00040/labeled_videos/03_29/'
 
 digi_dir = '/media/bs002r/HellWeek/Digital/Cam_2018-10-19_18-21-31/'
-motion_dir = '/media/HlabShare/Lizzie_Work/LIT_dlc/EAB00026/'
-rawdat_dir = '/media/bs001r/HellWeek/Grounded2/EAB26_2018-10-19_18-23-50_p6c2/'
+motion_dir = '/media/bs002r/HellWeek/EAB00022/labeled_video/'
+rawdat_dir = '/media/bs002r/HellWeek/EAB00022/EAB22_2018-10-19_18-26-48_p8c4_grounded2/'
 print(digi_dir)
 print(motion_dir)
 print(rawdat_dir)
 os.chdir(digi_dir)
 
-stmp = videotimestamp.vidtimestamp('Digital_1_Channels_int64_2019-03-29_10-24-20.bin')
+stmp = videotimestamp.vidtimestamp('Digital_1_Channels_int64_2018-10-19_18-21-31.bin')
 
-#stmp = (num-1)*3600*1000*1000*1000  
+#stmp = (num-1)*3600*1000*1000*1000
 h5 = sorted(glob.glob(motion_dir+'*.h5'))
 vidfiles = sorted(glob.glob(motion_dir+'*labeled.mp4'))
 
@@ -93,7 +93,7 @@ if move_flag == 'n':
 	    leng.append(v.length)
 	    frame.append(np.arange(int(v.length)))
 	leng = np.array(leng)
-	which_vid = np.concatenate(which_vid)  
+	which_vid = np.concatenate(which_vid)
 	frame = np.concatenate(frame)
 	#posi = np.cumsum(leng)
 	#frame = np.arange(np.sum(leng))
@@ -102,7 +102,7 @@ if move_flag == 'n':
 	time, dat = ntk.load_raw_binary(files[0],64)
 	offset = (stmp-time[0])
 	alignedtime = (1000*1000*1000)*np.arange(np.sum(leng))/15 + offset
-	# Time in column 2 is in nanoseconds and time in column 3 is in hours 
+	# Time in column 2 is in nanoseconds and time in column 3 is in hours
 	mot_vect = []
 	basenames = []
 
@@ -131,7 +131,7 @@ if move_flag == 'n':
 		n_phantom_frames = int(math.floor((offset/dt)))
 
 	phantom_frames = np.zeros(n_phantom_frames)
-	phantom_frames[:] = np.nan 
+	phantom_frames[:] = np.nan
 	novid_time = np.arange(dt, alignedtime[0], dt)
 
 	corrected_motvect = np.concatenate([phantom_frames, mot_vect])
@@ -143,8 +143,8 @@ if move_flag == 'n':
 	aligner = np.column_stack((full_alignedtime,full_alignedtime/(1000*1000*1000*3600), corrected_motvect))
 	#video_aligner = np.column_stack((corrected_frames, which_vid))
 	neg_vals = []
-	for gg in np.arange(np.shape(aligner)[0]): 
-	    if aligner[gg,0] < 0: 
+	for gg in np.arange(np.shape(aligner)[0]):
+	    if aligner[gg,0] < 0:
 	    	neg_vals.append(gg)
 
 	aligner = np.delete(aligner, neg_vals, 0)
@@ -154,11 +154,15 @@ if move_flag == 'n':
 	reorganized_mot = []
 	nhours = int(aligner[-1,1])
 	for h in np.arange(num, nhours):
-		tmp_idx = np.where((aligner[:,1]>(h)) & (aligner[:,1]<(h+1)))[0]      
+		tmp_idx = np.where((aligner[:,1]>(h)) & (aligner[:,1]<(h+1)))[0]
 		time_move = (np.vstack((aligner[tmp_idx, 2], aligner[tmp_idx,1])))
 		video_key = (np.vstack((aligner[tmp_idx, 0], which_vid_full[tmp_idx], corrected_frames[tmp_idx])))
-		np.save(motion_dir+'hr' + str(h) +'_tmove.npy', time_move)
-		np.save(motion_dir+'hr' + str(h)+'_vidkey.npy', video_key)
+		if h<10:
+			np.save(motion_dir+'hr0' + str(h) +'_tmove.npy', time_move)
+			np.save(motion_dir+'hr0' + str(h)+'_vidkey.npy', video_key)
+		else:
+			np.save(motion_dir+'hr' + str(h) +'_tmove.npy', time_move)
+			np.save(motion_dir+'hr' + str(h)+'_vidkey.npy', video_key)
 
 
 os.chdir(rawdat_dir)
@@ -171,6 +175,7 @@ HS = input('Enter array type (hs64, eibless64, silicon_probex): ')
 #reclen = int(input('Enter recording length in seconds: ')) #recording length in seconds
 reclen = 3600
 
+silicon_flag = 0
 if HS == 'hs64':
     chan_map = np.array([26, 30, 6,  2,  18, 22, 14, 10, 12, 16, 8,  4,
                          28, 32, 24, 20, 48, 44, 36, 40, 64, 60, 52, 56,
@@ -185,6 +190,7 @@ elif HS == 'eibless64':
                          4,  8,  12, 16, 18, 22, 26, 30, 20, 24, 28, 32,
                          34, 38, 42, 46, 36, 40, 44, 48, 50, 54, 58, 62,
                          52, 56, 60, 64]) - 1
+
 
 elif HS == 'silicon_probe1':
     chan_map = np.arange(0, 64)
@@ -274,7 +280,8 @@ for fil in filesindex:
 		if cort == 'n':
 			print('merging file {}'.format(a))
 			if EMGinput != -1:
-				emg 		= np.concatenate((emg,dat[EMG]),axis=0)
+				dat = ntk.ntk_ecube.load_a_ch(load_files[a], numchan, EMG)
+				emg 		= np.concatenate((emg,dat), axis=0)
 			for n,c in enumerate(selected_chans):
 				print('Importing data from binary file...')
 				if silicon_flag:
@@ -291,7 +298,7 @@ for fil in filesindex:
 			selected_eeg = np.delete(eeg,0, axis = 0)
 
 			# selected_eeg = np.zeros([np.size(selected_chans), np.size(dat[0])])
-			# for a,ch in enumerate(selected_chans):	
+			# for a,ch in enumerate(selected_chans):
 			# 	selected_eeg[a] = dat[ch]
 			full_selected_eeg = np.concatenate([full_selected_eeg, selected_eeg], axis = 1)
 
@@ -354,8 +361,12 @@ for fil in filesindex:
 
 	average_EEG.append(np.mean(downdatlfp))
 	var_EEG.append(np.var(downdatlfp))
+
+	np.save('Average_EEG_perhr.npy', average_EEG)
+	np.save('Var_EEG_perhr.npy', var_EEG)
+
 	np.save('EEGhr' + str(int((fil+12)/12)),downdatlfp)
-	
+
 	print('Calculating bandpower...')
 	#print('This is usage at step 5: ' + str(psutil.virtual_memory()))
 	fsd = 200
