@@ -255,11 +255,15 @@ def plot_predicted():
 
 	plt.xlim([0,60])
 
+rawdat_dir = '/Volumes/rawdata/HellWeek/EAB00025/EAB25_2018-10-19_18-25-07_p7c3_grounded2/'
+motion_dir = '/Volumes/rawdata/HellWeek/EAB00025/sleep_scoring_videos/'
+# motion_dir = '/Volumes/rawdata/HellWeek/EAB00023/labeled_videos/'
+# rawdat_dir = '/Volumes/rawdata/HellWeek/EAB00023/EAB23_2018-10-19_18-28-50_p10c5_grounded2/'
 
-motion_dir = '/Volumes/rawdata/HellWeek/EAB00023/labeled_videos/'
-rawdat_dir = '/Volumes/rawdata/HellWeek/EAB00023/EAB23_2018-10-19_18-28-50_p10c5_grounded2/'
+#EAB26 - '/Volumes/rawdata/HellWeek/Grounded2/EAB26_2018-10-19_18-23-50_p6c2'
+#sleep_scoring_videos
 
-
+#EAB40
 
 os.chdir(rawdat_dir)
 meanEEG_perhr = np.load(rawdat_dir+'Average_EEG_perhr.npy')
@@ -268,7 +272,7 @@ var_EEG_perhr = np.load(rawdat_dir+'Var_EEG_perhr.npy')
 #inputing information for sleep scoring
 animal = input('What animal is this?')
 hr  = input('What hour are you working on? (starts at 1): ')
-mod_name = input('Which model? (young_rat, adult_rat, mouse)')
+mod_name = input('Which model? (young_rat, adult_rat, mouse, young_rat_25)')
 epochlen = int(input('Epoch length: '))
 fs = int(input('sampling rate: '))
 emg = input('Do you have emg info? y/n: ')
@@ -315,7 +319,7 @@ if pos == 'y':
 	th = np.size(med)*0.95
 	outliers_idx = np.where(csum>th)[0][0]
 	outliers = np.where(med>hist[1][outliers_idx])[0]
-
+	print('size of outliers...', np.shape(outliers))
 	for i in outliers:
 		if i == 0:
 			med[i] = med[i+2]
@@ -439,7 +443,7 @@ if model == 'y':
 	satisfaction = input('Satisfied?: ')
 
 if satisfaction == 'y':
-	filename = animal+'_SleepStates' + hr + '.npy'
+	filename = animal + '_SleepStates' + hr + '.npy'
 	np.save(filename,Predict_y)
 	sys.exit()
 
@@ -1162,8 +1166,10 @@ else:
 					cap.release()
 					continue
 			np.save(filename,State)
-State = fix_states(State, alter_nums = True)	 
-plt.show(block=True)
+
+#if you fuck up, run from this line to the end
+State = fix_states(State, alter_nums = True)
+# plt.show(block=True) #if you fuck up comment this line out	 
 decision = input('Save sleep states? y/n: ')
 if decision == 'y':
 	filename = animal + '_SleepStates' + hr + '.npy'
@@ -1178,7 +1184,7 @@ if update == 'y':
 
 		#Generate average/max EEG amplitude, EEG frequency, EMG amplitude for each bin
 		print('Generating EEG vectors...')
-		EEGamp, EEGmax = EEG(downdatlfp)
+		EEGamp, EEGmax, EEGmean = EEG(downdatlfp)
 
 		EMG = EMG(EMGamp)
 
@@ -1257,8 +1263,11 @@ if update == 'y':
 		outliers = np.where(med>hist[1][outliers_idx])[0]
 
 		for i in outliers:
-			med[i] = med[i-1]
-			a = i-1
+			if i == 0:
+				med[i] = med[i+2]
+			else:
+				med[i] = med[i-1]
+				a = i-1
 			while med[i] > hist[1][outliers_idx]:
 				a = i-1
 				med[i] = med[a]
@@ -1269,7 +1278,7 @@ if update == 'y':
 	time_int = [video_key[1,i][0:26] for i in np.arange(0, np.size(video_key[1,:]),int(np.size(video_key[1,:])/np.size(animal_name)))]
 	nans = np.zeros(np.size(animal_name))
 	nans[:] = np.nan
-	if np.size(np.where(np.isnan(EMG))[0]) > 0:
+	if np.size(np.where(pd.isnull(EMG))[0]) > 0:
 		 EMG[np.isnan(EMG)] = 0
 
 	#creating correct feature list
@@ -1293,7 +1302,7 @@ if update == 'y':
 	df_additions = pd.DataFrame(columns = FeatureList, data = data.T)
 
 	try:
-		Sleep_Model = np.load('/Volumes/HlabShare/Sleep_Model/' + mod_name + '_model.pkl')
+		Sleep_Model = np.load(file='/Volumes/HlabShare/Sleep_Model/' + mod_name + '_model.pkl', allow_pickle=True)
 		Sleep_Model = Sleep_Model.append(df_additions, ignore_index=True)
 	except FileNotFoundError:
 		print('no model created...I will save this one')
