@@ -55,8 +55,12 @@ def check3(h5files, vidfiles):
 # motion_dir = '/media/bs004r/EAB00040/labeled_videos/03_29/'
 
 digi_dir = '/media/bs002r/HellWeek/Digital/Cam_2018-10-19_18-21-31/'
-motion_dir = '/media/bs002r/HellWeek/EAB00022/labeled_video/'
-rawdat_dir = '/media/bs002r/HellWeek/EAB00022/EAB22_2018-10-19_18-26-48_p8c4_grounded2/'
+rawdat_dir = '/media/bs002r/HellWeek/EAB00023/EAB23_2018-10-19_18-28-50_p10c5_grounded2'
+motion_dir = '/media/bs002r/HellWeek/EAB00023/labeled_videos_new/'
+# digi_dir = '/media/rawdata/HellWeek/Digital/Cam_2018-10-19_18-21-31/'
+# rawdat_dir = '/media/rawdata/HellWeek/EAB00023/EAB23_2018-10-19_18-28-50_p10c5_grounded2/'
+# motion_dir = '/media/rawdata/HellWeek/EAB00023/labeled_videos/'
+
 print(digi_dir)
 print(motion_dir)
 print(rawdat_dir)
@@ -153,17 +157,14 @@ if move_flag == 'n':
 
 	reorganized_mot = []
 	nhours = int(aligner[-1,1])
+	bns = [i[i.find('-')+1:i.find('-')+19] for i in basenames]
+	bns = np.unique(bns)
 	for h in np.arange(num, nhours):
 		tmp_idx = np.where((aligner[:,1]>(h)) & (aligner[:,1]<(h+1)))[0]
 		time_move = (np.vstack((aligner[tmp_idx, 2], aligner[tmp_idx,1])))
 		video_key = (np.vstack((aligner[tmp_idx, 0], which_vid_full[tmp_idx], corrected_frames[tmp_idx])))
-		if h<10:
-			np.save(motion_dir+'hr0' + str(h) +'_tmove.npy', time_move)
-			np.save(motion_dir+'hr0' + str(h)+'_vidkey.npy', video_key)
-		else:
-			np.save(motion_dir+'hr' + str(h) +'_tmove.npy', time_move)
-			np.save(motion_dir+'hr' + str(h)+'_vidkey.npy', video_key)
-
+		np.save(motion_dir+bns[h]+'_tmove.npy', time_move)
+		np.save(motion_dir+bns[h]+'_vidkey.npy', video_key)
 
 os.chdir(rawdat_dir)
 filesindex = np.arange((num*12),np.size(files),12)
