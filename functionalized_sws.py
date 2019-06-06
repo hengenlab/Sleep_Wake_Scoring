@@ -225,6 +225,7 @@ def plot_predicted():
 	plt.plot(x_vals, med)
 	ax3.set_xlim(0, 60)
 	ax3.set_xticks(np.linspace(0,60, 13))
+	ax3.set_ylim(0,10)
 	#title_idx = [movement_files[int(hr)-1].find('e3v'), movement_files[int(hr)-1].find('DeepCut')]
 	title = [np.unique(video_key[1,:])[i][0:42]+' \n ' for i in np.arange(np.size(np.unique(video_key[1,:])))]
 	title = ''.join(title)
@@ -256,7 +257,7 @@ def plot_predicted():
 	plt.xlim([0,60])
 
 rawdat_dir = '/Volumes/rawdata/HellWeek/EAB00025/EAB25_2018-10-19_18-25-07_p7c3_grounded2/'
-motion_dir = '/Volumes/rawdata/HellWeek/EAB00025/sleep_scoring_videos/'
+motion_dir = '/Volumes/rawdata/HellWeek/EAB00025/labeled_video_new/'
 # motion_dir = '/Volumes/rawdata/HellWeek/EAB00023/labeled_videos/'
 # rawdat_dir = '/Volumes/rawdata/HellWeek/EAB00023/EAB23_2018-10-19_18-28-50_p10c5_grounded2/'
 
@@ -264,6 +265,8 @@ motion_dir = '/Volumes/rawdata/HellWeek/EAB00025/sleep_scoring_videos/'
 #sleep_scoring_videos
 
 #EAB40
+# rawdat_dir = '/Volumes/bs004r/EAB00040/EAB00040_2019-03-29_10-28-27_p9_c5/'
+# motion_dir = '/Volumes/bs004r/EAB00040/EAB00040_2019-03-29_10-28-27_p9_c5_labeled_vid/'
 
 os.chdir(rawdat_dir)
 meanEEG_perhr = np.load(rawdat_dir+'Average_EEG_perhr.npy')
@@ -308,6 +311,9 @@ if pos == 'y':
 	dt = time_sec[2]-time_sec[1]
 	dxy = movement[0]
 	binsz = int(round(1/dt))
+
+	bindxy = dxy.reshape(900,60)
+	var = np.nanvar(bindxy, axis=1)
 
 	rs_dxy = np.reshape(dxy,[int(np.size(dxy)/binsz), binsz])
 	time_min = np.linspace(0, 60, np.size(dxy))
@@ -406,6 +412,8 @@ if model == 'y':
 	theta_post3, theta_pre3 = post_pre(theta_post2, theta_pre2)
 	nb_post, nb_pre = post_pre(EEGnb, EEGnb)
 
+	
+
 	#create feature list based on presence of EMG and movement information
 	if (pos == 'y' and emg == 'n'):
 		FeatureList = [delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
@@ -423,6 +431,23 @@ if model == 'y':
 		FeatureList = [delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
 		EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean,EMG,binned_mot]
 
+	if mod_name == 'mouse':
+		if (pos == 'y' and emg == 'n'):
+			FeatureList = [delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
+			EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean,binned_mot,var]
+
+		elif (pos == 'n' and emg == 'n'):
+			FeatureList = [delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
+			EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean]
+
+		elif (pos == 'n' and emg == 'y'):
+			FeatureList =[delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
+			EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean,EMG]
+
+		elif (pos == 'y' and emg == 'y'):
+			FeatureList = [delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
+			EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean,EMG,binned_mot,var]
+		
 	#runs random forest 
 	FeatureList_smoothed = []
 	for f in FeatureList:
@@ -536,7 +561,7 @@ if fix == 'y':
 			if mod_name == 'mouse':
 				plt.ylim(-1000,1000)
 			else:
-				plt.ylim(-5000,5000)
+				plt.ylim(-1000,1000)
 			bot = ax1.get_ylim()[0]
 			rect = patch.Rectangle((start/fs+4,bot),4,height=-bot/5)
 			ax1.add_patch(rect)
@@ -618,6 +643,7 @@ if fix == 'y':
 			plt.plot(x_vals, med)
 			ax8.set_xlim(0, 60)
 			ax8.set_xticks(np.linspace(0,60, 13))
+			ax8.set_ylim(0,10)
 			title_idx = [movement_files[int(hr)-1].find('e3v'), movement_files[int(hr)-1].find('DeepCut')]
 			plt.title(movement_files[int(hr)-1][title_idx[0]:title_idx[1]])
 
@@ -842,7 +868,7 @@ else:
 				if mod_name == 'mouse':
 					plt.ylim(-1000,1000)
 				else:
-					plt.ylim(-5000,5000)
+					plt.ylim(-1000,1000)
 				bot = ax1.get_ylim()[0]
 				rect = patch.Rectangle((start/fs+4,bot),4,height=-bot/5)
 				ax1.add_patch(rect)
@@ -911,6 +937,7 @@ else:
 				plt.plot(x_vals, med)
 				ax8.set_xlim(0, 60)
 				ax8.set_xticks(np.linspace(0,60, 13))
+				ax8.set_ylim(0,10)
 				title_idx = [movement_files[int(hr)-1].find('e3v'), movement_files[int(hr)-1].find('DeepCut')]
 				plt.title(movement_files[int(hr)-1][title_idx[0]:title_idx[1]])
 				sorted_med = np.sort(med)
@@ -987,7 +1014,7 @@ else:
 				if mod_name == 'mouse':
 					plt.ylim(-1000,1000)
 				else:
-					plt.ylim(-5000,5000)
+					plt.ylim(-1000,1000)
 				bot = ax1.get_ylim()[0]
 				rect = patch.Rectangle((start/fs+4,bot),4,height=-bot/5)
 				ax1.add_patch(rect)
@@ -1045,6 +1072,7 @@ else:
 				plt.plot(x_vals, med)
 				ax8.set_xlim(0, 60)
 				ax8.set_xticks(np.linspace(0,60, 13))
+				ax8.set_ylim(0,10)
 				title_idx = [movement_files[int(hr)-1].find('e3v'), movement_files[int(hr)-1].find('DeepCut')]
 				plt.title(movement_files[int(hr)-1][title_idx[0]:title_idx[1]])
 				sorted_med = np.sort(med)
@@ -1298,6 +1326,13 @@ if update == 'y':
 		EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean,EMG,binned_mot])
 	FeatureList = ['Animal_Name', 'Time_Interval','State','delta_pre','delta_pre2','delta_pre3','delta_post','delta_post2','delta_post3','EEGdelta','theta_pre','theta_pre2','theta_pre3','theta_post',
 	'theta_post2','theta_post3','EEGtheta','EEGalpha','EEGbeta','EEGgamma','EEGnarrow','nb_pre','delta/theta','EEGfire','EEGamp','EEGmax','EEGmean','EMG', 'Motion']
+
+	if mod_name == 'mouse':
+		if ymot=='y':
+			data = np.vstack([data,var])
+		else:
+			data = np.vstack([data,nans])
+		FeatureList.append('var')
 
 	df_additions = pd.DataFrame(columns = FeatureList, data = data.T)
 
