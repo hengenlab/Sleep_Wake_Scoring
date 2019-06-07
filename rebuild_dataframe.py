@@ -45,26 +45,26 @@ def random_forest_classifier(features, target):
     clf = RandomForestClassifier(n_estimators=300)
     clf.fit(features, target)
     return clf
-def press(event):
-	'''
-	to score sleep states  
-	'''
-	if event.key == '1':
-		State[int(i)] = 1
-		print('coded Awake')
-	else:
-		if event.key == '2':
-			State[int(i)] = 2
-			print('coded NREM')
-		else:
-			if event.key == '3':
-				State[int(i)] = 3
-				print('coded REM')
-			else:
-				State[int(i)] = 4
-				print('code invalid, or other')
-	cv2.destroyAllWindows()
-sys.stdout.flush()
+# def press(event):
+# 	'''
+# 	to score sleep states  
+# 	'''
+# 	if event.key == '1':
+# 		State[int(i)] = 1
+# 		print('coded Awake')
+# 	else:
+# 		if event.key == '2':
+# 			State[int(i)] = 2
+# 			print('coded NREM')
+# 		else:
+# 			if event.key == '3':
+# 				State[int(i)] = 3
+# 				print('coded REM')
+# 			else:
+# 				State[int(i)] = 4
+# 				print('code invalid, or other')
+# 	cv2.destroyAllWindows()
+# sys.stdout.flush()
 
 def check1(h5files):
 	# Checks to make sure that all of the h5 files are the same size
@@ -95,7 +95,7 @@ def check3(h5files, vidfiles):
 	if timestamps_h5 != timestamps_vid:
 		sys.exit('h5 files and video files not aligned')
 
-def normMean(hr):
+def normMean(hr, meanEEG_perhr, var_EEG_perhr):
 	#---function
 	if int(hr)-1<12:
 		normmean = np.mean(meanEEG_perhr[0:24])
@@ -110,7 +110,7 @@ def normMean(hr):
 	return normmean, normstd
 	#----function end
 
-def EEG(downdatlfp):
+def EEG(downdatlfp, normmean, normstd, fs):
 	#----function (downdatlfp) returns eegmax eegamp
 	bin = 4 #bin size in seconds
 	binl = bin * fs #bin size in array slots
@@ -142,7 +142,8 @@ def EMG1(EMGamp):
 #Calculate delta and theta bandpower for entire dataset
 # Define window length (4 seconds)
 #WIN = WINDOW? SAME AS EPOCH LENGTH? SHOULD IT STILL BE HARDCODED?
-def bandPower(low, high, downdatlfp):
+def bandPower(low, high, downdatlfp,fs):
+	epochlen = 4
 	win = 4 * fs
 	EEG = np.zeros(int(np.size(downdatlfp)/(4*fs)))
 	#Vectorized bandpower calculation
@@ -258,27 +259,10 @@ def plot_predicted():
 
 	plt.xlim([0,60])
 
-def rebuild(motion_dir, rawdat_dir, state_path):	
+def rebuild(motion_dir, rawdat_dir, state_path, hr, animal, mod_name, epochlen, fs, emg, pos):	
 	os.chdir(rawdat_dir)
 	meanEEG_perhr = np.load(rawdat_dir+'Average_EEG_perhr.npy')
 	var_EEG_perhr = np.load(rawdat_dir+'Var_EEG_perhr.npy')
-
-	# #inputing information for sleep scoring
-	# animal = input('What animal is this?')
-	# hr  = input('What hour are you working on? (starts at 1): ')
-	# mod_name = input('Which model? (young_rat, adult_rat, mouse)')
-	# epochlen = int(input('Epoch length: '))
-	# fs = int(input('sampling rate: '))
-	# emg = input('Do you have emg info? y/n: ')
-	# pos = input('Do you have a motion vector? y/n: ')
-
-	animal = 'EAB00026'
-	#hr = '3'
-	mod_name = 'young_rat'
-	epochlen = 4
-	fs = 200
-	emg = 'y'
-	pos = 'y'
 
 	delt = np.load('delt' + hr + '.npy')
 	delt = np.concatenate((500*[0],delt,500*[0]))
@@ -289,8 +273,6 @@ def rebuild(motion_dir, rawdat_dir, state_path):
 	movement_files = np.sort(glob.glob(motion_dir+'*tmove.npy'))
 	vidkey_files = np.sort(glob.glob(motion_dir+'*vidkey.npy'))
 
-
-
 	check2(movement_files)
 	check2(vidkey_files)
 	check3(movement_files, vidkey_files)
@@ -298,6 +280,8 @@ def rebuild(motion_dir, rawdat_dir, state_path):
 	if emg == 'y':
 		EMGamp = np.load('EMGhr' + hr + '.npy')
 		EMGamp = (EMGamp-np.average(EMGamp))/np.std(EMGamp)
+		EMG = EMG1(EMGamp)
+
 
 	if pos == 'y':
 		movement = np.load(movement_files[int(hr)-1])
@@ -338,39 +322,38 @@ def rebuild(motion_dir, rawdat_dir, state_path):
 
 	# ymot = input('Use motion?: ')
 	# yemg = input('Use EMG?: ')
-	ymot = 'y'
-	yemg = 'n'
+	ymot = pos
+	yemg = emg
 
 
-	normmean, normstd = normMean(hr)
+	normmean, normstd = normMean(hr, meanEEG_perhr, var_EEG_perhr)
 
 	#Generate average/max EEG amplitude, EEG frequency, EMG amplitude for each bin
 	print('Generating EEG vectors...')
-	EEGamp, EEGmax, EEGmean = EEG(downdatlfp)
+	EEGamp, EEGmax, EEGmean = EEG(downdatlfp, normmean, normstd, fs)
 
-	EMG = EMG1(EMGamp)
 
 	#BANDPOWER
 	print('Extracting delta bandpower...')
-	EEGdelta, idx_delta = bandPower(0.5, 4, downdatlfp)
+	EEGdelta, idx_delta = bandPower(0.5, 4, downdatlfp,fs)
 
 	print('Extracting theta bandpower...')
-	EEGtheta, idx_theta = bandPower(4, 8, downdatlfp)
+	EEGtheta, idx_theta = bandPower(4, 8, downdatlfp, fs)
 
 	print('Extracting alpha bandpower...')
-	EEGalpha, idx_alpha = bandPower(8, 12, downdatlfp)
+	EEGalpha, idx_alpha = bandPower(8, 12, downdatlfp,fs)
 
 	print('Extracting beta bandpower...')
-	EEGbeta, idx_beta = bandPower(12, 30, downdatlfp)
+	EEGbeta, idx_beta = bandPower(12, 30, downdatlfp,fs)
 
 	print('Extracting gamma bandpower...')
-	EEGgamma, idx_gamma = bandPower(30, 80, downdatlfp)
+	EEGgamma, idx_gamma = bandPower(30, 80, downdatlfp,fs)
 
 	print('Extracting narrow-band theta bandpower...')
-	EEG_broadtheta, idx_broadtheta = bandPower(2, 16, downdatlfp)
+	EEG_broadtheta, idx_broadtheta = bandPower(2, 16, downdatlfp,fs)
 
 	print('Boom. Boom. FIYA POWER...')
-	EEGfire, idx_fire = bandPower(4, 20, downdatlfp)
+	EEGfire, idx_fire = bandPower(4, 20, downdatlfp,fs)
 
 	#RATIOS
 	EEGnb = EEGtheta/EEG_broadtheta
@@ -437,8 +420,9 @@ def rebuild(motion_dir, rawdat_dir, state_path):
 	time_int = [video_key[1,i][0:26] for i in np.arange(0, np.size(video_key[1,:]),int(np.size(video_key[1,:])/np.size(animal_name)))]
 	nans = np.zeros(np.size(animal_name))
 	nans[:] = np.nan
-	if np.size(np.where(np.isnan(EMG))[0]) > 0:
-		 EMG[np.isnan(EMG)] = 0
+	if emg == 'y':
+		if np.size(np.where(np.isnan(EMG))[0]) > 0:
+			 EMG[np.isnan(EMG)] = 0
 
 	#creating correct feature list
 	if (ymot == 'y' and yemg == 'n'):
@@ -469,56 +453,72 @@ def rebuild(motion_dir, rawdat_dir, state_path):
 		Sleep_Model = df_additions
 	Sleep_Model.to_pickle('/Volumes/HlabShare/Sleep_Model/'+mod_name + '_model.pkl')
 
-	x_features = copy.deepcopy(FeatureList)
-	[x_features.remove(i) for i in ['Animal_Name', 'Time_Interval','State']]
-
-	if (ymot == 'n' and yemg == 'y'):
-		x_features.remove('Motion')
-		jobname =mod_name+'_EMG.joblib'
-
-	if (yemg == 'n' and ymot == 'y'):
-		x_features.remove('EMG')
-		jobname =mod_name+'_Motion.joblib'
-
-	if (yemg == 'y' and ymot == 'y'):
-		jobname = mod_name+'_Motion_EMG.joblib'
-
-	if (yemg == 'n' and ymot == 'n'):
-		x_features.remove('EMG')
-		x_features.remove('Motion')
-		jobname = mod_name+'_no_move.joblib'
-		print('Just so you know...this model has no EMG and no Motion')
-
-	if yemg == 'y':
-		Sleep_Model = Sleep_Model.drop(index = np.where(Sleep_Model['EMG'].isin(['nan']))[0])
-
-	#retrain the model!!
-	prop = 1/2
-	model_inputs = Sleep_Model[x_features][0:int((max(Sleep_Model.index)+1)*prop)].apply(pd.to_numeric)
-	train_x = model_inputs.values
-	model_input_states = Sleep_Model['State'][0:int((max(Sleep_Model.index)+1)*prop)].apply(pd.to_numeric)
-	train_y = model_input_states.values
-
-	model_test = Sleep_Model[x_features][int((max(Sleep_Model.index)+1)*prop):].apply(pd.to_numeric)
-	test_x = model_test.values
-	model_test_states = Sleep_Model['State'][int((max(Sleep_Model.index)+1)*prop):].apply(pd.to_numeric)
-	test_y = model_test_states.values
-
-	model_dir = '/Volumes/HlabShare/Sleep_Model/'
 
 
-	print('Calculating tree...')
-	clf = random_forest_classifier(train_x, train_y)
-	Predict_y = clf.predict(test_x)
-	print ("Train Accuracy :: ", accuracy_score(train_y, clf.predict(train_x)))
-	print ("Test Accuracy :: ", accuracy_score(test_y, clf.predict(test_x)))
+	#uncomment this and run it to train the joblib!!!
 
-	Satisfaction = input('Satisfied?: ')
-	if Satisfaction == 'y':
-	    clf = random_forest_classifier(Sleep_Model[x_features].apply(pd.to_numeric).values, Sleep_Model['State'].apply(pd.to_numeric).values)
-	    print ("Train Accuracy :: ", accuracy_score( Sleep_Model['State'].apply(pd.to_numeric).values, clf.predict(Sleep_Model[x_features].apply(pd.to_numeric).values)))
-	    dump(clf, model_dir+jobname)
 
+	# x_features = copy.deepcopy(FeatureList)
+	# [x_features.remove(i) for i in ['Animal_Name', 'Time_Interval','State']]
+
+	# if (ymot == 'n' and yemg == 'y'):
+	# 	x_features.remove('Motion')
+	# 	jobname =mod_name+'_EMG.joblib'
+
+	# if (yemg == 'n' and ymot == 'y'):
+	# 	x_features.remove('EMG')
+	# 	jobname =mod_name+'_Motion.joblib'
+
+	# if (yemg == 'y' and ymot == 'y'):
+	# 	jobname = mod_name+'_Motion_EMG.joblib'
+
+	# if (yemg == 'n' and ymot == 'n'):
+	# 	x_features.remove('EMG')
+	# 	x_features.remove('Motion')
+	# 	jobname = mod_name+'_no_move.joblib'
+	# 	print('Just so you know...this model has no EMG and no Motion')
+
+	# if yemg == 'y':
+	# 	Sleep_Model = Sleep_Model.drop(index = np.where(Sleep_Model['EMG'].isin(['nan']))[0])
+
+	# #retrain the model!!
+	# prop = 1/2
+	# model_inputs = Sleep_Model[x_features][0:int((max(Sleep_Model.index)+1)*prop)].apply(pd.to_numeric)
+	# train_x = model_inputs.values
+	# model_input_states = Sleep_Model['State'][0:int((max(Sleep_Model.index)+1)*prop)].apply(pd.to_numeric)
+	# train_y = model_input_states.values
+
+	# model_test = Sleep_Model[x_features][int((max(Sleep_Model.index)+1)*prop):].apply(pd.to_numeric)
+	# test_x = model_test.values
+	# model_test_states = Sleep_Model['State'][int((max(Sleep_Model.index)+1)*prop):].apply(pd.to_numeric)
+	# test_y = model_test_states.values
+
+	# model_dir = '/Volumes/HlabShare/Sleep_Model/'
+
+
+	# print('Calculating tree...')
+	# clf = random_forest_classifier(train_x, train_y)
+	# Predict_y = clf.predict(test_x)
+	# print ("Train Accuracy :: ", accuracy_score(train_y, clf.predict(train_x)))
+	# print ("Test Accuracy :: ", accuracy_score(test_y, clf.predict(test_x)))
+
+	# Satisfaction = input('Satisfied?: ')
+	# if Satisfaction == 'y':
+	#     clf = random_forest_classifier(Sleep_Model[x_features].apply(pd.to_numeric).values, Sleep_Model['State'].apply(pd.to_numeric).values)
+	#     print ("Train Accuracy :: ", accuracy_score( Sleep_Model['State'].apply(pd.to_numeric).values, clf.predict(Sleep_Model[x_features].apply(pd.to_numeric).values)))
+	#     dump(clf, model_dir+jobname)
+
+def rebuild_per_animal(animal, motion_dir, rawdat_dir, mod_name, emg, pos, total_hrs):
+	os.chdir(rawdat_dir)
+	for hr in range(total_hrs):
+		hr = hr+1
+		print('Rebuilding hr {}'.format(hr))
+		state_path = rawdat_dir + animal + '_SleepStates{}.npy'.format(hr)
+		if not os.path.isfile(state_path):
+			print('no sleep states for this hour, moving on')
+			continue
+		hr = str(hr)
+		rebuild(motion_dir, rawdat_dir, state_path, hr, animal, mod_name, 4, 200, emg, pos)
 
 
 
