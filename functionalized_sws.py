@@ -45,7 +45,7 @@ def random_forest_classifier(features, target):
     return clf
 def press(event):
 	'''
-	to score sleep states  
+	to score sleep states
 	'''
 	if event.key == '1':
 		State[int(i)] = 1
@@ -70,7 +70,7 @@ def check1(h5files):
 	if np.size(np.unique(sizes))>1:
 		sys.exit('Not all of the h5 files are the same size')
 def check2(files):
-	#makes sure time stamps on videos are continuous 
+	#makes sure time stamps on videos are continuous
 	str_idx = files[0].find('e3v') + 17
 	timestamps = [files[i][str_idx:str_idx+9] for i in np.arange(np.size(files))]
 	if timestamps[0] == timestamps[1]:
@@ -125,7 +125,7 @@ def EEG(downdatlfp):
 	return EEGamp, EEGmax, EEGmean
 	#-----end function
 
-def EMG(EMGamp):
+def EMG_one(EMGamp):
 	#-----function (emgamp) returns EMG
 	fse = int(np.size(EMGamp)/900)
 	EMG_idx = np.arange(0, 900*fse+fse , fse)
@@ -152,7 +152,7 @@ def bandPower(low, high, downdatlfp):
 	idx[idx_min:idx_max] = True
 	EEG = simps(psd[:,idx], freqs[idx])
 	return EEG, idx
-	#----- end function 
+	#----- end function
 
 def normalize(toNorm):
 	norm = (toNorm - np.average(toNorm))/np.std(toNorm)
@@ -194,7 +194,7 @@ def plot_predicted():
 	img=mpimg.imread(rawdat_dir+'specthr'+ hr + '.jpg')
 	imgplot = plt.imshow(img,aspect='auto')
 	plt.xlim(199,1441)
-	plt.ylim(178,24)
+	plt.ylim(178,0)
 	ax1.set_xticks(np.linspace(199,1441, 13))
 	ax1.set_xticklabels(np.arange(0, 65, 5))
 	ticksy = [35,100,150]
@@ -229,7 +229,7 @@ def plot_predicted():
 	#title_idx = [movement_files[int(hr)-1].find('e3v'), movement_files[int(hr)-1].find('DeepCut')]
 	title = [np.unique(video_key[1,:])[i][0:42]+' \n ' for i in np.arange(np.size(np.unique(video_key[1,:])))]
 	title = ''.join(title)
-	title = title[0:-3]   
+	title = title[0:-3]
 	plt.title(title)
 	sorted_med = np.sort(med)
 	idx = np.where(sorted_med>max(sorted_med)*0.50)[0][0]
@@ -240,7 +240,7 @@ def plot_predicted():
 	else:
 		thresh = np.nanmean(sorted_med[0:idx])
 
-	moving = np.where(dxy > thresh)[0] 
+	moving = np.where(dxy > thresh)[0]
 	h = plt.gca().get_ylim()[1]
 	# consec = group_consecutives(np.where(med > thresh)[0])
 	consec = DLCMovement_input.group_consecutives(np.where(med > thresh)[0])
@@ -256,17 +256,20 @@ def plot_predicted():
 
 	plt.xlim([0,60])
 
-rawdat_dir = '/Volumes/rawdata/HellWeek/EAB00025/EAB25_2018-10-19_18-25-07_p7c3_grounded2/'
-motion_dir = '/Volumes/rawdata/HellWeek/EAB00025/labeled_video_new/'
-# motion_dir = '/Volumes/rawdata/HellWeek/EAB00023/labeled_videos/'
-# rawdat_dir = '/Volumes/rawdata/HellWeek/EAB00023/EAB23_2018-10-19_18-28-50_p10c5_grounded2/'
+#rawdat_dir = 'Y:/HellWeek/EAB00025/EAB25_2018-10-19_18-25-07_p7c3_grounded2/'
+#motion_dir = 'Y:/HellWeek/EAB00025/labeled_video_new/'
+#motion_dir = 'Y:/HellWeek/EAB00023/labeled_videos_new/'
+#rawdat_dir = 'Y:/HellWeek/EAB00023/EAB23_2018-10-19_18-28-50_p10c5_grounded2/'
 
-#EAB26 - '/Volumes/rawdata/HellWeek/Grounded2/EAB26_2018-10-19_18-23-50_p6c2'
+motion_dir= 'U:/rawdata/HellWeek/Grounded2/labeled_video_new/'
+rawdat_dir = 'U:/rawdata/HellWeek/Grounded2/EAB26_2018-10-19_18-23-50_p6c2/'
+
+#EAB26 - 'Y:/HellWeek/Grounded2/EAB26_2018-10-19_18-23-50_p6c2'
 #sleep_scoring_videos
 
 #EAB40
-# rawdat_dir = '/Volumes/bs004r/EAB00040/EAB00040_2019-03-29_10-28-27_p9_c5/'
-# motion_dir = '/Volumes/bs004r/EAB00040/EAB00040_2019-03-29_10-28-27_p9_c5_labeled_vid/'
+#rawdat_dir = 'V:EAB00040/EAB00040_2019-03-29_10-28-27_p9_c5/'
+#motion_dir = 'V:EAB00040/EAB00040_2019-03-29_10-28-27_p9_c5_labeled_vid/'
 
 os.chdir(rawdat_dir)
 meanEEG_perhr = np.load(rawdat_dir+'Average_EEG_perhr.npy')
@@ -275,7 +278,7 @@ var_EEG_perhr = np.load(rawdat_dir+'Var_EEG_perhr.npy')
 #inputing information for sleep scoring
 animal = input('What animal is this?')
 hr  = input('What hour are you working on? (starts at 1): ')
-mod_name = input('Which model? (young_rat, adult_rat, mouse, young_rat_25)')
+mod_name = input('Which model? (young_rat, adult_rat, mouse, rat_mouse)')
 epochlen = int(input('Epoch length: '))
 fs = int(input('sampling rate: '))
 emg = input('Do you have emg info? y/n: ')
@@ -313,7 +316,9 @@ if pos == 'y':
 	binsz = int(round(1/dt))
 
 	bindxy = dxy.reshape(900,60)
-	var = np.nanvar(bindxy, axis=1)
+	raw_var = np.nanvar(bindxy, axis=1)
+
+
 
 	rs_dxy = np.reshape(dxy,[int(np.size(dxy)/binsz), binsz])
 	time_min = np.linspace(0, 60, np.size(dxy))
@@ -343,8 +348,8 @@ model = input('Use a random forest?: ')
 satisfaction = []
 
 if model == 'y':
-	#choosing correct model 
-	os.chdir('/Volumes/HlabShare/Sleep_Model/')
+	#choosing correct model
+	os.chdir('X:/Sleep_Model/')
 	if (pos == 'y' and emg == 'y'):
 		clf = load(mod_name+'_Motion_EMG.joblib')
 	if (pos == 'n' and emg == 'y'):
@@ -364,7 +369,7 @@ if model == 'y':
 	EEGamp, EEGmax, EEGmean = EEG(downdatlfp)
 
 	if emg == 'y':
-		EMG = EMG(EMGamp)
+		EMG = EMG_one(EMGamp)
 
 	#BANDPOWER
 	print('Extracting delta bandpower...')
@@ -401,9 +406,9 @@ if model == 'y':
 	EEGtheta = normalize(EEGtheta)
 	EEGfire = normalize(EEGfire)
 	delt_thet = normalize(delt_thet)
-	
 
-	#get pre and post (1,2,3) for delta, theta, and narrow band 
+
+	#get pre and post (1,2,3) for delta, theta, and narrow band
 	delta_post, delta_pre = post_pre(EEGdelta, EEGdelta)
 	theta_post, theta_pre = post_pre(EEGtheta, EEGtheta)
 	delta_post2, delta_pre2 = post_pre(delta_post, delta_pre)
@@ -412,43 +417,33 @@ if model == 'y':
 	theta_post3, theta_pre3 = post_pre(theta_post2, theta_pre2)
 	nb_post, nb_pre = post_pre(EEGnb, EEGnb)
 
-	
+	animal_name = np.full(np.size(delta_pre), animal)
+	animal_num = np.zeros(900)
+	animal_num[:] = int(animal_name[0][3:])
 
 	#create feature list based on presence of EMG and movement information
+
+
+
 	if (pos == 'y' and emg == 'n'):
-		FeatureList = [delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
-		EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean,binned_mot]
+		FeatureList = [animal_num, delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
+		EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean,binned_mot,raw_var]
 
 	elif (pos == 'n' and emg == 'n'):
-		FeatureList = [delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
-		EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean]
+		FeatureList = [animal_num, delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
+		EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean,nans,nans]
 
 	elif (pos == 'n' and emg == 'y'):
-		FeatureList =[delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
-		EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean,EMG]
+		FeatureList =[animal_num, delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
+		EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean,EMG,nans]
 
 	elif (pos == 'y' and emg == 'y'):
-		FeatureList = [delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
-		EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean,EMG,binned_mot]
+		FeatureList = [animal_num, delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
+		EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean,EMG,binned_mot,raw_var]
 
-	if mod_name == 'mouse':
-		if (pos == 'y' and emg == 'n'):
-			FeatureList = [delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
-			EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean,binned_mot,var]
+	#FeatureList = FeatureList[1:-1]
 
-		elif (pos == 'n' and emg == 'n'):
-			FeatureList = [delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
-			EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean]
-
-		elif (pos == 'n' and emg == 'y'):
-			FeatureList =[delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
-			EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean,EMG]
-
-		elif (pos == 'y' and emg == 'y'):
-			FeatureList = [delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
-			EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean,EMG,binned_mot,var]
-		
-	#runs random forest 
+	#runs random forest
 	FeatureList_smoothed = []
 	for f in FeatureList:
 		FeatureList_smoothed.append(signal.medfilt(f, 5))
@@ -465,11 +460,200 @@ if model == 'y':
 
 	plt.tight_layout()
 	plt.show()
+	#plt.savefig('C:/Users/clayt/Desktop/preview.png')
 	satisfaction = input('Satisfied?: ')
 
 if satisfaction == 'y':
 	filename = animal + '_SleepStates' + hr + '.npy'
 	np.save(filename,Predict_y)
+	State = Predict_y
+	update = input('Update model?(y/n): ')
+	if update == 'y':
+		ymot = input('Use motion?: ')
+		yemg = input('Use EMG?: ')
+
+		if model == 'n':
+			normmean, normstd = normMean(hr)
+
+			#Generate average/max EEG amplitude, EEG frequency, EMG amplitude for each bin
+			print('Generating EEG vectors...')
+			EEGamp, EEGmax, EEGmean = EEG(downdatlfp)
+
+			EMG = EMG_one(EMGamp)
+
+			#BANDPOWER
+			print('Extracting delta bandpower...')
+			EEGdelta, idx_delta = bandPower(0.5, 4, downdatlfp)
+
+			print('Extracting theta bandpower...')
+			EEGtheta, idx_theta = bandPower(4, 8, downdatlfp)
+
+			print('Extracting alpha bandpower...')
+			EEGalpha, idx_alpha = bandPower(8, 12, downdatlfp)
+
+			print('Extracting beta bandpower...')
+			EEGbeta, idx_beta = bandPower(12, 30, downdatlfp)
+
+			print('Extracting gamma bandpower...')
+			EEGgamma, idx_gamma = bandPower(30, 80, downdatlfp)
+
+			print('Extracting narrow-band theta bandpower...')
+			EEG_broadtheta, idx_broadtheta = bandPower(2, 16, downdatlfp)
+
+			print('Boom. Boom. FIYA POWER...')
+			EEGfire, idx_fire = bandPower(4, 20, downdatlfp)
+
+			#RATIOS
+			EEGnb = EEGtheta/EEG_broadtheta
+			delt_thet = EEGdelta/EEGtheta
+
+			#NORMALIZE
+			EEGdelta = normalize(EEGdelta)
+			EEGalpha = normalize(EEGalpha)
+			EEGbeta = normalize(EEGbeta)
+			EEGgamma = normalize(EEGbeta)
+			EEGnb= normalize(EEGnb)
+			EEGtheta = normalize(EEGtheta)
+			EEGfire = normalize(EEGfire)
+			delt_thet = normalize(delt_thet)
+
+
+		#get pre and post (1,2,3) for delta, theta, and narrow band
+		delta_post, delta_pre = post_pre(EEGdelta, EEGdelta)
+		theta_post, theta_pre = post_pre(EEGtheta, EEGtheta)
+		delta_post2, delta_pre2 = post_pre(delta_post, delta_pre)
+		theta_post2, theta_pre2 = post_pre(theta_post, theta_pre)
+		delta_post3, delta_pre3 = post_pre(delta_post2, delta_pre2)
+		theta_post3, theta_pre3 = post_pre(theta_post2, theta_pre2)
+		nb_post, nb_pre = post_pre(EEGnb, EEGnb)
+
+
+		State[State == 1] = 0
+		State[State == 2] = 2
+		State[State == 3] = 5
+
+		#Make a data frame with the new information and then concat to OG
+
+		#this part might not be necessary
+		if ymot == 'y':
+			movement = np.load(movement_files[int(hr)-1])
+			video_key = np.load(vidkey_files[int(hr)-1])
+			time = movement[1]
+			time_sec = time*3600
+			dt = time_sec[2]-time_sec[1]
+			dxy = movement[0]
+			binsz = int(round(1/dt))
+
+			rs_dxy = np.reshape(dxy,[int(np.size(dxy)/binsz), binsz])
+			time_min = np.linspace(0, 60, np.size(dxy))
+
+			med = np.median(rs_dxy, axis = 1)
+			binned_dxy = np.mean(rs_dxy, axis = 1)
+			hist = np.histogram(med[~np.isnan(med)], bins = 1000)
+			csum = np.cumsum(hist[0])
+			th = np.size(med)*0.95
+			outliers_idx = np.where(csum>th)[0][0]
+			outliers = np.where(med>hist[1][outliers_idx])[0]
+
+			for i in outliers:
+				if i == 0:
+					med[i] = med[i+2]
+				else:
+					med[i] = med[i-1]
+					a = i-1
+				while med[i] > hist[1][outliers_idx]:
+					a = i-1
+					med[i] = med[a]
+			binned_mot = np.nanmean(np.reshape(med, (900, 4)), axis = 1)
+			binned_mot[np.isnan(binned_mot)] = 0
+
+		animal_name = np.full(np.size(delta_pre), animal)
+		time_int = [video_key[1,i][0:26] for i in np.arange(0, np.size(video_key[1,:]),int(np.size(video_key[1,:])/np.size(animal_name)))]
+		nans = np.zeros(np.size(animal_name))
+		nans[:] = np.nan
+		if np.size(np.where(pd.isnull(EMG))[0]) > 0:
+			 EMG[np.isnan(EMG)] = 0
+		animal_num = np.zeros(900)
+		animal_num[:] = int(animal_name[0][3:])
+		#creating correct feature list
+		if (ymot == 'y' and yemg == 'n'):
+			data = np.vstack([animal_name, animal_num,time_int, State, delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
+			EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean,nans,binned_mot,raw_var])
+
+		elif (ymot == 'n' and yemg == 'n'):
+			data = np.vstack([animal_name, animal_num,time_int, State, delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
+			EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean,nans,nans,nans])
+
+		elif (ymot == 'n' and yemg == 'y'):
+			data = np.vstack([animal_name, animal_num,time_int, State, delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
+			EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean,EMG,nans,nans])
+		elif(ymot == 'y' and yemg == 'y'):
+			data = np.vstack([animal_name, animal_num,time_int, State, delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
+			EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean,EMG,binned_mot,raw_var])
+		FeatureList = ['Animal_Name','animal_num', 'Time_Interval','State','delta_pre','delta_pre2','delta_pre3','delta_post','delta_post2','delta_post3','EEGdelta','theta_pre','theta_pre2','theta_pre3','theta_post',
+		'theta_post2','theta_post3','EEGtheta','EEGalpha','EEGbeta','EEGgamma','EEGnarrow','nb_pre','delta/theta','EEGfire','EEGamp','EEGmax','EEGmean','EMG', 'Motion', 'raw_var']
+
+		df_additions = pd.DataFrame(columns = FeatureList, data = data.T)
+
+		try:
+			Sleep_Model = np.load(file='X:/Sleep_Model/' + mod_name + '_model.pkl', allow_pickle=True)
+			Sleep_Model = Sleep_Model.append(df_additions, ignore_index=True)
+		except FileNotFoundError:
+			print('no model created...I will save this one')
+			df_additions.to_pickle('X:/Sleep_Model/'+mod_name + '_model.pkl')
+			Sleep_Model = df_additions
+		Sleep_Model.to_pickle('X:/Sleep_Model/'+mod_name + '_model.pkl')
+
+		x_features = copy.deepcopy(FeatureList)
+		[x_features.remove(i) for i in ['Animal_Name', 'Time_Interval','State']]
+
+		if (ymot == 'n' and yemg == 'y'):
+			x_features.remove('Motion')
+			jobname =mod_name+'_EMG.joblib'
+
+		if (yemg == 'n' and ymot == 'y'):
+			x_features.remove('EMG')
+			jobname =mod_name+'_Motion.joblib'
+
+		if (yemg == 'y' and ymot == 'y'):
+			jobname = mod_name+'_Motion_EMG.joblib'
+
+		if (yemg == 'n' and ymot == 'n'):
+			x_features.remove('EMG')
+			x_features.remove('Motion')
+			jobname = mod_name+'_no_move.joblib'
+			print('Just so you know...this model has no EMG and no Motion')
+
+		if yemg == 'y':
+			Sleep_Model = Sleep_Model.drop(index = np.where(Sleep_Model['EMG'].isin(['nan']))[0])
+
+		#retrain the model!!
+		prop = 1/2
+		model_inputs = Sleep_Model[x_features][0:int((max(Sleep_Model.index)+1)*prop)].apply(pd.to_numeric)
+		train_x = model_inputs.values
+		model_input_states = Sleep_Model['State'][0:int((max(Sleep_Model.index)+1)*prop)].apply(pd.to_numeric)
+		train_y = model_input_states.values
+
+		model_test = Sleep_Model[x_features][int((max(Sleep_Model.index)+1)*prop):].apply(pd.to_numeric)
+		test_x = model_test.values
+		model_test_states = Sleep_Model['State'][int((max(Sleep_Model.index)+1)*prop):].apply(pd.to_numeric)
+		test_y = model_test_states.values
+
+		model_dir = 'X:/Sleep_Model/'
+
+
+		print('Calculating tree...')
+		clf = random_forest_classifier(train_x, train_y)
+		Predict_y = clf.predict(test_x)
+		print ("Train Accuracy :: ", accuracy_score(train_y, clf.predict(train_x)))
+		print ("Test Accuracy :: ", accuracy_score(test_y, clf.predict(test_x)))
+
+		Satisfaction = input('Satisfied?: ')
+		if Satisfaction == 'y':
+		    clf = random_forest_classifier(Sleep_Model[x_features].apply(pd.to_numeric).values, Sleep_Model['State'].apply(pd.to_numeric).values)
+		    print ("Train Accuracy :: ", accuracy_score( Sleep_Model['State'].apply(pd.to_numeric).values, clf.predict(Sleep_Model[x_features].apply(pd.to_numeric).values)))
+		    dump(clf, model_dir+jobname)
+
 	sys.exit()
 
 
@@ -666,7 +850,7 @@ if fix == 'y':
 			else:
 				thresh = np.nanmean(sorted_med[0:idx])
 
-			moving = np.where(dxy > thresh)[0] 
+			moving = np.where(dxy > thresh)[0]
 			h = plt.gca().get_ylim()[1]
 			# consec = group_consecutives(np.where(med > thresh)[0])
 			consec = DLCMovement_input.group_consecutives(np.where(med > thresh)[0])
@@ -734,7 +918,7 @@ if fix == 'y':
 			if np.size(EMGamp)>1:
 				ax5.collections.clear()
 				ax5.fill_between(length,bottom,EMGamp[int(i*4*epochlen):int(i*4*epochlen+4*3*epochlen)],color='red')
-			
+
 			ml1.remove()
 			ml2.remove()
 
@@ -821,12 +1005,12 @@ else:
 		if model == 'y':
 			Prediction = clf.predict(Features[int(i),:].reshape(1,-1))
 			if Prediction == 0:
-				Prediction='Wake'  
+				Prediction='Wake'
 			elif Prediction == 2:
 				Prediction='NREM'
 			elif Prediction == 5:
 				Prediction='REM'
-			Predictions  = clf.predict_proba(Features[int(i),:].reshape(1,-1))  
+			Predictions  = clf.predict_proba(Features[int(i),:].reshape(1,-1))
 			predConf = np.max(Predictions,1)
 		print(i)
 		clicks = []
@@ -986,15 +1170,15 @@ else:
 					if keyboardClick == False:
 						print('pulling up video: '+ vidfilename)
 						cap = cv2.VideoCapture(motion_dir +vidfilename)
-						 
+
 						# Check if camera opened successfully
-						if (cap.isOpened()== False): 
+						if (cap.isOpened()== False):
 						  print("Error opening video stream or file")
 						for f in np.arange(vid_win[0], vid_win[-1]):
 							cap.set(1, f)
 							ret, frame = cap.read()
 							if ret == True:
-						 
+
 						    # Display the resulting frame
 								if f in score_win:
 									cv2.putText(frame, "SCORE WINDOW",(50, 105),cv2.FONT_HERSHEY_PLAIN,4,(225,0,0), 2)
@@ -1079,7 +1263,7 @@ else:
 				idx = np.where(sorted_med>int(max(sorted_med)*0.05))[0][0]
 
 				if idx == 0:
-					thresh = sorted_med[idx] 
+					thresh = sorted_med[idx]
 				#print(int(max(sorted_med)*0.50))
 				else:
 					thresh = np.nanmean(sorted_med[0:idx])
@@ -1110,15 +1294,15 @@ else:
 					if keyboardClick == False:
 						print('pulling up video: '+ vidfilename)
 						cap = cv2.VideoCapture(motion_dir +vidfilename)
-						 
+
 						# Check if camera opened successfully
-						if (cap.isOpened()== False): 
+						if (cap.isOpened()== False):
 						  print("Error opening video stream or file")
 						for f in np.arange(vid_win[0], vid_win[-1]):
 							cap.set(1, f)
 							ret, frame = cap.read()
 							if ret == True:
-						 
+
 						    # Display the resulting frame
 								if f in score_win:
 									cv2.putText(frame, "SCORE WINDOW",(50, 105),cv2.FONT_HERSHEY_PLAIN,4,(225,0,0), 2)
@@ -1174,15 +1358,15 @@ else:
 				if keyboardClick == False:
 					print('pulling up video...')
 					cap = cv2.VideoCapture(motion_dir +vidfilename)
-					 
+
 					# Check if camera opened successfully
-					if (cap.isOpened()== False): 
+					if (cap.isOpened()== False):
 					  print("Error opening video stream or file")
 					for f in np.arange(vid_win[0], vid_win[-1]):
 						cap.set(1, f)
 						ret, frame = cap.read()
 						if ret == True:
-					 
+
 					    # Display the resulting frame
 							if f in score_win:
 								cv2.putText(frame, "SCORE WINDOW",(50, 105),cv2.FONT_HERSHEY_PLAIN,4,(225,0,0), 2)
@@ -1197,7 +1381,7 @@ else:
 
 #if you fuck up, run from this line to the end
 State = fix_states(State, alter_nums = True)
-# plt.show(block=True) #if you fuck up comment this line out	 
+# plt.show(block=True) #if you fuck up comment this line out
 decision = input('Save sleep states? y/n: ')
 if decision == 'y':
 	filename = animal + '_SleepStates' + hr + '.npy'
@@ -1214,7 +1398,7 @@ if update == 'y':
 		print('Generating EEG vectors...')
 		EEGamp, EEGmax, EEGmean = EEG(downdatlfp)
 
-		EMG = EMG(EMGamp)
+		EMG = EMG_one(EMGamp)
 
 		#BANDPOWER
 		print('Extracting delta bandpower...')
@@ -1251,9 +1435,9 @@ if update == 'y':
 		EEGtheta = normalize(EEGtheta)
 		EEGfire = normalize(EEGfire)
 		delt_thet = normalize(delt_thet)
-	
 
-	#get pre and post (1,2,3) for delta, theta, and narrow band 
+
+	#get pre and post (1,2,3) for delta, theta, and narrow band
 	delta_post, delta_pre = post_pre(EEGdelta, EEGdelta)
 	theta_post, theta_pre = post_pre(EEGtheta, EEGtheta)
 	delta_post2, delta_pre2 = post_pre(delta_post, delta_pre)
@@ -1269,7 +1453,7 @@ if update == 'y':
 
 	#Make a data frame with the new information and then concat to OG
 
-	#this part might not be necessary 
+	#this part might not be necessary
 	if ymot == 'y':
 		movement = np.load(movement_files[int(hr)-1])
 		video_key = np.load(vidkey_files[int(hr)-1])
@@ -1309,41 +1493,36 @@ if update == 'y':
 	if np.size(np.where(pd.isnull(EMG))[0]) > 0:
 		 EMG[np.isnan(EMG)] = 0
 
+	animal_num = np.zeros(900)
+	animal_num[:] = int(animal_name[0][3:])
 	#creating correct feature list
 	if (ymot == 'y' and yemg == 'n'):
-		data = np.vstack([animal_name, time_int, State, delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
-		EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean,nans,binned_mot])
+		data = np.vstack([animal_name, animal_num, time_int, State, delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
+		EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean,nans,binned_mot,raw_var])
 
 	elif (ymot == 'n' and yemg == 'n'):
-		data = np.vstack([animal_name, time_int, State, delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
-		EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean,nans,nans])
+		data = np.vstack([animal_name, animal_num, time_int, State, delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
+		EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean,nans,nans,nans])
 
 	elif (ymot == 'n' and yemg == 'y'):
-		data = np.vstack([animal_name, time_int, State, delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
-		EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean,EMG,nans])
+		data = np.vstack([animal_name, animal_num, time_int, State, delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
+		EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean,EMG,nans,nans])
 	elif(ymot == 'y' and yemg == 'y'):
-		data = np.vstack([animal_name, time_int, State, delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
-		EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean,EMG,binned_mot])
-	FeatureList = ['Animal_Name', 'Time_Interval','State','delta_pre','delta_pre2','delta_pre3','delta_post','delta_post2','delta_post3','EEGdelta','theta_pre','theta_pre2','theta_pre3','theta_post',
-	'theta_post2','theta_post3','EEGtheta','EEGalpha','EEGbeta','EEGgamma','EEGnarrow','nb_pre','delta/theta','EEGfire','EEGamp','EEGmax','EEGmean','EMG', 'Motion']
-
-	if mod_name == 'mouse':
-		if ymot=='y':
-			data = np.vstack([data,var])
-		else:
-			data = np.vstack([data,nans])
-		FeatureList.append('var')
+		data = np.vstack([animal_name, animal_num,time_int, State, delta_pre, delta_pre2,delta_pre3,delta_post,delta_post2,delta_post3,EEGdelta,theta_pre,theta_pre2,theta_pre3,theta_post,theta_post2,theta_post3,
+		EEGtheta,EEGalpha,EEGbeta,EEGgamma,EEGnb,nb_pre,delt_thet,EEGfire,EEGamp,EEGmax,EEGmean,EMG,binned_mot,raw_var])
+	FeatureList = ['Animal_Name','animal_num' ,'Time_Interval','State','delta_pre','delta_pre2','delta_pre3','delta_post','delta_post2','delta_post3','EEGdelta','theta_pre','theta_pre2','theta_pre3','theta_post',
+	'theta_post2','theta_post3','EEGtheta','EEGalpha','EEGbeta','EEGgamma','EEGnarrow','nb_pre','delta/theta','EEGfire','EEGamp','EEGmax','EEGmean','EMG', 'Motion', 'raw_var']
 
 	df_additions = pd.DataFrame(columns = FeatureList, data = data.T)
 
 	try:
-		Sleep_Model = np.load(file='/Volumes/HlabShare/Sleep_Model/' + mod_name + '_model.pkl', allow_pickle=True)
+		Sleep_Model = np.load(file='X:/Sleep_Model/' + mod_name + '_model.pkl', allow_pickle=True)
 		Sleep_Model = Sleep_Model.append(df_additions, ignore_index=True)
 	except FileNotFoundError:
 		print('no model created...I will save this one')
-		df_additions.to_pickle('/Volumes/HlabShare/Sleep_Model/'+mod_name + '_model.pkl')
+		df_additions.to_pickle('X:/Sleep_Model/'+mod_name + '_model.pkl')
 		Sleep_Model = df_additions
-	Sleep_Model.to_pickle('/Volumes/HlabShare/Sleep_Model/'+mod_name + '_model.pkl')
+	Sleep_Model.to_pickle('X:/Sleep_Model/'+mod_name + '_model.pkl')
 
 	x_features = copy.deepcopy(FeatureList)
 	[x_features.remove(i) for i in ['Animal_Name', 'Time_Interval','State']]
@@ -1380,7 +1559,7 @@ if update == 'y':
 	model_test_states = Sleep_Model['State'][int((max(Sleep_Model.index)+1)*prop):].apply(pd.to_numeric)
 	test_y = model_test_states.values
 
-	model_dir = '/Volumes/HlabShare/Sleep_Model/'
+	model_dir = 'X:/Sleep_Model/'
 
 
 	print('Calculating tree...')
