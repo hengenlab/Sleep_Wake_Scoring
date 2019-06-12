@@ -261,8 +261,8 @@ def plot_predicted():
 #motion_dir = 'Y:/HellWeek/EAB00023/labeled_videos_new/'
 #rawdat_dir = 'Y:/HellWeek/EAB00023/EAB23_2018-10-19_18-28-50_p10c5_grounded2/'
 
-motion_dir= 'U:/rawdata/HellWeek/Grounded2/labeled_video_new/'
-rawdat_dir = 'U:/rawdata/HellWeek/Grounded2/EAB26_2018-10-19_18-23-50_p6c2/'
+#motion_dir= 'U:/rawdata/HellWeek/Grounded2/labeled_video_new/'
+#rawdat_dir = 'U:/rawdata/HellWeek/Grounded2/EAB26_2018-10-19_18-23-50_p6c2/'
 
 #EAB26 - 'Y:/HellWeek/Grounded2/EAB26_2018-10-19_18-23-50_p6c2'
 #sleep_scoring_videos
@@ -270,6 +270,9 @@ rawdat_dir = 'U:/rawdata/HellWeek/Grounded2/EAB26_2018-10-19_18-23-50_p6c2/'
 #EAB40
 #rawdat_dir = 'V:EAB00040/EAB00040_2019-03-29_10-28-27_p9_c5/'
 #motion_dir = 'V:EAB00040/EAB00040_2019-03-29_10-28-27_p9_c5_labeled_vid/'
+rawdat_dir = 'V:/EAB00040/EAB00040_2019-04-02_11-49-53_p9_c4/'
+motion_dir = 'V:/EAB00040/EAB00040_2019-04-02_11-49-53_p9_c4_labeled_vid/'
+
 
 os.chdir(rawdat_dir)
 meanEEG_perhr = np.load(rawdat_dir+'Average_EEG_perhr.npy')
@@ -341,6 +344,8 @@ if pos == 'y':
 			a = i-1
 			med[i] = med[a]
 	binned_mot = np.nanmean(np.reshape(med, (900, 4)), axis = 1)
+	binned_mot[np.where(np.isnan(binned_mot))] = 0
+
 
 ratio2 = 12*4
 
@@ -459,8 +464,8 @@ if model == 'y':
 
 
 	plt.tight_layout()
-	plt.show()
-	#plt.savefig('C:/Users/clayt/Desktop/preview.png')
+	#plt.show()
+	plt.savefig('C:/Users/clayt/Desktop/preview.png')
 	satisfaction = input('Satisfied?: ')
 
 if satisfaction == 'y':
@@ -1490,8 +1495,9 @@ if update == 'y':
 	time_int = [video_key[1,i][0:26] for i in np.arange(0, np.size(video_key[1,:]),int(np.size(video_key[1,:])/np.size(animal_name)))]
 	nans = np.zeros(np.size(animal_name))
 	nans[:] = np.nan
-	if np.size(np.where(pd.isnull(EMG))[0]) > 0:
-		 EMG[np.isnan(EMG)] = 0
+	if yemg == 'y':
+		if np.size(np.where(pd.isnull(EMG))[0]) > 0:
+		 	EMG[np.isnan(EMG)] = 0
 
 	animal_num = np.zeros(900)
 	animal_num[:] = int(animal_name[0][3:])
