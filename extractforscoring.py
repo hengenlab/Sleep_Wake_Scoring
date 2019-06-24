@@ -66,19 +66,19 @@ print(motion_dir)
 print(rawdat_dir)
 os.chdir(digi_dir)
 
-stmp = videotimestamp.vidtimestamp('Digital_1_Channels_int64_2018-10-19_18-21-31.bin')
 
-#stmp = (num-1)*3600*1000*1000*1000
-h5 = sorted(glob.glob(motion_dir+'*.h5'))
-vidfiles = sorted(glob.glob(motion_dir+'*labeled.mp4'))
-
-move_flag = input('Have you already created aligned movement arrays? (y/n): ')
+move_flag = input('Have you already created aligned movement arrays (answer y if not using movement)? (y/n): ')
 num = int(input('What hour are you starting on? (Starting at 0): '))
 
 os.chdir(rawdat_dir)
 files = sorted(glob.glob('*.bin'))
 
 if move_flag == 'n':
+	stmp = videotimestamp.vidtimestamp('Digital_1_Channels_int64_2018-10-19_18-21-31.bin')
+
+	#stmp = (num-1)*3600*1000*1000*1000
+	h5 = sorted(glob.glob(motion_dir+'*.h5'))
+	vidfiles = sorted(glob.glob(motion_dir+'*labeled.mp4'))
 	#check1(h5)
 	check2(h5)
 	check2(vidfiles)
