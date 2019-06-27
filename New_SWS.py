@@ -16,20 +16,11 @@ from joblib import dump, load
 import pandas as pd
 import warnings
 from Sleep_Wake_Scoring import SW_utils
+from Sleep_Wake_Scoring import Cursor
 
 # this is bad. i feel bad doing it. but here we are
 print('this code is supressing warnings because they were excessive and annoying. \nIf something weird is happening delete line 26 and try again\n')
 warnings.filterwarnings("ignore")
-
-def on_click(event):
-    print(f'xdata:{event.xdata} x:{event.x} axes: {event.inaxes}')
-    x_coordinates.append(math.floor(event.xdata))
-    CLICKED[0] = True
-
-def on_key(event):
-    KEY.append(event.key)
-    if event.key in [1,2,3,4]:
-        State.append(event.key)
 
 
 # 3 necessary directories
@@ -240,62 +231,38 @@ if model:
         State[State == 0] = 1
         State[State == 2] = 2
         State[State == 5] = 3
-        x_coordinates = []
-        KEY = []
-        CLICKED = []
-        cID = fig.canvas.mpl_connect('button_press_event', on_click)
-        cID2 = fig.canvas.mpl_connect('key_press_event', on_key)
+        cursor = Cursor(ax1, ax2, ax3)
+
+        cID = fig.canvas.mpl_connect('button_press_event', cursor.on_click)
+        cID2 = fig.canvas.mpl_connect('axes_enter_event', cursor.in_axes)
+        cID3 = fig.canvas.mpl_connect('key_press_event', cursor.on_press)
+
+        fig.show()
         DONE = False
         while not DONE:
-            print('select a bin to change or press "m" to view a section of the video. Press "d" when finished scoring the hour.')
-            press = fig.waitforbuttonpress(timeout = 20)
-            # true if key was pressed. false if mouse was clicked.
-            if not press:
-                fig.waitforbuttonpress(timeout = 20)
-                # CLEAR THOSE STATES AND PLOT AS WHITE
-                print(f'changing bins: {x_coordinates[0]} to {x_coordinates[1]}')
-                for b in np.arange(x_coordinates[0], x_coordinates[1]):
-                    b = math.floor(b)
-                    location = b
-                    rectangle = patch.Rectangle((location, 0), 3.8, height = 2, color = 'white')
-                    ax2.add_patch(rectangle)
+            plt.waitforbuttonpress()
+            if cursor.change_bins:
+                bins = cursor.bins
+                start_bin = cursor.bins[0]
+                end_bin = cursor.bins[1]
+                print(f'changing bins: {start_bin} to {end_bin}')
+                SW_utils.clear_bins(bins, ax2)
                 fig.canvas.draw()
-                new_state = int(input('What state should that bin be?'))
-                print('cool. ill change that')
-                # REPLOT THOSE STATES AS THE CORRECT COLOR AND MOVE ON
-                start_bin = x_coordinates[0]
-                end_bin = x_coordinates[1]
-                for b in np.arange(start_bin, end_bin):
-                    b = math.floor(b)
-                    location = b
-                    color = 'white'
-                    if new_state == 1:
-                        color = 'green'
-                    if new_state == 2:
-                        color = 'blue'
-                    if new_state == 3:
-                        color = 'red'
-                    rectangle = patch.Rectangle((location, 0), 3.8, height = 2, color = color)
-                    ax2.add_patch(rectangle)
+                new_state = int(input('What state should these be?: '))
+                SW_utils.correct_bins(start_bin, end_bin, ax2, new_state)
                 fig.canvas.draw()
                 State[start_bin:end_bin] = new_state
-                x_coordinates = []
-            elif KEY[-1] == 'm':
-                print('---- MOVIE MODE ----\npress "e" to exit this mode')
+                cursor.bins = []
+                cursor.change_bins = False
+            if cursor.movie_mode and cursor.movie_bin>0:
                 if vid:
-                    movie = True
-                    while movie:
-                        print('gon pull up some cute vids. click where you want to pull up the video')
-                        plt.waitforbuttonpress(timeout = 20)
-                        SW_utils.pull_up_movie(x_coordinates[-1], vid_sample, video_key, motion_dir)
-                        if KEY[-1] == 'e':
-                            cv2.destroyAllWindows()
-                            print('-------- leaving movie mode ------- come back soon')
-                            movie = False
+                    SW_utils.pull_up_movie(cursor.movie_bin, vid_sample, video_key, motion_dir, fs, epochlen, ratio2, dt)
+                    cursor.movie_bin = 0
                 else:
-                    print('you dont have video, sorry')
-            elif KEY[-1] == 'd':
+                    print("you don't have video, sorry")
+            if cursor.DONE:
                 DONE = True
+
         print('successfully left GUI')
         save_states = input('Would you like to save these sleep states?: y/n ') == 'y'
         if save_states:
