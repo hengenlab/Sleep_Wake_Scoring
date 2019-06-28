@@ -54,9 +54,9 @@ def check3(h5files, vidfiles):
 # digi_dir = '/media/bs004r/D1/2019-03-29_10-24-20_d2_c2/'
 # motion_dir = '/media/bs004r/EAB00040/labeled_videos/03_29/'
 
-digi_dir = '/media/bs002r/HellWeek/Digital/Cam_2018-10-19_18-21-31/'
-rawdat_dir = '/media/bs002r/HellWeek/EAB00023/EAB23_2018-10-19_18-28-50_p10c5_grounded2'
-motion_dir = '/media/bs002r/HellWeek/EAB00023/labeled_videos_new/'
+digi_dir = '/media/bs003r/Digital_Files/2019-06-05_12-56-31_d2_c5/'
+rawdat_dir = '/media/bs004r/EAB00047/EAB00047_2019-06-05_11-10-44_p8_c4/'
+motion_dir = '/media/bs004r/EAB00047/EAB00047_2019-06-05_11-10-44_p8_c4_video/'
 # digi_dir = '/media/rawdata/HellWeek/Digital/Cam_2018-10-19_18-21-31/'
 # rawdat_dir = '/media/rawdata/HellWeek/EAB00023/EAB23_2018-10-19_18-28-50_p10c5_grounded2/'
 # motion_dir = '/media/rawdata/HellWeek/EAB00023/labeled_videos/'
@@ -73,13 +73,13 @@ num = int(input('What hour are you starting on? (Starting at 0): '))
 os.chdir(rawdat_dir)
 files = sorted(glob.glob('*.bin'))
 
-if move_flag == 'n':
-	stmp = videotimestamp.vidtimestamp('Digital_1_Channels_int64_2018-10-19_18-21-31.bin')
 
-	#stmp = (num-1)*3600*1000*1000*1000
+os.chdir(digi_dir)
+
+if move_flag == 'n':
+	stmp = videotimestamp.vidtimestamp('Digital_1_Channels_int64_2019-06-05_12-56-31.bin')
 	h5 = sorted(glob.glob(motion_dir+'*.h5'))
 	vidfiles = sorted(glob.glob(motion_dir+'*labeled.mp4'))
-	#check1(h5)
 	check2(h5)
 	check2(vidfiles)
 	check3(h5, vidfiles)
@@ -102,7 +102,7 @@ if move_flag == 'n':
 	#posi = np.cumsum(leng)
 	#frame = np.arange(np.sum(leng))
 
-
+	os.chdir(rawdat_dir)
 	time, dat = ntk.load_raw_binary(files[0],64)
 	offset = (stmp-time[0])
 	alignedtime = (1000*1000*1000)*np.arange(np.sum(leng))/15 + offset
@@ -128,6 +128,13 @@ if move_flag == 'n':
 		basenames.append(basename)
 	mot_vect = np.concatenate(mot_vect)
 	dt = alignedtime[1]-alignedtime[0]
+
+	size_diff = np.size(mot_vect) - np.size(frame)
+
+	if size_diff > 0:
+		if all(np.isnan(mot_vect[-(size_diff):])):
+			print('deleting extra nans from mot_vect')
+			mot_vect= np.delete(mot_vect, np.arange((np.size(mot_vect)-size_diff), np.size(mot_vect)))
 
 	if offset<0:
 		n_phantom_frames = 0
@@ -172,7 +179,7 @@ filesindex = np.arange((num*12),np.size(files),12)
 cort = input('Cortical screw? (y/n): ')
 EMGinput = int(input('Enter EMG channel (0 if using motion): ')) - 1
 numchan = int(input('How many channels are on the headstage?'))
-HS = input('Enter array type (hs64, eibless64, silicon_probex): ')
+HS = input('Enter array type (hs64, eibless64, silicon_probex, PCB_tetrode): ')
 #reclen = int(input('Enter recording length in seconds: ')) #recording length in seconds
 reclen = 3600
 
@@ -191,6 +198,13 @@ elif HS == 'eibless64':
                          4,  8,  12, 16, 18, 22, 26, 30, 20, 24, 28, 32,
                          34, 38, 42, 46, 36, 40, 44, 48, 50, 54, 58, 62,
                          52, 56, 60, 64]) - 1
+elif HS == 'PCB_tetrode':
+     chan_map = np.array([2, 41, 50, 62, 6, 39, 42, 47, 34, 44, 51, 56,
+                          38, 48, 59, 64, 35, 53, 5, 37, 34, 57, 40, 43,
+                          45, 61, 46, 49, 36, 33, 52, 55, 15, 5, 58, 60,
+                          18, 9, 63, 1, 32, 14, 4, 7, 26, 20, 10, 13, 19,
+                          22, 16, 8, 28, 25, 12, 17, 23, 29, 27, 21, 11, 31, 30, 24]) - 1
+
 
 
 elif HS == 'silicon_probe1':
@@ -226,7 +240,6 @@ if cort == 'n':
 		if LFP_check == 'y':
 			hour = int(input('what hour will you use?'))
 			#good_chans = [9, 14, 25, 32, 49, 57, 48]
-			hstype = 'hs64'
 			SWS.checkLFPchan(rawdat_dir, HS, hour)
 			sys.exit('Exiting program now. Please run plot_LFP on local computer to choose cells')
 		if LFP_check == 'n':
