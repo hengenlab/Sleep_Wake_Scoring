@@ -12,6 +12,9 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 from joblib import dump, load
 import pandas as pd
+import cv2
+import math
+
 
 
 def check_h5_file_size(h5files): # previously Check1
@@ -289,9 +292,11 @@ def retrain_model(Sleep_Model, x_features, model_dir, jobname):
         dump(clf, model_dir + jobname)
 
 
-def pull_up_movie(index, vid_sample, video_key, motion_dir):
-    start = int(index * fs * epochlen)
-    end = start + int(3 * fs * epochlen)
+def pull_up_movie(index, vid_sample, video_key, motion_dir, fs, epochlen, ratio2, dt):
+    start = int(index * 60 * fs)
+    end = int(((index*60)+12) *fs)
+    print(f'index: {index}')
+    print(f'start: {start} end: {end}')
     vid_win_idx = np.where(np.logical_and(vid_sample >= start, vid_sample < end))[0]
     vid_win = video_key[2][vid_win_idx]
     if np.size(np.where(vid_win == 'nan')[0]) > 0:
@@ -300,6 +305,7 @@ def pull_up_movie(index, vid_sample, video_key, motion_dir):
         vid_win = [int(float(i)) for i in vid_win]
         if np.size(np.unique(video_key[1][vid_win_idx])) > 1:
             print('This period is between two windows. No video to display')
+            return
         else:
             vidfilename = np.unique(video_key[1][vid_win_idx])[0]
             score_win = np.arange(int(vid_win[0]) + int(np.size(vid_win) / 3), int(vid_win[0]) + int((np.size(vid_win) / 3) * 2))
@@ -321,5 +327,24 @@ def pull_up_movie(index, vid_sample, video_key, motion_dir):
 def pull_up_raw_trace():
     print('pull up the second figure for that bin - maybe. Option to click through a few bins around it?')
 
-
+def clear_bins(bins, ax2):
+    for b in np.arange(bins[0], bins[1]):
+        b = math.floor(b)
+        location = b
+        rectangle = patch.Rectangle((location, 0), 3.8, height = 2, color = 'white')
+        ax2.add_patch(rectangle)
+def correct_bins(start_bin, end_bin, ax2, new_state):
+    for b in np.arange(start_bin, end_bin):
+        b = math.floor(b)
+        location = b
+        color = 'white'
+        if new_state == 1:
+            color = 'green'
+        if new_state == 2:
+            color = 'blue'
+        if new_state == 3:
+            color = 'red'
+        rectangle = patch.Rectangle((location, 0), 3.8, height = 2, color = color)
+        print('loc: ', location)
+        ax2.add_patch(rectangle)
 
