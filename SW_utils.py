@@ -166,7 +166,7 @@ def plot_motion(ax, med, video_key=False):
     ax.set_xlim(0, 60)
     ax.set_xticks(np.linspace(0, 60, 13))
     ax.set_ylim(0, 10)
-    if video_key is False:
+    if video_key is not False:
         title = [np.unique(video_key[1, :])[i][0:42] + ' \n ' for i in np.arange(np.size(np.unique(video_key[1, :])))]
         title = ''.join(title)
         title = title[0:-3]
@@ -292,10 +292,7 @@ def retrain_model(Sleep_Model, x_features, model_dir, jobname):
         dump(clf, model_dir + jobname)
 
 
-def pull_up_movie(index, vid_sample, video_key, motion_dir, fs, epochlen, ratio2, dt):
-    start = int(index * 60 * fs)
-    end = int(((index*60)+12) *fs)
-    print(f'index: {index}')
+def pull_up_movie(start, end, vid_sample, video_key, motion_dir, fs, epochlen, ratio2, dt):
     print(f'start: {start} end: {end}')
     vid_win_idx = np.where(np.logical_and(vid_sample >= start, vid_sample < end))[0]
     vid_win = video_key[2][vid_win_idx]
@@ -382,7 +379,7 @@ def clear_bins(bins, ax2):
     for b in np.arange(bins[0], bins[1]):
         b = math.floor(b)
         location = b
-        rectangle = patch.Rectangle((location, 0), 3.8, height = 2, color = 'white')
+        rectangle = patch.Rectangle((location, 0), 1.5, height = 2, color = 'white')
         ax2.add_patch(rectangle)
 def correct_bins(start_bin, end_bin, ax2, new_state):
     for b in np.arange(start_bin, end_bin):
@@ -395,7 +392,7 @@ def correct_bins(start_bin, end_bin, ax2, new_state):
             color = 'blue'
         if new_state == 3:
             color = 'red'
-        rectangle = patch.Rectangle((location, 0), 3.8, height = 2, color = color)
+        rectangle = patch.Rectangle((location, 0), 1.5, height = 2, color = color)
         print('loc: ', location)
         ax2.add_patch(rectangle)
 
@@ -404,21 +401,22 @@ def create_scoring_figure(rawdat_dir, hr, video_key, pos, med):
     plot_spectrogram(ax1,rawdat_dir, hr)
     if pos:
         plot_motion(ax3, med, video_key)
-    ax3.set_xlim(0, 3600)
-    ax3.set_xticks(np.linspace(0, 3600, 13))
-    ax3.set_xticklabels(np.arange(0, 65, 5))
-    ax3.set_ylim(0.5, 2)
     ax2.set_ylim(0.3, 1)
     ax2.set_xlim(0, 900)
+    fig.show()
     fig.tight_layout()
     return fig, ax1, ax2, ax3
 
-def update_raw_trace(line1, line2, line3, fig, index, downdatlfp, delt, thet, fs, epochlen):
-    start = int(index * 60 * fs)
-    end = int(((index * 60) + (3*epochlen)) * fs)
+def update_raw_trace(line1, line2, line3, ax4, fig, start, end,i, downdatlfp, delt, thet, fs, epochlen, emg, ratio2, EMGamp):
     line1.set_ydata(downdatlfp[start:end])
     line2.set_ydata(delt[start:end])
     line3.set_ydata(thet[start:end])
+    x = (end - start) / ratio2
+    length = np.arange(int(end / x - start / x))
+    bottom = np.zeros(int(end / x - start / x))
+    if emg:
+        ax4.collections.clear()
+        ax4.fill_between(length, bottom, EMGamp[int(i * 4 * epochlen):int(i * 4 * epochlen + 4 * 3 * epochlen)], color = 'red')
     fig.canvas.draw()
 
 

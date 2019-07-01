@@ -31,8 +31,8 @@ warnings.filterwarnings("ignore")
 
 # 3 necessary directories
 # maybe have these be inputs into the top level function instead of a line by line deal
-rawdat_dir = '/Volumes/bs004r/EAB00040/EAB00040_2019-04-02_11-49-53_p9_c4/'
-motion_dir = '/Volumes/bs004r/EAB00040/EAB00040_2019-04-02_11-49-53_p9_c4_labeled_vid/'
+rawdat_dir = '/Volumes/bs001r/rawdata/EAB00050/EAB00050_2019-06-20_17-05-06_p10_c4/'
+motion_dir = '/Volumes/bs001r/rawdata/EAB00050/EAB00050_2019-06-20_17-05-06_p10_c4_video/side/'
 model_dir = '/Volumes/HlabShare/Sleep_Model/'
 
 os.chdir(rawdat_dir)
@@ -59,7 +59,7 @@ ratio2 = 12 * 4
 if mod_name == 'mouse':
     LFP_ylim = 1000
 else:
-    LFP_ylim = 5000
+    LFP_ylim = 500
 
 if pos:
     print('loading motion...')
@@ -276,9 +276,14 @@ if model:
                 cursor.change_bins = False
             if cursor.movie_mode and cursor.movie_bin>0:
                 if vid:
-                    SW_utils.pull_up_movie(cursor.movie_bin, vid_sample, video_key, motion_dir, fs, epochlen, ratio2, dt)
-                    SW_utils.update_raw_trace(line1, line2, line3, fig2, cursor.movie_bin, downdatlfp, delt, thet, fs, epochlen)
+                    start = int(cursor.movie_bin * 60 * fs)
+                    end = int(((cursor.movie_bin * 60) + 12) * fs)
+                    i=0
+                    SW_utils.update_raw_trace(line1, line2, line3, ax4, fig, start, end,i, downdatlfp, delt, thet, fs, epochlen, emg, ratio2, EMGamp)
+                    fig2.canvas.draw()
+                    SW_utils.pull_up_movie(start, end, vid_sample, video_key, motion_dir, fs, epochlen, ratio2, dt)
                     cursor.movie_bin = 0
+
                 else:
                     print("you don't have video, sorry")
             if cursor.DONE:
@@ -286,6 +291,7 @@ if model:
 
         print('successfully left GUI')
         cv2.destroyAllWindows()
+        plt.close('all')
         save_states = input('Would you like to save these sleep states?: y/n ') == 'y'
         if save_states:
             fileName = rawdat_dir + animal + '_SleepStates' + hr + '.npy'
@@ -345,44 +351,51 @@ if model:
         vid_win_idx = np.where(np.logical_and(vid_sample >= start, vid_sample < end))[0]
         vid_win = video_key[2][vid_win_idx]
         line1, line2, line3 = SW_utils.pull_up_raw_trace(i, ax1, ax2, ax3,ax4, emg, start, end, realtime, downdatlfp, fs, mod_name, LFP_ylim, delt, thet, epochlen, EMGamp, ratio2)
-        plt.show()
+        fig.show()
+        fig2.show()
         plt.tight_layout()
         State = np.zeros(900)
 
 
-        for i in range(0,900):
-            input('press enter or quit')
+        for i in range(0,899):
+            # input('press enter or quit')
             print(f'here. index: {i}')
             start = int(i * fs * epochlen)
             end = int(i * fs * epochlen + fs * 3 * epochlen)
             vid_win_idx = np.where(np.logical_and(vid_sample >= start, vid_sample < end))[0]
             vid_win = video_key[2][vid_win_idx]
-            line1.set_ydata(downdatlfp[start:end])
+            SW_utils.update_raw_trace(line1, line2, line3, ax4, fig, start, end,i, downdatlfp, delt, thet, fs, epochlen, emg, ratio2, EMGamp)
             if model:
                 Prediction = clf.predict(Features[int(i),:].reshape(1,-1))
                 Predictions = clf.predict_proba(Features[int(i), :].reshape(1, -1))
                 confidence = np.max(Predictions, 1)
                 t1 = ax1.text(1800, 1, str(Prediction))
                 t2 = ax1.text(1800, 0.75, str(confidence))
+                fig.canvas.draw()
                 print('done w model stuff')
-            # need to update EMG if it's there
-            line2.set_ydata(delt[start:end])
-            line3.set_ydata(thet[start:end])
-            fig.canvas.draw()
+            fig.show()
+            fig2.show()
             button = False
             while not button:
                 button = fig2.waitforbuttonpress()
                 print('here1')
                 print(f'button: {button}')
                 if not button:
-                    SW_utils.pull_up_movie(i, vid_sample, video_key, motion_dir, fs, epochlen, ratio2, dt)
+                    SW_utils.pull_up_movie(start, end, vid_sample, video_key, motion_dir, fs, epochlen, ratio2, dt)
                 else:
-                    print('here')
-                    index = i*4
-                    SW_utils.correct_bins(index, index+4, ax6, State[-1])
+                    print(f'about to correct bins. Index: {i}')
+                    SW_utils.correct_bins(i, i+1, ax6, State[i])
                     fig2.canvas.draw()
+            fig2.canvas.flush_events()
+            fig.canvas.flush_events()
+        print('DONE SCORING')
+        cv2.destroyAllWindows()
+        plt.close('all')
+        last_state = int(input('Enter the last state: '))
+        State[-2:] = last_state
 
 
+        # save and update stuff here !!!
 
 else:
-    print('not using the model. have to score by hand')
+    print('not using the model. have to score by hand. just copy the last bit of code and put it here')
