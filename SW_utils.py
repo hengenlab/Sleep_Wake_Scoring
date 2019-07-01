@@ -324,8 +324,59 @@ def pull_up_movie(index, vid_sample, video_key, motion_dir, fs, epochlen, ratio2
             cv2.imshow('Frame', frame)
             cv2.waitKey(int((dt * 10e2) / 4))
     cap.release()
-def pull_up_raw_trace():
+def pull_up_raw_trace(i, ax1, ax2, ax3,ax4, emg, start, end, realtime, downdatlfp, fs, mod_name, LFP_ylim, delt, theta, epochlen, EMGamp, ratio2):
     print('pull up the second figure for that bin - maybe. Option to click through a few bins around it?')
+    x = (end - start) / ratio2
+    length = np.arange(int(end / x - start / x))
+    bottom = np.zeros(int(end / x - start / x))
+
+    line1 = plot_LFP(start, end, ax1, downdatlfp, realtime, fs, LFP_ylim)
+    line2 = plot_delta(delt, start, end, fs, ax2)
+    line3 = plot_theta(ax3, start, end, fs, theta)
+
+    if not emg:
+        ax4.text(0.5, 0.5, 'There is no EMG')
+    else:
+        plot_EMG(i, ax4, length, bottom, EMGamp, epochlen, x, start, end)
+
+    return line1, line2, line3
+
+def plot_delta(delt, start, end, fs, ax):
+    line2, = ax.plot(delt[start:end])
+    ax.set_xlim(0, end-start)
+    ax.set_ylim(np.min(delt), np.max(delt) / 3)
+    bottom_2 = ax.get_ylim()[0]
+    rectangle_2 = patch.Rectangle((fs*4,bottom_2),fs*4,height=float(-bottom_2/5))
+    ax.add_patch(rectangle_2)
+    ax.set_title('Delta power (0.5 - 4 Hz)')
+    return line2
+
+def plot_theta(ax, start, end, fs, theta):
+    line3, = ax.plot(theta[start:end])
+    ax.set_xlim(0, end-start)
+    ax.set_ylim(np.min(theta),np.max(theta)/3)
+    ax.set_title('Theta power (4 - 8 Hz)')
+    bottom_3 = ax.get_ylim()[0]
+    rectangle_3 = patch.Rectangle((fs * 4, bottom_3), fs * 4, height = -bottom_3 / 5)
+    ax.add_patch(rectangle_3)
+    return line3
+
+def plot_LFP(start, end, ax, downdatlfp, realtime, fs, LFP_ylim):
+    line1, = ax.plot(realtime[start:end], downdatlfp[start:end])
+    ax.set_xlim(start/fs, end/fs)
+    ax.set_title('LFP')
+    ax.set_ylim(-LFP_ylim, LFP_ylim)
+    bottom = -LFP_ylim
+    rectangle = patch.Rectangle((start/fs+4, bottom),4,height=-bottom/5)
+    ax.add_patch(rectangle)
+    return line1
+
+def plot_EMG(i, ax, length, bottom, EMGamp, epochlen, x, start, end):
+    # anything with EMG will error
+    ax.fill_between(length, bottom, EMGamp[int(i * 4 * epochlen):int(i * 4 * epochlen) + int(end / x - start / x)], color = 'red')
+    ax.set_titel('EMG power')
+    ax.set_xlim(0, int((end - start) / x) - 1)
+    ax.set_ylim(-1, 5)
 
 def clear_bins(bins, ax2):
     for b in np.arange(bins[0], bins[1]):
@@ -347,4 +398,27 @@ def correct_bins(start_bin, end_bin, ax2, new_state):
         rectangle = patch.Rectangle((location, 0), 3.8, height = 2, color = color)
         print('loc: ', location)
         ax2.add_patch(rectangle)
+
+def create_scoring_figure(rawdat_dir, hr, video_key, pos, med):
+    fig, (ax1, ax2, ax3) = plt.subplots(nrows = 3, ncols = 1, figsize = (11, 6))
+    plot_spectrogram(ax1,rawdat_dir, hr)
+    if pos:
+        plot_motion(ax3, med, video_key)
+    ax3.set_xlim(0, 3600)
+    ax3.set_xticks(np.linspace(0, 3600, 13))
+    ax3.set_xticklabels(np.arange(0, 65, 5))
+    ax3.set_ylim(0.5, 2)
+    ax2.set_ylim(0.3, 1)
+    ax2.set_xlim(0, 900)
+    fig.tight_layout()
+    return fig, ax1, ax2, ax3
+
+def update_raw_trace(line1, line2, line3, fig, index, downdatlfp, delt, thet, fs, epochlen):
+    start = int(index * 60 * fs)
+    end = int(((index * 60) + (3*epochlen)) * fs)
+    line1.set_ydata(downdatlfp[start:end])
+    line2.set_ydata(delt[start:end])
+    line3.set_ydata(thet[start:end])
+    fig.canvas.draw()
+
 

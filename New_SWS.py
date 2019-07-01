@@ -18,6 +18,12 @@ import warnings
 from Sleep_Wake_Scoring import SW_utils
 from Sleep_Wake_Scoring import Cursor
 
+def on_press(event):
+    if event.key in ['1','2','3']:
+        State[i] = int(event.key)
+        print(f'scored: {event.key}')
+
+
 # this is bad. i feel bad doing it. but here we are
 print('this code is supressing warnings because they were excessive and annoying. \nIf something weird is happening delete line 26 and try again\n')
 warnings.filterwarnings("ignore")
@@ -50,6 +56,11 @@ thet = np.concatenate((500 * [0], thet, 500 * [0]))
 downdatlfp = np.load('EEGhr' + hr + '.npy')
 ratio2 = 12 * 4
 
+if mod_name == 'mouse':
+    LFP_ylim = 1000
+else:
+    LFP_ylim = 5000
+
 if pos:
     print('loading motion...')
     movement_files = np.sort(glob.glob(motion_dir + '*tmove.npy'))
@@ -72,6 +83,9 @@ if emg:
     EMGamp = np.load('EMGhr' + hr + '.npy')
     EMGamp = (EMGamp - np.average(EMGamp)) / np.std(EMGamp)
     EMG = SW_utils.generate_EMG(EMGamp)
+    EMGamp = np.pad(EMGamp, (0, 100), 'constant')
+else:
+    EMGamp = False
 
 os.chdir(rawdat_dir)
 normmean, normstd = SW_utils.normMean(meanEEG_perhr, var_EEG_perhr, hr)
@@ -221,11 +235,17 @@ if model:
         sys.exit()
     fix = input('Do you want to fix the models states?: y/n')=='y'
     if fix:
+        start = 0
+        end = int(fs * 3 * epochlen)
+        realtime = np.arange(np.size(downdatlfp)) / fs
+        fig2, (ax4, ax5, ax6, ax7) = plt.subplots(nrows = 4, ncols = 1, figsize = (11,6))
+        line1, line2, line3 = SW_utils.pull_up_raw_trace(0, ax4, ax5, ax6, ax7, emg, start, end, realtime, downdatlfp, fs, mod_name, LFP_ylim, delt, thet, epochlen, EMGamp, ratio2)
         if pos:
             # this should probably be a different figure without the confidence line?
             fig, ax1, ax2, ax3 = SW_utils.create_prediction_figure(rawdat_dir, hr, Predict_y, clf, Features, pos, med, video_key)
         else:
             fig, ax1, ax2, ax3 = SW_utils.create_prediction_figure(rawdat_dir, hr, Predict_y, clf, Features, pos)
+
         plt.ion()
         State = copy.deepcopy(Predict_y)
         State[State == 0] = 1
@@ -237,7 +257,7 @@ if model:
         cID2 = fig.canvas.mpl_connect('axes_enter_event', cursor.in_axes)
         cID3 = fig.canvas.mpl_connect('key_press_event', cursor.on_press)
 
-        fig.show()
+        plt.show()
         DONE = False
         while not DONE:
             plt.waitforbuttonpress()
@@ -257,6 +277,7 @@ if model:
             if cursor.movie_mode and cursor.movie_bin>0:
                 if vid:
                     SW_utils.pull_up_movie(cursor.movie_bin, vid_sample, video_key, motion_dir, fs, epochlen, ratio2, dt)
+                    SW_utils.update_raw_trace(line1, line2, line3, fig2, cursor.movie_bin, downdatlfp, delt, thet, fs, epochlen)
                     cursor.movie_bin = 0
                 else:
                     print("you don't have video, sorry")
@@ -264,6 +285,7 @@ if model:
                 DONE = True
 
         print('successfully left GUI')
+        cv2.destroyAllWindows()
         save_states = input('Would you like to save these sleep states?: y/n ') == 'y'
         if save_states:
             fileName = rawdat_dir + animal + '_SleepStates' + hr + '.npy'
@@ -303,5 +325,64 @@ if model:
             SW_utils.retrain_model(Sleep_Model, x_features, model_dir, jobname)
     else:
         print('not fixing states. going to score the whole thing by hand. But with the models predictions and the bar thing')
+        # show the model's prediction somewhere
+        # connect the cursor again, but make it like the original where just if you click it pulls up the video
+        # make the 2 figures. then just redraw the figs every time
+        # consider making the LFP_ylim a variable cause it can be variable
+
+        #register clicker for button press
+
+
+        fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows = 4, ncols = 1, figsize = (11,6))
+        fig2, ax5, ax6, ax7 = SW_utils.create_scoring_figure(rawdat_dir, hr, video_key, pos, med)
+        cursor = Cursor(ax5, ax6, ax7)
+        cID3 = fig2.canvas.mpl_connect('key_press_event', on_press)
+
+        i = 0
+        start = int(i * fs * epochlen)
+        end = int(i * fs * epochlen + fs * 3 * epochlen)
+        realtime = np.arange(np.size(downdatlfp)) / fs
+        vid_win_idx = np.where(np.logical_and(vid_sample >= start, vid_sample < end))[0]
+        vid_win = video_key[2][vid_win_idx]
+        line1, line2, line3 = SW_utils.pull_up_raw_trace(i, ax1, ax2, ax3,ax4, emg, start, end, realtime, downdatlfp, fs, mod_name, LFP_ylim, delt, thet, epochlen, EMGamp, ratio2)
+        plt.show()
+        plt.tight_layout()
+        State = np.zeros(900)
+
+
+        for i in range(0,900):
+            input('press enter or quit')
+            print(f'here. index: {i}')
+            start = int(i * fs * epochlen)
+            end = int(i * fs * epochlen + fs * 3 * epochlen)
+            vid_win_idx = np.where(np.logical_and(vid_sample >= start, vid_sample < end))[0]
+            vid_win = video_key[2][vid_win_idx]
+            line1.set_ydata(downdatlfp[start:end])
+            if model:
+                Prediction = clf.predict(Features[int(i),:].reshape(1,-1))
+                Predictions = clf.predict_proba(Features[int(i), :].reshape(1, -1))
+                confidence = np.max(Predictions, 1)
+                t1 = ax1.text(1800, 1, str(Prediction))
+                t2 = ax1.text(1800, 0.75, str(confidence))
+                print('done w model stuff')
+            # need to update EMG if it's there
+            line2.set_ydata(delt[start:end])
+            line3.set_ydata(thet[start:end])
+            fig.canvas.draw()
+            button = False
+            while not button:
+                button = fig2.waitforbuttonpress()
+                print('here1')
+                print(f'button: {button}')
+                if not button:
+                    SW_utils.pull_up_movie(i, vid_sample, video_key, motion_dir, fs, epochlen, ratio2, dt)
+                else:
+                    print('here')
+                    index = i*4
+                    SW_utils.correct_bins(index, index+4, ax6, State[-1])
+                    fig2.canvas.draw()
+
+
+
 else:
     print('not using the model. have to score by hand')

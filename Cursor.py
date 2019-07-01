@@ -1,4 +1,5 @@
 import math
+import Sleep_Wake_Scoring.SW_utils as sw
 class Cursor(object):
     def __init__(self, ax1, ax2, ax3):
         self.clicked=False
@@ -12,6 +13,7 @@ class Cursor(object):
         self.change_bins = False
         self.movie_bin = 0
         self.DONE = False
+        self.STATE = []
         print('making a cursor')
 
 
@@ -22,6 +24,8 @@ class Cursor(object):
         if event.key == 'd':
             print('DONE SCORING')
             self.DONE = True
+        elif event.key in [1,2,3,4]:
+            self.STATE.append(event.key)
 
 
     def in_axes(self, event):
