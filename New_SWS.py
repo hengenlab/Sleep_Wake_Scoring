@@ -239,6 +239,7 @@ if model:
         sys.exit()
     fix = input('Do you want to fix the models states?: y/n')=='y'
     if fix:
+        SW_utils.print_instructions()
         start = 0
         end = int(fs * 3 * epochlen)
         realtime = np.arange(np.size(downdatlfp)) / fs

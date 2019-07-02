@@ -420,4 +420,68 @@ def update_raw_trace(line1, line2, line3, ax4, fig, start, end,i, downdatlfp, de
     fig.canvas.draw()
 
 
+def print_instructions():
+    print('''\
+     
+                            .--,       .--,  
+                           ( (  \.---./  ) ) 
+                            '.__/o   o\__.'
+                               {=  ^  =}
+                                >  -  <
+        ____________________.""`-------`"".________________________
+         
+                              INSTRUCTIONS
+                      
+        Welcome to Sleep Wake Scoring!
+        
+        The figure you're looking at consists of 3 plots:
+        1. The spectrogram for the hour you're scoring
+        2. The random forest model's predicted states
+        3. The binned motion for the hour
+        
+        TO CORRECT BINS:
+        - click once on the middle figure to select the start of the bin you want to change
+        - then click the last spot of the bin you want to change   
+        - switch to terminal and type the state you want that bin to become
+        
+        VIDEO / RAW DATA:
+        - if you hover over the motion figure you enter ~~ movie mode ~~  
+        - click on that figure where you want to pull up movie and the raw trace for
+            the 4 seconds before, during, and after the point that you clicked
+        
+        CURSOR:
+        - because you have to click in certain figures it can be annoying to line up your mouse
+            with where you want to inspect 
+        - while selected in the scoring figure (called Figure 2) press 'l' (as in Lizzie) to toggle a black line across each plot
+        - this line will stay there until you press 'l' again, then it will erase and move
+        - adjust until you like your location, then click to select a bin or watch a movie
+        
+        EXITING SCORING:     
+        - are you done correcting bins?
+        - are you sure?
+        - are you going to come to me/clayton/lizzie and ask how you 'go back' and 'change a few more bins'?
+        - think for a second and then, when you're sure, press 'd'
+        - it will then ask you if you want to save your states and/or update the random forest model
+            - choose wisely 
+        
+        NOTES:
+        - all keys pressed should be lowercase. don't 'shift + d'. just 'd'.
+        - the video window along with the raw trace figure will remain up and update when you click a new bin
+            don't worry about closing them or quitting them, it will probably error if you do.
+        - slack me any errors if you get them or you have ideas for new functionality/GUI design
+            - always looking to stay ~fresh~ with those ~graphics~
+        
+        coming soon to sleep-wake code near you:
+        - coding the state while you're slected in the figure, so you don't have to switch to terminal 
+        - automatically highlighting problem areas where the model isn't sure or a red flag is raised (going wake/rem/wake/rem)
+        - letting you choose the best fitting model before you fix the states to limit the amont of corrections
+        
+        
+        ANOUNCEMENTS:
+        - if you're trying to code each bin individually (a.k.a. when it asks you if you want to correct the model you say 'no')
+            it doesn't save afterward yet. you will have to manually save it after you're done for the time being 
+                                              
+                                               ''')
+
+
 
