@@ -31,8 +31,12 @@ warnings.filterwarnings("ignore")
 
 # 3 necessary directories
 # maybe have these be inputs into the top level function instead of a line by line deal
-rawdat_dir = '/Volumes/bs001r/rawdata/EAB00050/EAB00050_2019-06-20_17-05-06_p10_c4/'
-motion_dir = '/Volumes/bs001r/rawdata/EAB00050/EAB00050_2019-06-20_17-05-06_p10_c4_video/side/'
+# rawdat_dir = '/Volumes/bs001r/rawdata/EAB00050/EAB00050_2019-06-20_17-05-06_p10_c4/'
+# motion_dir = '/Volumes/bs001r/rawdata/EAB00050/EAB00050_2019-06-20_17-05-06_p10_c4_video/side/'
+# model_dir = '/Volumes/HlabShare/Sleep_Model/'
+
+rawdat_dir = '/Volumes/bs004r/EAB00040/EAB00040_2019-04-02_11-49-53_p9_c4/'
+motion_dir = '/Volumes/bs004r/EAB00040/EAB00040_2019-04-02_11-49-53_p9_c4_labeled_vid/'
 model_dir = '/Volumes/HlabShare/Sleep_Model/'
 
 os.chdir(rawdat_dir)
@@ -59,7 +63,7 @@ ratio2 = 12 * 4
 if mod_name == 'mouse':
     LFP_ylim = 1000
 else:
-    LFP_ylim = 500
+    LFP_ylim = 100
 
 if pos:
     print('loading motion...')

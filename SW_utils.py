@@ -420,3 +420,4 @@ def update_raw_trace(line1, line2, line3, ax4, fig, start, end,i, downdatlfp, de
     fig.canvas.draw()
 
 
+
