@@ -52,16 +52,16 @@ def check3(h5files, vidfiles):
 	if timestamps_h5 != timestamps_vid:
 		sys.exit('h5 files and video files not aligned')
 # Checks to make sure that all of the h5 files are continuous
-digi_dir = '/media/bs004r/D1/2019-03-29_10-24-20_d2_c2/'
+digi_dir = '/media/bs001r/rawdata/Digital_Files/2019-06-20_17-03-13_d2_c2/'
 #digi_dir = '/media/bs002r/HellWeek/Digital/Cam_2018-10-19_18-21-31/'
-motion_dir = '/media/bs004r/EAB00040/EAB00040_2019-03-29_10-28-27_p9_c5_labeled_vid/'
-rawdat_dir = '/media/bs004r/EAB00040/EAB00040_2019-03-29_10-28-27_p9_c5/'
+motion_dir = '/media/bs001r/rawdata/EAB00050/EAB00050_2019-06-20_17-05-06_p10_c4_video/side/'
+rawdat_dir = '/media/bs001r/rawdata/EAB00050/EAB00050_2019-06-20_17-05-06_p10_c4/'
 print(digi_dir)
 print(motion_dir)
 print(rawdat_dir)
 os.chdir(digi_dir)
 
-stmp = videotimestamp.vidtimestamp('Digital_1_Channels_int64_2019-03-29_10-24-20.bin')
+stmp = videotimestamp.vidtimestamp('Digital_1_Channels_int64_2019-04-02_11-47-15.bin')
 
 #stmp = (num-1)*3600*1000*1000*1000  
 h5 = sorted(glob.glob(motion_dir+'*.h5'))
@@ -152,17 +152,14 @@ if move_flag == 'n':
 
 	reorganized_mot = []
 	nhours = int(aligner[-1,1])
-	for h in np.arange(num, nhours):
-		tmp_idx = np.where((aligner[:,1]>(h)) & (aligner[:,1]<(h+1)))[0]      
+	bns = [i[i.find('-')+1:i.find('-')+19] for i in basenames]
+	bns = np.unique(bns)
+	for h in np.arange(0, nhours):
+		tmp_idx = np.where((aligner[:,1]>(h)) & (aligner[:,1]<(h+1)))[0]
 		time_move = (np.vstack((aligner[tmp_idx, 2], aligner[tmp_idx,1])))
 		video_key = (np.vstack((aligner[tmp_idx, 0], which_vid_full[tmp_idx], corrected_frames[tmp_idx])))
-		if h<10:
-			np.save(motion_dir+'hr0' + str(h) +'_tmove.npy', time_move)
-			np.save(motion_dir+'hr0' + str(h)+'_vidkey.npy', video_key)
-		else:
-			np.save(motion_dir+'hr' + str(h) +'_tmove.npy', time_move)
-			np.save(motion_dir+'hr' + str(h)+'_vidkey.npy', video_key)
-
+		np.save(motion_dir+bns[h]+'_tmove.npy', time_move)
+		np.save(motion_dir+bns[h]+'_vidkey.npy', video_key)
 
 
 os.chdir(rawdat_dir)
@@ -189,6 +186,12 @@ elif HS == 'eibless64':
                          4,  8,  12, 16, 18, 22, 26, 30, 20, 24, 28, 32,
                          34, 38, 42, 46, 36, 40, 44, 48, 50, 54, 58, 62,
                          52, 56, 60, 64]) - 1
+elif HS == 'PCB_tetrode':
+    chan_map = np.array([2, 41, 50, 62, 6, 39, 42, 47, 34, 44, 51, 56, 
+                          38, 48, 59, 64, 35, 53, 3, 37, 54, 57, 40, 43, 
+                          45, 61, 46, 49, 36, 33, 52, 55, 15, 5, 58, 60, 
+                          18, 9, 63, 1, 32, 14, 4, 7, 26, 20, 10, 13, 19, 
+                          22, 16, 8, 28, 25, 12, 17, 23, 29, 27, 21, 11, 31, 30, 24]) - 1
 
 elif HS == 'silicon_probe1':
     chan_map = np.arange(0, 64)
