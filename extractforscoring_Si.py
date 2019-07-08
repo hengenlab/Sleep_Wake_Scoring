@@ -52,16 +52,16 @@ def check3(h5files, vidfiles):
 	if timestamps_h5 != timestamps_vid:
 		sys.exit('h5 files and video files not aligned')
 # Checks to make sure that all of the h5 files are continuous
-digi_dir = '/media/bs001r/rawdata/Digital_Files/2019-06-20_17-03-13_d2_c2/'
+digi_dir = '/media/bs001r/rawdata/Digital_Files/2019-06-19_20-55-53_d2_c2/'
 #digi_dir = '/media/bs002r/HellWeek/Digital/Cam_2018-10-19_18-21-31/'
-motion_dir = '/media/bs001r/rawdata/EAB00050/EAB00050_2019-06-20_17-05-06_p10_c4_video/side/'
-rawdat_dir = '/media/bs001r/rawdata/EAB00050/EAB00050_2019-06-20_17-05-06_p10_c4/'
+motion_dir = '/media/bs001r/rawdata/EAB00047/EAB00047_2019-06-19_20-59-59_p9_c3_labeled_video/'
+rawdat_dir = '/media/bs001r/rawdata/EAB00047/EAB00047_2019-06-19_20-59-59_p9_c3/'
 print(digi_dir)
 print(motion_dir)
 print(rawdat_dir)
 os.chdir(digi_dir)
 
-stmp = videotimestamp.vidtimestamp('Digital_1_Channels_int64_2019-04-02_11-47-15.bin')
+stmp = videotimestamp.vidtimestamp('Digital_1_Channels_int64_2019-06-19_21-10-54.bin')
 
 #stmp = (num-1)*3600*1000*1000*1000  
 h5 = sorted(glob.glob(motion_dir+'*.h5'))
@@ -218,7 +218,7 @@ if cort == 'n':
 		LFP_check = input('Have you checked the average LFP that you are about to use? (y/n)')
 		if LFP_check == 'n':
 			hour = int(input('what hour did you use?'))
-			SWS.confirm_channels(selected_chans, raw_datdir, HS, hour)
+			SWS.confirm_channels(selected_chans, rawdat_dir, HS, hour)
 			print('Go find the individual and average spectrograms of your LFP in ' + rawdat_dir+'LFP_chancheck')
 			sys.exit()
 	except FileNotFoundError:
