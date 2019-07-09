@@ -61,18 +61,19 @@ def init_motion(movement):
     hist = np.histogram(med[~np.isnan(med)], bins = 1000)
     csum = np.cumsum(hist[0])
     th = np.size(med) * 0.95
-    outliers_idx = np.where(csum > th)[0][0]
-    outliers = np.where(med > hist[1][outliers_idx])[0]
-
-    for i in outliers:
-        if i == 0:
-            med[i] = med[i + 2]
-        else:
-            med[i] = med[i - 1]
-            a = i - 1
-        while med[i] > hist[1][outliers_idx]:
-            a = i - 1
-            med[i] = med[a]
+    outliers_idx = np.where(csum > th)
+    if np.size(outliers_idx) > 0:
+        outliers_idx = outliers_idx[0][0]
+        outliers = np.where(med > hist[1][outliers_idx])[0]
+        for i in outliers:
+            if i == 0:
+                med[i] = med[i + 2]
+            else:
+                med[i] = med[i - 1]
+                a = i - 1
+            while med[i] > hist[1][outliers_idx]:
+                a = i - 1
+                med[i] = med[a]
     binned_mot = np.nanmean(np.reshape(med, (900, 4)), axis = 1)
     binned_mot[np.where(np.isnan(binned_mot))] = 0
     raw_var[np.where(np.isnan(raw_var))] = 0
@@ -470,6 +471,10 @@ def print_instructions():
             don't worry about closing them or quitting them, it will probably error if you do.
         - slack me any errors if you get them or you have ideas for new functionality/GUI design
             - always looking to stay ~fresh~ with those ~graphics~
+        - if something isn't working, make sure you're on Figure 2 and not the raw trace/terminal/video
+        - clicking the end bin followed by the first bin won't work
+            - will fix that soon
+        - plz don't toggle line while in motion axes, it messes up the axes limits, not sure why, working on it
         
         coming soon to sleep-wake code near you:
         - coding the state while you're slected in the figure, so you don't have to switch to terminal 

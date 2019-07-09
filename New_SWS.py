@@ -24,19 +24,12 @@ def on_press(event):
         print(f'scored: {event.key}')
 
 
-# this is bad. i feel bad doing it. but here we are
-print('this code is supressing warnings because they were excessive and annoying. \nIf something weird is happening delete line 26 and try again\n')
+print('this code is supressing warnings')
 warnings.filterwarnings("ignore")
 
-
-# 3 necessary directories
-# maybe have these be inputs into the top level function instead of a line by line deal
-# rawdat_dir = '/Volumes/bs001r/rawdata/EAB00050/EAB00050_2019-06-20_17-05-06_p10_c4/'
-# motion_dir = '/Volumes/bs001r/rawdata/EAB00050/EAB00050_2019-06-20_17-05-06_p10_c4_video/side/'
-# model_dir = '/Volumes/HlabShare/Sleep_Model/'
-
-rawdat_dir = '/Volumes/bs004r/EAB00040/EAB00040_2019-04-02_11-49-53_p9_c4/'
-motion_dir = '/Volumes/bs004r/EAB00040/EAB00040_2019-04-02_11-49-53_p9_c4_labeled_vid/'
+#
+rawdat_dir = '/Volumes/bs001r/rawdata/EAB00050/EAB00050_2019-06-20_17-05-06_p10_c4/'
+motion_dir = '/Volumes/bs001r/rawdata/EAB00050/EAB00050_2019-06-20_17-05-06_p10_c4_video/side/'
 model_dir = '/Volumes/HlabShare/Sleep_Model/'
 
 os.chdir(rawdat_dir)
@@ -267,7 +260,7 @@ if model:
         while not DONE:
             plt.waitforbuttonpress()
             if cursor.change_bins:
-                bins = cursor.bins
+                bins = np.sort(cursor.bins)
                 start_bin = cursor.bins[0]
                 end_bin = cursor.bins[1]
                 print(f'changing bins: {start_bin} to {end_bin}')
