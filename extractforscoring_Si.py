@@ -52,16 +52,16 @@ def check3(h5files, vidfiles):
 	if timestamps_h5 != timestamps_vid:
 		sys.exit('h5 files and video files not aligned')
 # Checks to make sure that all of the h5 files are continuous
-digi_dir = '/media/bs001r/rawdata/Digital_Files/2019-06-19_20-55-53_d2_c2/'
+digi_dir = '/media/bs003r/Digital_Files/2019-06-06_16-03-50_d2_c2/'
 #digi_dir = '/media/bs002r/HellWeek/Digital/Cam_2018-10-19_18-21-31/'
-motion_dir = '/media/bs001r/rawdata/EAB00047/EAB00047_2019-06-19_20-59-59_p9_c3_labeled_video/'
-rawdat_dir = '/media/bs001r/rawdata/EAB00047/EAB00047_2019-06-19_20-59-59_p9_c3/'
+motion_dir = '/media/bs004r/EAB00047/EAB00047_2019-06-06_16-07-10_p8_c4_video/'
+rawdat_dir = '/media/bs004r/EAB00047/EAB00047_2019-06-06_16-07-10_p8_c4/'
 print(digi_dir)
 print(motion_dir)
 print(rawdat_dir)
 os.chdir(digi_dir)
 
-stmp = videotimestamp.vidtimestamp('Digital_1_Channels_int64_2019-06-19_21-10-54.bin')
+stmp = videotimestamp.vidtimestamp('Digital_1_Channels_int64_2019-06-06_16-08-51.bin')
 
 #stmp = (num-1)*3600*1000*1000*1000  
 h5 = sorted(glob.glob(motion_dir+'*.h5'))
@@ -172,6 +172,8 @@ HS = input('Enter array type (hs64, eibless64, silicon_probex): ')
 #reclen = int(input('Enter recording length in seconds: ')) #recording length in seconds
 reclen = 3600
 
+silicon_flag = 0
+reset_risk = 0
 if HS == 'hs64':
     chan_map = np.array([26, 30, 6,  2,  18, 22, 14, 10, 12, 16, 8,  4,
                          28, 32, 24, 20, 48, 44, 36, 40, 64, 60, 52, 56,
@@ -192,25 +194,32 @@ elif HS == 'PCB_tetrode':
                           45, 61, 46, 49, 36, 33, 52, 55, 15, 5, 58, 60, 
                           18, 9, 63, 1, 32, 14, 4, 7, 26, 20, 10, 13, 19, 
                           22, 16, 8, 28, 25, 12, 17, 23, 29, 27, 21, 11, 31, 30, 24]) - 1
+    reset_risk = 1
 
 elif HS == 'silicon_probe1':
     chan_map = np.arange(0, 64)
     silicon_flag = 1
+    reset_risk = 1
 elif HS == 'silicon_probe2':
     chan_map = np.arange(64, 129)
     silicon_flag = 1
+    reset_risk = 1
 elif HS == 'silicon_probe3':
     chan_map = np.arange(129, 193)
     silicon_flag = 1
+    reset_risk = 1
 elif HS == 'silicon_probe4':
     chan_map = np.arange(193, 257)
     silicon_flag = 1
+    reset_risk = 1
 elif HS == 'silicon_probe5':
     chan_map = np.arange(257, 321)
     silicon_flag = 1
+    reset_risk = 1
 elif HS == 'silicon_probe6':
     chan_map = np.arange(321, 385)
     silicon_flag = 1
+    reset_risk = 1
 
 if cort == 'n':
 	try:
@@ -218,7 +227,7 @@ if cort == 'n':
 		LFP_check = input('Have you checked the average LFP that you are about to use? (y/n)')
 		if LFP_check == 'n':
 			hour = int(input('what hour did you use?'))
-			SWS.confirm_channels(selected_chans, rawdat_dir, HS, hour)
+			SWS.confirm_channels(selected_chans, raw_datdir, HS, hour)
 			print('Go find the individual and average spectrograms of your LFP in ' + rawdat_dir+'LFP_chancheck')
 			sys.exit()
 	except FileNotFoundError:
@@ -387,7 +396,7 @@ for fil in filesindex:
 	binned_dxy = np.mean(rs_dxy, axis = 1)
 	hist = np.histogram(med[~np.isnan(med)], bins = 1000)
 	csum = np.cumsum(hist[0])
-	th = np.size(med)*0.95
+	th = np.size(med[~np.isnan(med)])*0.95
 	outliers_idx = np.where(csum>th)[0][0]
 	outliers = np.where(med>hist[1][outliers_idx])[0]
 
@@ -425,8 +434,20 @@ for fil in filesindex:
 	mn = np.mean(x_spec, axis = 0)
 	del(f)
 	del(t_spec)
-	del(x_spec) 
-
+	del(x_spec)
+	resets_consec = []
+	if reset_risk == 1:
+		print('You have indicated that there could be a headstage reset here. Looking for them now.') 
+		resets = np.where(mn > np.mean(mn)*10)[0]
+		if np.size(resets)>0:
+			factor_1 = np.size(mn)/np.size(downdatlfp)
+			resets_consec= DLCMovement_input.group_consecutives(resets)
+			print('I found {} headstage reset(s)'.format(len(resets_consec)))
+			for r in resets_consec:
+				idx1 = int((np.asarray(r)/factor_1)[0])
+				idx2 = int((np.asarray(r)/factor_1)[-1]+1000)
+				downdatlfp[idx1:idx2] = 'nan'
+	del(resets_consec)
 	factor = np.size(mn)/np.size(med)
 	sat = np.where(mn > np.mean(mn))[0]
 	sat_1 = np.unique([int(i/factor)for i in sat])
