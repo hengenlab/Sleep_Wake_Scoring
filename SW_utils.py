@@ -13,6 +13,7 @@ from sklearn.metrics import accuracy_score
 from joblib import dump, load
 import pandas as pd
 import cv2
+import neuraltoolkit as ntk
 import math
 
 
@@ -61,9 +62,9 @@ def init_motion(movement):
     hist = np.histogram(med[~np.isnan(med)], bins = 1000)
     csum = np.cumsum(hist[0])
     th = np.size(med) * 0.95
-    outliers_idx = np.where(csum > th)
+    outliers_idx = np.where(csum > th)[0]
     if np.size(outliers_idx) > 0:
-        outliers_idx = outliers_idx[0][0]
+        outliers_idx = outliers_idx[0]
         outliers = np.where(med > hist[1][outliers_idx])[0]
         for i in outliers:
             if i == 0:
@@ -299,6 +300,7 @@ def pull_up_movie(start, end, vid_sample, video_key, motion_dir, fs, epochlen, r
     vid_win = video_key[2][vid_win_idx]
     if np.size(np.where(vid_win == 'nan')[0]) > 0:
         print('There is no video here')
+        return
     else:
         vid_win = [int(float(i)) for i in vid_win]
         if np.size(np.unique(video_key[1][vid_win_idx])) > 1:
@@ -310,6 +312,7 @@ def pull_up_movie(start, end, vid_sample, video_key, motion_dir, fs, epochlen, r
     x = (end - start) / ratio2
     length = np.arange(int(end / x - start / x))
     bottom = np.zeros(int(end / x - start / x))
+    print('Pulling up video ....')
     cap = cv2.VideoCapture(motion_dir + vidfilename)
     if not cap.isOpened():
         print("Error opening video stream or file")
@@ -420,6 +423,43 @@ def update_raw_trace(line1, line2, line3, ax4, fig, start, end,i, downdatlfp, de
         ax4.fill_between(length, bottom, EMGamp[int(i * 4 * epochlen):int(i * 4 * epochlen + 4 * 3 * epochlen)], color = 'red')
     fig.canvas.draw()
 
+def findPulse(dirb, df):
+	'''
+	finds the binary file that contains the sync pulse for the camera
+	dirb: digital binary directory
+	df: the first file in that directory '''
+	t,dr = ntk.load_digital_binary(dirb+df)
+
+	max_pos=np.where(dr==1)
+	zpos = np.where(dr==0)
+	first_on = max_pos[0][0]
+	next_off = zpos[0][first_on]
+	dif = next_off-first_on
+	thresh = dif*2
+
+	files = os.listdir(dirb)
+	files = np.sort(files)
+	flag = False
+	for f in files:
+		path = dirb+f
+		print(path)
+		t,dr = ntk.load_digital_binary(path)
+		max_pos=np.where(dr==1)
+
+		for i in range(len(max_pos[0])-thresh):
+			if (max_pos[0][i+thresh]-max_pos[0][i]) == thresh:
+				print('binary file:',path, '\nindex of the pulse in the max_pos array: ', i)
+				if dr[max_pos[0][i]-5000] > 0:
+					plt.plot(dr[max_pos[0][i]-5000:max_pos[0][i]+5000])
+				else:
+					plt.plot(dr[0:max_pos[0][i]*2])
+				flag = True
+				ret = t + i/25000 * 1000*1000*1000
+				return ret
+
+		if flag:
+			print('plz stop')
+			break
 
 def print_instructions():
     print('''\
@@ -472,8 +512,6 @@ def print_instructions():
         - slack me any errors if you get them or you have ideas for new functionality/GUI design
             - always looking to stay ~fresh~ with those ~graphics~
         - if something isn't working, make sure you're on Figure 2 and not the raw trace/terminal/video
-        - clicking the end bin followed by the first bin won't work
-            - will fix that soon
         - plz don't toggle line while in motion axes, it messes up the axes limits, not sure why, working on it
         
         coming soon to sleep-wake code near you:
