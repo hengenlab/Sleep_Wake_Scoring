@@ -28,8 +28,14 @@ print('this code is supressing warnings')
 warnings.filterwarnings("ignore")
 
 #
-rawdat_dir = '/Volumes/bs001r/rawdata/EAB00050/EAB00050_2019-06-20_17-05-06_p10_c4/'
-motion_dir = '/Volumes/bs001r/rawdata/EAB00050/EAB00050_2019-06-20_17-05-06_p10_c4_video/side/'
+# rawdat_dir = '/Volumes/carina/EAB00047/EAB00047_2019-06-27_15-14-19_p9_c5/'
+# motion_dir = '/Volumes/carina/EAB00047/EAB00047_2019-06-27_15-14-19_p9_c5_labeled_video/6_28_first_12/'
+
+# rawdat_dir = '/Volumes/bs005r/EAB00047/EAB00047_2019-06-10_15-11-36_p10_c4/'
+# motion_dir = '/Volumes/bs005r/EAB00047/EAB00047_2019-06-10_15-11-36_p10_c4_labeled_video/'
+
+motion_dir = '/Volumes/carina/EAB00027/EAB00027_2018-11-15_13-45-48_p3c2_labeled_video/'
+rawdat_dir = '/Volumes/carina/EAB00027/EAB00027_2018-11-15_13-45-48_p3c2/raw/'
 model_dir = '/Volumes/HlabShare/Sleep_Model/'
 
 os.chdir(rawdat_dir)
@@ -56,7 +62,7 @@ ratio2 = 12 * 4
 if mod_name == 'mouse':
     LFP_ylim = 1000
 else:
-    LFP_ylim = 100
+    LFP_ylim = 250
 
 if pos:
     print('loading motion...')
@@ -193,7 +199,9 @@ if model:
     satisfaction = input('Satisfied?: y/n ') == 'y'
     plt.close('all')
     if satisfaction:
-        filename = rawdat_dir + animal + '_SleepStates' + hr + '.npy'
+        mv_file = movement_files[int(hr)-1]
+        t_stamp = mv_file[mv_file.find('_tmove')-18:mv_file.find('_tmove')]
+        filename = rawdat_dir + animal + '_SleepStates_' + t_stamp + '.npy'
         np.save(filename, Predict_y)
         State = Predict_y
         update = input('Update model?(y/n): ') == 'y'
@@ -279,6 +287,7 @@ if model:
                     i=0
                     SW_utils.update_raw_trace(line1, line2, line3, ax4, fig, start, end,i, downdatlfp, delt, thet, fs, epochlen, emg, ratio2, EMGamp)
                     fig2.canvas.draw()
+                    fig2.tight_layout()
                     SW_utils.pull_up_movie(start, end, vid_sample, video_key, motion_dir, fs, epochlen, ratio2, dt)
                     cursor.movie_bin = 0
 
@@ -292,7 +301,9 @@ if model:
         plt.close('all')
         save_states = input('Would you like to save these sleep states?: y/n ') == 'y'
         if save_states:
-            fileName = rawdat_dir + animal + '_SleepStates' + hr + '.npy'
+            mv_file = movement_files[int(hr) - 1]
+            t_stamp = mv_file[mv_file.find('_tmove') - 18:mv_file.find('_tmove')]
+            filename = rawdat_dir + animal + '_SleepStates_' + t_stamp + '.npy'
             np.save(fileName, State)
         update = input('Would you like to update the model?: y/n ')=='y'
         if update:
