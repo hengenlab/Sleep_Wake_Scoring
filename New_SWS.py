@@ -304,7 +304,7 @@ if model:
             mv_file = movement_files[int(hr) - 1]
             t_stamp = mv_file[mv_file.find('_tmove') - 18:mv_file.find('_tmove')]
             filename = rawdat_dir + animal + '_SleepStates_' + t_stamp + '.npy'
-            np.save(fileName, State)
+            np.save(filename, State)
         update = input('Would you like to update the model?: y/n ')=='y'
         if update:
             State[State == 1] = 0
