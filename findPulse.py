@@ -9,15 +9,7 @@ def findPulse(dirb, df):
 	finds the binary file that contains the sync pulse for the camera
 	dirb: digital binary directory
 	df: the first file in that directory '''
-	t,dr = ntk.load_digital_binary(df)
-
-	max_pos=np.where(dr==1)
-	zpos = np.where(dr==0)
-	first_on = max_pos[0][0]
-	next_off = zpos[0][first_on]
-	dif = next_off-first_on 
-	thresh = dif*2
-
+	thresh = 800
 	files = glob.glob(dirb+'/*.bin')
 	files = np.sort(files)
 	flag = False
