@@ -2,6 +2,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import neuraltoolkit.ntk_ecube as ntk
+import glob
 
 def findPulse(dirb, df):
 	'''
@@ -17,17 +18,16 @@ def findPulse(dirb, df):
 	dif = next_off-first_on 
 	thresh = dif*2
 
-	files = os.listdir(dirb)
+	files = glob.glob(dirb+'/*.bin')
 	files = np.sort(files)
 	flag = False
 	for f in files:
-		path = dirb+f
-		t,dr = ntk.load_digital_binary(path)
+		t,dr = ntk.load_digital_binary(f)
 		max_pos=np.where(dr==1)
 
 		for i in range(len(max_pos[0])-thresh):
 			if (max_pos[0][i+thresh]-max_pos[0][i]) == thresh:
-				print('binary file:',path, '\nindex of the pulse in the max_pos array: ', i)
+				print('binary file:',f, '\nindex of the pulse in the max_pos array: ', i)
 				plt.plot(dr[max_pos[0][i]-5000:max_pos[0][i]+5000])
 				flag = True
 				break
