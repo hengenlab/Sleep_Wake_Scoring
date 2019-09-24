@@ -1,0 +1,12 @@
+{"rawdat_dir" : "/media/bs004r/KNR00004/KNR00004_2019-08-01_16-43-45_p1_c3/",
+ "motion_dir" : "/media/bs004r/KNR00004/KNR00004_2019-08-01_16-43-45_p1_c3_labeled_video/",
+ "model_dir": "/media/HlabShare/Sleep_Model/",
+ "animal": "KNR00004",
+ "mod_name" : "rat_mouse",
+ "epochlen" : 4,
+ "fs" : 200,
+ "emg" : 0 ,
+ "pos": 1,
+ "vid": 1
+}
+
