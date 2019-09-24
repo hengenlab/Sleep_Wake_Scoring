@@ -6,7 +6,8 @@ import scipy.signal as signal
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import matplotlib.patches as patch
-from lizzie_work import DLCMovement_input
+# from lizzie_work import DLCMovement_input
+import DLCMovement_input
 import copy
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
@@ -28,8 +29,8 @@ def check_time_stamps(files): # previously check2
     # makes sure time stamps on videos are continuous
     str_idx = files[0].find('e3v') + 17
     timestamps = [files[i][str_idx:str_idx + 9] for i in np.arange(np.size(files))]
-    if timestamps[0] == timestamps[1]:
-        chk = input('Were these videos seperated for DLC? (y/n)')
+    if (timestamps[0] == timestamps[1]):
+        chk = str(input('Were1 these videos seperated for DLC? (y/n)'))
     for i in np.arange(np.size(files) - 1):
         hr1 = timestamps[i][0:4]
         hr2 = timestamps[i][5:9]

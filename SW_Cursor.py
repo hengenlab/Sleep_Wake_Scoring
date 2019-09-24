@@ -1,5 +1,4 @@
 import math
-import Sleep_Wake_Scoring.SW_utils as sw
 import matplotlib.pyplot as plt
 import numpy as np
 

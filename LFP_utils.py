@@ -12,8 +12,8 @@ import sys
 import time as timer
 import glob
 from sklearn.decomposition import PCA
-from samb_work import videotimestamp
-from lizzie_work import DLCMovement_input
+import videotimestamp
+import DLCMovement_input
 import psutil
 import math
 import sys

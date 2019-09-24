@@ -1,5 +1,3 @@
-#reload the dataframe 
-
 from scipy.signal import savgol_filter
 import numpy as np
 import scipy.signal as signal
@@ -14,7 +12,7 @@ import seaborn as sns
 import sys
 import time as timer
 import os
-from lizzie_work import DLCMovement_input
+import DLCMovement_input
 import cv2
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
