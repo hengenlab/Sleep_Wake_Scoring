@@ -1,12 +1,21 @@
 {"rawdat_dir" : "/media/bs004r/KNR00004/KNR00004_2019-08-01_16-43-45_p1_c3/",
  "motion_dir" : "/media/bs004r/KNR00004/KNR00004_2019-08-01_16-43-45_p1_c3_labeled_video/",
- "model_dir": "/media/HlabShare/Sleep_Model/",
+ "model_dir" : "/media/HlabShare/Sleep_Model/",
+ "digi_dir" : "/media/bs004r/D1/2019-08-01_16-43-11_d2_c2/",
  "animal": "KNR00004",
  "mod_name" : "rat_mouse",
  "epochlen" : 4,
  "fs" : 200,
  "emg" : 0 ,
  "pos": 1,
- "vid": 1
+ "vid": 1,
+ "move_flag": 0,
+ "num" : 200,
+ "num_labels": 5,
+ "cort": 0,
+ "EMGinput": 0,
+ "numchan": 64,
+ "HS": "eibless64",
+ "LFP_check" : 1
 }
 

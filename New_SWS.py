@@ -19,7 +19,7 @@ import pandas as pd
 import warnings
 # from Sleep_Wake_Scoring import SW_utils
 import SW_utils
-from Sleep_Wake_Scoring import Cursor
+# from Sleep_Wake_Scoring import Cursor
 from SW_Cursor import Cursor
 
 def on_press(event):
