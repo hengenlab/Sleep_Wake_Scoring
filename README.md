@@ -27,6 +27,26 @@ For example,
 Please check KNR00004.json file.  
 ```
 
+##### Find best channels  
+*ipython*
+```
+ import Sleep_Wake_Scoring as sw 
+ rawdat_dir = '/media/bs004r/EAB00040/EAB00040_2019-03-29_10-28-27_p9_c5/'                                                                                                                                                                  
+ hstype = 'silicon_probe2'                            
+ hour = 5                                             
+ num_chans = 256                                      
+ sw.checkLFPchan(rawdat_dir, hstype, hour, num_chans= num_chans, start_chan=0)
+``` 
+
+
+
+##### Running LFP extract  
+*ipython*
+```
+import Sleep_Wake_Scoring as sw 
+sw.extract_lfp('KNR00004.json')
+``` 
+
 ##### Running Sleep Wake Scoring Module  
 *ipython*
 ```
