@@ -106,9 +106,10 @@ def extract_lfp(filename_sw):
 
 
     os.chdir(digi_dir)
+    digi_files = sorted(glob.glob('*.bin'))
 
     if move_flag == 'n':
-        stmp = videotimestamp.vidtimestamp('Digital_1_Channels_int64_2019-06-05_12-56-31.bin')
+        stmp = findPulse(digi_dir,digi_files[0])
         h5 = sorted(glob.glob(motion_dir+'*.h5'))
         vidfiles = sorted(glob.glob(motion_dir+'*labeled.mp4'))
         check2(h5)
