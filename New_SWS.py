@@ -154,7 +154,8 @@ def start_swscoring(rawdat_dir, motion_dir, model_dir, animal, mod_name,
     animal_name = np.full(np.size(delta_pre), animal)
     animal_num = np.full(np.shape(animal_name), int(animal[3:]))
 
-    model = input('Use a random forest? y/n: ') == 'y'
+    # model = input('Use a random forest? y/n: ') == 'y'
+    model = 1
 
     if model:
         final_features = ['Animal_Name', 'animal_num', 'Time_Interval', 'State', 'delta_pre', 'delta_pre2',
@@ -210,8 +211,9 @@ def start_swscoring(rawdat_dir, motion_dir, model_dir, animal, mod_name,
         else:
             SW_utils.create_prediction_figure(rawdat_dir, hr, Predict_y, clf, Features, pos)
 
-        satisfaction = input('Satisfied?: y/n ') == 'y'
+        # satisfaction = input('Satisfied?: y/n ') == 'y'
         plt.close('all')
+        satisfaction = 0
         if satisfaction:
             mv_file = movement_files[int(hr)-1]
             t_stamp = mv_file[mv_file.find('_tmove')-18:mv_file.find('_tmove')]
@@ -252,7 +254,8 @@ def start_swscoring(rawdat_dir, motion_dir, model_dir, animal, mod_name,
                     Sleep_Model = Sleep_Model.drop(index = np.where(Sleep_Model['EMG'].isin(['nan']))[0])
                 SW_utils.retrain_model(Sleep_Model, x_features, model_dir, jobname)
             sys.exit()
-        fix = input('Do you want to fix the models states?: y/n')=='y'
+        # fix = input('Do you want to fix the models states?: y/n')=='y'
+        fix = 1
         if fix:
             SW_utils.print_instructions()
             start = 0
