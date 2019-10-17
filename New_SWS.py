@@ -29,7 +29,7 @@ def on_press(event):
 
 
 
-def start_swscoring(rawdat_dir, motion_dir, model_dir, animal, mod_name,\
+def start_swscoring(rawdat_dir, motion_dir, model_dir, animal, mod_name,
                     epochlen, fs, emg, pos, vid):
     print('this code is supressing warnings')
     warnings.filterwarnings("ignore")

@@ -21,6 +21,7 @@ def findPulse(dirb, df):
 			if (max_pos[0][i+thresh]-max_pos[0][i]) == thresh:
 				print('binary file:',f, '\nindex of the pulse in the max_pos array: ', i)
 				plt.plot(dr[max_pos[0][i]-5000:max_pos[0][i]+5000])
+				return(int(t+max_pos[0][i]))
 				flag = True
 				break
 		if flag:

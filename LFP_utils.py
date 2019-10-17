@@ -12,7 +12,7 @@ import sys
 import time as timer
 import glob
 from sklearn.decomposition import PCA
-import videotimestamp
+#import videotimestamp
 import DLCMovement_input
 import psutil
 import math
