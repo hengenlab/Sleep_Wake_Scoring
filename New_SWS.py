@@ -291,7 +291,11 @@ def start_swscoring(rawdat_dir, motion_dir, model_dir, animal, mod_name,
                     print(f'changing bins: {start_bin} to {end_bin}')
                     SW_utils.clear_bins(bins, ax2)
                     fig.canvas.draw()
-                    new_state = int(input('What state should these be?: '))
+                    #new_state = int(input('What state should these be?: '))
+                    try:
+                        new_state = int(input('What state should these be?: '))
+                    except:
+                        new_state = int(input('What state should these be?: '))
                     SW_utils.correct_bins(start_bin, end_bin, ax2, new_state)
                     fig.canvas.draw()
                     State[start_bin:end_bin] = new_state
