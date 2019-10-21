@@ -80,9 +80,6 @@ Extracting beta bandpower...
 Extracting gamma bandpower...
 Extracting narrow-band theta bandpower...
 Boom. Boom. FIYA POWER...
-Use a random forest? y/n: y
-Satisfied?: y/n n
-Do you want to fix the models states?: y/ny
 
      
                             .--,       .--,  
@@ -148,3 +145,12 @@ Do you want to fix the models states?: y/ny
                                                
 
 ```
+#### Frequently asked question
+
+- ##### Running Sleep Wake Scoring Module too slow
+Fix  
+Please copy  
+Model directory "/media/HlabShare/Sleep_Model/" to your local machine and  
+change *.json file  
+model_dir" : "model_directory_local_location",  
+
