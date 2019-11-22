@@ -108,7 +108,7 @@ def extract_lfp(filename_sw):
     os.chdir(digi_dir)
     digi_files = sorted(glob.glob('*.bin'))
 
-    if move_flag == 'n':
+    if move_flag == 0:
         stmp = findPulse(digi_dir,digi_files[0])
         h5 = sorted(glob.glob(motion_dir+'*.h5'))
         vidfiles = sorted(glob.glob(motion_dir+'*labeled.mp4'))
@@ -207,6 +207,8 @@ def extract_lfp(filename_sw):
 
     os.chdir(rawdat_dir)
     filesindex = np.arange((num*12),np.size(files),12)
+    if len(filesindex) == 0:
+        raise ValueError('No files in this directory, check num')
 
     # cort = input('Cortical screw? (y/n): ')
     # EMGinput = int(input('Enter EMG channel (0 if using motion): ')) - 1
