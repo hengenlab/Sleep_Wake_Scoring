@@ -46,6 +46,23 @@ Please check KNR00004.json file.
  hour = 5                                             
  num_chans = 256                                      
  sw.checkLFPchan(rawdat_dir, hstype, hour, num_chans= num_chans, start_chan=0)
+
+or
+
+Add channels manually
+import Sleep_Wake_Scoring as sw 
+sw.manually_add_selected_channels(rawdir_name, best_channels_for_lfp)
+rawdir_name : Directory where rawdata exists
+best_channels_for_lfp : Best 5 channels for lfp
+ 
+Examples :
+import Sleep_Wake_Scoring as sw 
+import numpy as np
+
+best_channels = np.array([1, 2, 3, 4, 5])
+sw.manually_add_selected_channels('/home/kbn/', best_channels)
+
+
 ``` 
 
 
