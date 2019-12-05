@@ -204,6 +204,16 @@ def start_swscoring(rawdat_dir, motion_dir, model_dir, animal, mod_name,
         for f in FeatureList:
             FeatureList_smoothed.append(signal.medfilt(f, 5))
         Features = np.column_stack((FeatureList_smoothed))
+
+        Features = np.nan_to_num(Features)
+
+        # print("Type.......", type(Features))
+        # temp_inf_test = np.isinf(Features)
+        # print(np.where(temp_inf_test == 1))
+        # temp_nan_test = np.isnan(Features)
+        # print(np.where(temp_nan_test == 1))
+
+
         Predict_y = clf.predict(Features)
         Predict_y = SW_utils.fix_states(Predict_y)
         if pos:
