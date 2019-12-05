@@ -24,9 +24,10 @@ import psutil
 import math
 #import cv2
 import sys
-# import Sleep_Wake_Scoring as SWS
+#import Sleep_Wake_Scoring as SWS
 import LFP_utils as SWS
 import json
+from findPulse import findPulse
 
 def check1(h5files):
 # Checks to make sure that all of the h5 files are the same size
