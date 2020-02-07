@@ -45,6 +45,10 @@ def start_swscoring(rawdat_dir, motion_dir, model_dir, animal, mod_name,
     # motion_dir = '/media/bs004r/KNR00004/KNR00004_2019-08-01_16-43-45_p1_c3_labeled_video/'
     # model_dir = '/media/HlabShare/Sleep_Model/'
 
+    rawdat_dir = '/Volumes/bs001r/rawdata/EAB00050/EAB00050_2019-07-08_13-33-36_p10_c7/'
+    motion_dir = "/Volumes/bs001r/rawdata/EAB00050/EAB00050_2019-07-08_video/top/"
+    model_dir = "/Volumes/HlabShare/Sleep_Model/"
+
     # os.chdir(rawdat_dir)
     meanEEG_perhr = np.load('Average_EEG_perhr.npy')
     var_EEG_perhr = np.load('Var_EEG_perhr.npy')
@@ -217,9 +221,9 @@ def start_swscoring(rawdat_dir, motion_dir, model_dir, animal, mod_name,
         Predict_y = clf.predict(Features)
         Predict_y = SW_utils.fix_states(Predict_y)
         if pos:
-            SW_utils.create_prediction_figure(rawdat_dir, hr, Predict_y, clf, Features, pos, med, video_key)
+            SW_utils.create_prediction_figure(rawdat_dir, hr, Predict_y, clf, Features, pos, med, video_key, fs=fs, eeg=downdatlfp)
         else:
-            SW_utils.create_prediction_figure(rawdat_dir, hr, Predict_y, clf, Features, pos)
+            SW_utils.create_prediction_figure(rawdat_dir, hr, Predict_y, clf, Features, pos, fs=fs, eeg=downdatlfp)
 
         # satisfaction = input('Satisfied?: y/n ') == 'y'
         plt.close('all')
@@ -380,7 +384,7 @@ def start_swscoring(rawdat_dir, motion_dir, model_dir, animal, mod_name,
 
 
             fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows = 4, ncols = 1, figsize = (11,6))
-            fig2, ax5, ax6, ax7 = SW_utils.create_scoring_figure(rawdat_dir, hr, video_key, pos, med)
+            fig2, ax5, ax6, ax7 = SW_utils.create_scoring_figure(rawdat_dir, hr, video_key, pos, med, fs=fs, eeg=downdatlfp)
             cursor = Cursor(ax5, ax6, ax7)
             cID3 = fig2.canvas.mpl_connect('key_press_event', on_press)
 
