@@ -203,13 +203,13 @@ def plot_spectrogram(ax, hr, eegdat, fs):
     t_elapsed = eegdat.shape[0]/fs
     t = np.arange(0.0, t_elapsed, dt)
     noverlap = noverlap * fs
-    NFFT = window_length * fs    
+    NFFT = window_length * fs
     minfreq = 1 # min freq in Hz
     maxfreq = 16 # max freq in Hz
     ax.set_xlabel('Time (seconds)')
     ax.set_ylabel('Frequency (Hz)')
-    # the minfreq and maxfreq args will limit the frequencies 
-    Pxx, freqs, bins, im = my_specgram(eegdat, ax, NFFT=NFFT, Fs=fs, noverlap=noverlap, 
+    # the minfreq and maxfreq args will limit the frequencies
+    Pxx, freqs, bins, im = my_specgram(eegdat, ax, NFFT=NFFT, Fs=fs, noverlap=noverlap,
                                 cmap=cm.get_cmap('hsv'), minfreq = minfreq, maxfreq = maxfreq,
                                 xextent = (0,np.int(t_elapsed)) )
 
@@ -334,7 +334,7 @@ def plot_predicted(ax, Predict_y, clf, Features):
     predictions = clf.predict_proba(Features)
     confidence = np.max(predictions, 1)
     ax.plot(confidence, color = 'k')
-
+rawdat_dir, hr, Predict_y, clf, Features, pos, med, video_key, fs=fs, eeg=downdatlfp
 def create_prediction_figure(rawdat_dir, hr, Predict_y, clf, Features, pos, fs, eeg, med=False, video_key=False):
     plt.ion()
     fig, (ax1, ax2, ax3) = plt.subplots(nrows = 3, ncols = 1, figsize = (11, 6))
@@ -573,48 +573,48 @@ def findPulse(dirb, df):
 
 def print_instructions():
     print('''\
-     
-                            .--,       .--,  
-                           ( (  \.---./  ) ) 
+
+                            .--,       .--,
+                           ( (  \.---./  ) )
                             '.__/o   o\__.'
                                {=  ^  =}
                                 >  -  <
         ____________________.""`-------`"".________________________
-         
+
                               INSTRUCTIONS
-                      
+
         Welcome to Sleep Wake Scoring!
-        
+
         The figure you're looking at consists of 3 plots:
         1. The spectrogram for the hour you're scoring
         2. The random forest model's predicted states
         3. The binned motion for the hour
-        
+
         TO CORRECT BINS:
         - click once on the middle figure to select the start of the bin you want to change
-        - then click the last spot of the bin you want to change   
+        - then click the last spot of the bin you want to change
         - switch to terminal and type the state you want that bin to become
-        
+
         VIDEO / RAW DATA:
-        - if you hover over the motion figure you enter ~~ movie mode ~~  
+        - if you hover over the motion figure you enter ~~ movie mode ~~
         - click on that figure where you want to pull up movie and the raw trace for
             the 4 seconds before, during, and after the point that you clicked
-        
+
         CURSOR:
         - because you have to click in certain figures it can be annoying to line up your mouse
-            with where you want to inspect 
+            with where you want to inspect
         - while selected in the scoring figure (called Figure 2) press 'l' (as in Lizzie) to toggle a black line across each plot
         - this line will stay there until you press 'l' again, then it will erase and move
         - adjust until you like your location, then click to select a bin or watch a movie
-        
-        EXITING SCORING:     
+
+        EXITING SCORING:
         - are you done correcting bins?
         - are you sure?
         - are you going to come to me/clayton/lizzie and ask how you 'go back' and 'change a few more bins'?
         - think for a second and then, when you're sure, press 'd'
         - it will then ask you if you want to save your states and/or update the random forest model
-            - choose wisely 
-        
+            - choose wisely
+
         NOTES:
         - all keys pressed should be lowercase. don't 'shift + d'. just 'd'.
         - the video window along with the raw trace figure will remain up and update when you click a new bin
@@ -623,18 +623,15 @@ def print_instructions():
             - always looking to stay ~fresh~ with those ~graphics~
         - if something isn't working, make sure you're on Figure 2 and not the raw trace/terminal/video
         - plz don't toggle line while in motion axes, it messes up the axes limits, not sure why, working on it
-        
+
         coming soon to sleep-wake code near you:
-        - coding the state while you're slected in the figure, so you don't have to switch to terminal 
+        - coding the state while you're slected in the figure, so you don't have to switch to terminal
         - automatically highlighting problem areas where the model isn't sure or a red flag is raised (going wake/rem/wake/rem)
         - letting you choose the best fitting model before you fix the states to limit the amont of corrections
-        
-        
+
+
         ANOUNCEMENTS:
         - if you're trying to code each bin individually (a.k.a. when it asks you if you want to correct the model you say 'no')
-            it doesn't save afterward yet. you will have to manually save it after you're done for the time being 
-                                              
+            it doesn't save afterward yet. you will have to manually save it after you're done for the time being
+
                                                ''')
-
-
-

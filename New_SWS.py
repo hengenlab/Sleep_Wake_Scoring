@@ -221,7 +221,7 @@ def start_swscoring(rawdat_dir, motion_dir, model_dir, animal, mod_name,
         Predict_y = clf.predict(Features)
         Predict_y = SW_utils.fix_states(Predict_y)
         if pos:
-            SW_utils.create_prediction_figure(rawdat_dir, hr, Predict_y, clf, Features, pos, med, video_key, fs=fs, eeg=downdatlfp)
+            SW_utils.create_prediction_figure(rawdat_dir, hr, Predict_y, clf, Features, pos,fs=fs, eeg=downdatlfp, med, video_key)
         else:
             SW_utils.create_prediction_figure(rawdat_dir, hr, Predict_y, clf, Features, pos, fs=fs, eeg=downdatlfp)
 
@@ -279,9 +279,9 @@ def start_swscoring(rawdat_dir, motion_dir, model_dir, animal, mod_name,
             line1, line2, line3 = SW_utils.pull_up_raw_trace(0, ax4, ax5, ax6, ax7, emg, start, end, realtime, downdatlfp, fs, mod_name, LFP_ylim, delt, thet, epochlen, EMGamp, ratio2)
             if pos:
                 # this should probably be a different figure without the confidence line?
-                fig, ax1, ax2, ax3 = SW_utils.create_prediction_figure(rawdat_dir, hr, Predict_y, clf, Features, pos, med, video_key)
+                fig, ax1, ax2, ax3 = SW_utils.create_prediction_figure(rawdat_dir, hr, Predict_y, clf, Features, pos, fs=fs, eeg=downdatlfp, med, video_key)
             else:
-                fig, ax1, ax2, ax3 = SW_utils.create_prediction_figure(rawdat_dir, hr, Predict_y, clf, Features, pos)
+                fig, ax1, ax2, ax3 = SW_utils.create_prediction_figure(rawdat_dir, hr, Predict_y, clf, Features, pos, fs=fs, eeg=downdatlfp)
 
             plt.ion()
             State = copy.deepcopy(Predict_y)
@@ -384,7 +384,7 @@ def start_swscoring(rawdat_dir, motion_dir, model_dir, animal, mod_name,
 
 
             fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows = 4, ncols = 1, figsize = (11,6))
-            fig2, ax5, ax6, ax7 = SW_utils.create_scoring_figure(rawdat_dir, hr, video_key, pos, med, fs=fs, eeg=downdatlfp)
+            fig2, ax5, ax6, ax7 = SW_utils.create_scoring_figure(rawdat_dir, hr, video_key, pos, med, eeg=downdatlfp, fs=fs)
             cursor = Cursor(ax5, ax6, ax7)
             cID3 = fig2.canvas.mpl_connect('key_press_event', on_press)
 
@@ -466,5 +466,3 @@ def load_data_for_sw(filename_sw):
     os.chdir(rawdat_dir)
     start_swscoring(rawdat_dir, motion_dir, model_dir, animal, mod_name,\
                     epochlen, fs, emg, pos, vid)
-
-
