@@ -45,9 +45,9 @@ def start_swscoring(rawdat_dir, motion_dir, model_dir, animal, mod_name,
     # motion_dir = '/media/bs004r/KNR00004/KNR00004_2019-08-01_16-43-45_p1_c3_labeled_video/'
     # model_dir = '/media/HlabShare/Sleep_Model/'
 
-    rawdat_dir = '/Volumes/bs001r/rawdata/EAB00050/EAB00050_2019-07-08_13-33-36_p10_c7/'
-    motion_dir = "/Volumes/bs001r/rawdata/EAB00050/EAB00050_2019-07-08_video/top/"
-    model_dir = "/Volumes/HlabShare/Sleep_Model/"
+    #rawdat_dir = '/Volumes/bs001r/rawdata/EAB00050/EAB00050_2019-07-08_13-33-36_p10_c7/'
+    #motion_dir = "/Volumes/bs001r/rawdata/EAB00050/EAB00050_2019-07-08_video/top/"
+    #model_dir = "/Volumes/HlabShare/Sleep_Model/"
 
     # os.chdir(rawdat_dir)
     meanEEG_perhr = np.load('Average_EEG_perhr.npy')
@@ -221,9 +221,9 @@ def start_swscoring(rawdat_dir, motion_dir, model_dir, animal, mod_name,
         Predict_y = clf.predict(Features)
         Predict_y = SW_utils.fix_states(Predict_y)
         if pos:
-            SW_utils.create_prediction_figure(rawdat_dir, hr, Predict_y, clf, Features, pos,fs=fs, eeg=downdatlfp, med, video_key)
+            SW_utils.create_prediction_figure(rawdat_dir, hr, Predict_y, clf, Features, pos,fs, downdatlfp, med, video_key)
         else:
-            SW_utils.create_prediction_figure(rawdat_dir, hr, Predict_y, clf, Features, pos, fs=fs, eeg=downdatlfp)
+            SW_utils.create_prediction_figure(rawdat_dir, hr, Predict_y, clf, Features, pos, fs, downdatlfp)
 
         # satisfaction = input('Satisfied?: y/n ') == 'y'
         plt.close('all')
@@ -279,9 +279,9 @@ def start_swscoring(rawdat_dir, motion_dir, model_dir, animal, mod_name,
             line1, line2, line3 = SW_utils.pull_up_raw_trace(0, ax4, ax5, ax6, ax7, emg, start, end, realtime, downdatlfp, fs, mod_name, LFP_ylim, delt, thet, epochlen, EMGamp, ratio2)
             if pos:
                 # this should probably be a different figure without the confidence line?
-                fig, ax1, ax2, ax3 = SW_utils.create_prediction_figure(rawdat_dir, hr, Predict_y, clf, Features, pos, fs=fs, eeg=downdatlfp, med, video_key)
+                fig, ax1, ax2, ax3 = SW_utils.create_prediction_figure(rawdat_dir, hr, Predict_y, clf, Features, pos, fs, downdatlfp, med, video_key)
             else:
-                fig, ax1, ax2, ax3 = SW_utils.create_prediction_figure(rawdat_dir, hr, Predict_y, clf, Features, pos, fs=fs, eeg=downdatlfp)
+                fig, ax1, ax2, ax3 = SW_utils.create_prediction_figure(rawdat_dir, hr, Predict_y, clf, Features, pos, fs, downdatlfp)
 
             plt.ion()
             State = copy.deepcopy(Predict_y)
