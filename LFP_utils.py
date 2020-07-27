@@ -97,7 +97,8 @@ def checkLFPchan(rawdat_dir, hstype, hour, start_chan = 0, fs = 25000, num_chans
 
     os.chdir(rawdat_dir)
 
-    for chan in np.arange(start_chan, np.size(chan_map)):
+    chan_num = 64
+    for chan in np.arange(start_chan, chan_num):
         nyq = 0.5*fs # nyquist
         N  = 3    # Filter order
         Wn = [0.5/nyq,400/nyq] # Cutoff frequencies
