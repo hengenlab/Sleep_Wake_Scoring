@@ -334,7 +334,7 @@ def plot_predicted(ax, Predict_y, clf, Features):
     predictions = clf.predict_proba(Features)
     confidence = np.max(predictions, 1)
     ax.plot(confidence, color = 'k')
-rawdat_dir, hr, Predict_y, clf, Features, pos, med, video_key, fs=fs, eeg=downdatlfp
+# rawdat_dir, hr, Predict_y, clf, Features, pos, med, video_key, fs=fs, eeg=downdatlfp
 def create_prediction_figure(rawdat_dir, hr, Predict_y, clf, Features, pos, fs, eeg, med=False, video_key=False):
     plt.ion()
     fig, (ax1, ax2, ax3) = plt.subplots(nrows = 3, ncols = 1, figsize = (11, 6))
