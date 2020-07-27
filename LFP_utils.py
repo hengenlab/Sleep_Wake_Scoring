@@ -19,24 +19,25 @@ import math
 import sys
 
 def checkLFPchan(rawdat_dir, hstype, hour, start_chan = 0, fs = 25000, num_chans = 64):
+    
     silicon_flag = 0
     os.chdir(rawdat_dir)
     files = sorted(glob.glob('*.bin'))
-    if hstype == 'hs64':
+    if hstype[0] == 'hs64':
         chan_map = np.array([26, 30, 6,  2,  18, 22, 14, 10, 12, 16, 8,  4,
                              28, 32, 24, 20, 48, 44, 36, 40, 64, 60, 52, 56,
                              54, 50, 42, 46, 62, 58, 34, 38, 39, 35, 59, 63,
                              47, 43, 51, 55, 53, 49, 57, 61, 37, 33, 41, 45,
                              17, 21, 29, 25, 1,  5,  13, 9,  11, 15, 23, 19,
                               3,  7,  31, 27]) - 1
-    elif hstype == 'eibless64':
+    elif hstype[0] == 'eibless64':
         chan_map = np.array([1,  5,  9,  13, 3,  7,  11, 15, 17, 21, 25, 29,
                              19, 23, 27, 31, 33, 37, 41, 45, 35, 39, 43, 47,
                              49, 53, 57, 61, 51, 55, 59, 63, 2,  6,  10, 14,
                              4,  8,  12, 16, 18, 22, 26, 30, 20, 24, 28, 32,
                              34, 38, 42, 46, 36, 40, 44, 48, 50, 54, 58, 62,
                              52, 56, 60, 64]) - 1
-    elif hstype == 'PCB_tetrode':
+    elif hstype[0] == 'PCB_tetrode':
         chan_map = np.array([2, 41, 50, 62, 6, 39, 42, 47, 34, 44, 51, 56, 
                             38, 48, 59, 64, 35, 53, 3, 37, 54, 57, 40, 43, 
                             45, 61, 46, 49, 36, 33, 52, 55, 15, 5, 58, 60, 
@@ -104,7 +105,7 @@ def checkLFPchan(rawdat_dir, hstype, hour, start_chan = 0, fs = 25000, num_chans
         datf = signal.filtfilt(B,A, eeg[chan])
         Wn = [10/nyq] # Cutoff frequencies
         B, A = signal.butter(N, Wn, btype='highpass',output='ba')
-
+        # ntk.butter_bandpass(dat,highpass,lowpass,fs,3)
         reclen = 3600
         finalfs = 200
         R = fs/finalfs
