@@ -13,6 +13,13 @@ import time as timer
 import glob
 import math
 import sys
+from sys import platform
+if platform == "darwin":
+    # matplotlib.use('TkAgg')
+    plt.switch_backend('TkAgg')
+else:
+    # matplotlib.use('Agg')
+    plt.switch_backend('Agg')
 
 def selectLFPchan(rawdat_dir, hstype, hour, start_chan = 0, fs = 25000, nprobes =1, num_chans = 64, probenum=0):
     
@@ -44,6 +51,7 @@ def selectLFPchan(rawdat_dir, hstype, hour, start_chan = 0, fs = 25000, nprobes 
 
     os.chdir(rawdat_dir)
 
+    # for chan in np.arange(start_chan, 1):
     for chan in np.arange(start_chan, np.size(chan_map)):
         nyq = 0.5*fs # nyquist
         N  = 3    # Filter order
