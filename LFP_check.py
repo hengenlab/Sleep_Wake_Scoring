@@ -4,6 +4,7 @@ import numpy as np
 import scipy.signal as signal
 from scipy.integrate import simps
 import matplotlib.patches as patch
+from matplotlib import cm
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import neuraltoolkit as ntk
@@ -51,8 +52,8 @@ def selectLFPchan(rawdat_dir, hstype, hour, start_chan = 0, fs = 25000, nprobes 
 
     os.chdir(rawdat_dir)
 
-    # for chan in np.arange(start_chan, 1):
-    for chan in np.arange(start_chan, np.size(chan_map)):
+    # for chan in np.arange(start_chan, np.size(chan_map)):
+    for chan in np.arange(start_chan, 1):
         nyq = 0.5*fs # nyquist
         N  = 3    # Filter order
         Wn = [0.5/nyq,400/nyq] # Cutoff frequencies
@@ -77,7 +78,8 @@ def selectLFPchan(rawdat_dir, hstype, hour, start_chan = 0, fs = 25000, nprobes 
         dat = []
 
         fsd = 200
-        f, t_spec, x_spec = signal.spectrogram(downdatlfp, fs=fsd, window='hanning', nperseg=1000, noverlap=1000-1, mode='psd')
+        # f, t_spec, x_spec = signal.spectrogram(downdatlfp, fs=fsd, window='hanning', nperseg=1000, noverlap=1000-1, mode='psd')
+        f, t_spec, x_spec = signal.spectrogram(downdatlfp, fs=fsd, window='hanning', nfft=400, detrend=False, noverlap=200, mode='psd')
         del (downdatlfp)
         # x_spec[x_spec > 500] = 0
         print('remove noise')
