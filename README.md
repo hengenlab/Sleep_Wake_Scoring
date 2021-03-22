@@ -13,39 +13,42 @@ chmod 700 install.sh
 ##### Create a json file with info
 For example,  
 ```
-{"rawdat_dir" : "/media/bs004r/KNR00004/KNR00004_2019-08-01_16-43-45_p1_c3/",
- "motion_dir" : "/media/bs004r/KNR00004/KNR00004_2019-08-01_16-43-45_p1_c3_labeled_video/",
+{"rawdat_dir" : "/media/bs007r/XYF00003/XYF00003_2020-11-14_19-27-08/",
+ "motion_dir" : "/media/bs007r/XYF00003/XYF0003_1114videos/",
  "model_dir" : "/media/HlabShare/Sleep_Model/",
- "digi_dir" : "/media/bs004r/D1/2019-08-01_16-43-11_d2_c2/",
- "animal": "KNR00004",
+ "digi_dir" : "/media/bs007r/D1_rat/d2_2020-11-14_19-26-29/",
+ "animal": "XYF00003",
  "mod_name" : "rat_mouse",
  "epochlen" : 4,
  "fs" : 200,
- "emg" : 0 ,
+ "emg" : 0,
  "pos": 1,
  "vid": 1,
- "move_flag": 0,
- "num" : 200,
- "num_labels": 5,
+ "num" : 0,           # time point you want to extract LFP  hour1 = 0 in python
+ "num_labels": 4,     # number of DLC labels 
  "cort": 0,
- "EMGinput": 0,
+ "EMGinput": -1,
  "numchan": 64,
- "HS": "eibless64",
- "LFP_check" : 1
+ "HS": ["hs64"],
+ "LFP_check" : 1,
+ "probenum": 0,      # the probenum you want to extract LFP  probe1 = 0 in python  
+ "nprobes" : 1,
+ "video_fr":30,      # video 15Hz or 30Hz
+ "digital":0,        # 1: Use digital files to align LFP and videos; 0: manually alignment
+ "offset":7.4        # offset between LFP and video (always start the recording first then save the video), only works when digital == 0
 }
 
-Please check KNR00004.json file.  
+
+Please check XYF03.json file.  
 ```
 
 ##### Find best channels  
 *ipython*
 ```
- import Sleep_Wake_Scoring as sw 
- rawdat_dir = '/media/bs004r/EAB00040/EAB00040_2019-03-29_10-28-27_p9_c5/'                                                                                                                                                                  
- hstype = 'silicon_probe2'                            
- hour = 5                                             
- num_chans = 256                                      
- sw.checkLFPchan(rawdat_dir, hstype, hour, num_chans= num_chans, start_chan=0)
+ import Sleep_Wake_Scoring as sw
+ hour = 5  # choose a representative hour with both NREM, REM and wake
+ filename_sw = 'XYF03.json'                                                                         
+ sw.checkLFPchan(filename_sw, hour)
 
 or
 
@@ -65,20 +68,26 @@ sw.manually_add_selected_channels('/home/kbn/', best_channels)
 
 ``` 
 
-
-
 ##### Running LFP extract  
 *ipython*
 ```
 import Sleep_Wake_Scoring as sw 
-sw.extract_lfp('KNR00004.json')
+sw.extract_lfp('XYF03.json')
 ``` 
+
+#### Get movement traces from DLC analysis
+*ipython*
+
+```
+import Sleep_Wake_Scoring as sw
+sw.extract_DLC('XYF03.json')
+```
 
 ##### Running Sleep Wake Scoring Module  
 *ipython*
 ```
 import Sleep_Wake_Scoring as sw
-sw.load_data_for_sw('/home/kbn/KNR00004.json')
+sw.load_data_for_sw('XYF03.json')
 
 
 this code is supressing warnings
