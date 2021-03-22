@@ -18,52 +18,12 @@ import psutil
 import math
 import sys
 
-def checkLFPchan(rawdat_dir, hstype, hour, start_chan = 0, fs = 25000, num_chans = 64):
+def checkLFPchan(rawdat_dir, hstype, hour, start_chan = 0, fs = 25000, nprobes =1, num_chans = 64, probenum=0):
     
-    silicon_flag = 0
+    print('probe number is {}'.format(probenum))
     os.chdir(rawdat_dir)
     files = sorted(glob.glob('*.bin'))
-    if hstype[0] == 'hs64':
-        chan_map = np.array([26, 30, 6,  2,  18, 22, 14, 10, 12, 16, 8,  4,
-                             28, 32, 24, 20, 48, 44, 36, 40, 64, 60, 52, 56,
-                             54, 50, 42, 46, 62, 58, 34, 38, 39, 35, 59, 63,
-                             47, 43, 51, 55, 53, 49, 57, 61, 37, 33, 41, 45,
-                             17, 21, 29, 25, 1,  5,  13, 9,  11, 15, 23, 19,
-                              3,  7,  31, 27]) - 1
-    elif hstype[0] == 'eibless64':
-        chan_map = np.array([1,  5,  9,  13, 3,  7,  11, 15, 17, 21, 25, 29,
-                             19, 23, 27, 31, 33, 37, 41, 45, 35, 39, 43, 47,
-                             49, 53, 57, 61, 51, 55, 59, 63, 2,  6,  10, 14,
-                             4,  8,  12, 16, 18, 22, 26, 30, 20, 24, 28, 32,
-                             34, 38, 42, 46, 36, 40, 44, 48, 50, 54, 58, 62,
-                             52, 56, 60, 64]) - 1
-    elif hstype[0] == 'PCB_tetrode':
-        chan_map = np.array([2, 41, 50, 62, 6, 39, 42, 47, 34, 44, 51, 56, 
-                            38, 48, 59, 64, 35, 53, 3, 37, 54, 57, 40, 43, 
-                            45, 61, 46, 49, 36, 33, 52, 55, 15, 5, 58, 60, 
-                            18, 9, 63, 1, 32, 14, 4, 7, 26, 20, 10, 13, 19, 
-                            22, 16, 8, 28, 25, 12, 17, 23, 29, 27, 21, 11, 31, 30, 24]) - 1
-
-
-    elif hstype == 'silicon_probe1':
-        chan_map = np.arange(0, 64)
-        silicon_flag = 1
-    elif hstype == 'silicon_probe2':
-        chan_map = np.arange(64, 129)
-        silicon_flag = 1
-    elif hstype == 'silicon_probe3':
-        chan_map = np.arange(129, 193)
-        silicon_flag = 1
-    elif hstype == 'silicon_probe4':
-        chan_map = np.arange(193, 257)
-        silicon_flag = 1
-    elif hstype == 'silicon_probe5':
-        chan_map = np.arange(257, 321)
-        silicon_flag = 1
-    elif hstype == 'silicon_probe6':
-        chan_map = np.arange(321, 385)
-        silicon_flag = 1
-
+    chan_map = ntk.find_channel_map(hstype[probenum],64) 
 
     fil = hour*12
     load_files = files[fil:fil+12]
@@ -74,20 +34,11 @@ def checkLFPchan(rawdat_dir, hstype, hour, start_chan = 0, fs = 25000, num_chans
     emg     = []
     
     print('Importing first data from binary file...')
-    time, dat     = ntk.ntk_ecube.load_raw_binary(load_files[0], num_chans)
-    if silicon_flag:
-        eeg = dat[chan_map[0]:chan_map[-1]+1,:]
-    else:
-        eeg = ntk.ntk_channelmap.channel_map_data(dat, num_chans, hstype)
+    time, eeg = ntk.ntk_ecube.load_raw_gain_chmap_1probe(load_files[0],num_chans,hstype,nprobes= nprobes,lraw=1,te = -1, probenum = probenum)
 
     for a in np.arange(1,np.size(load_files)):
         print('Importing next data from binary file...')
-        time, dat     = ntk.ntk_ecube.load_raw_binary(load_files[a], num_chans)
-        if silicon_flag:
-            dat = dat[chan_map[0]:chan_map[-1]+1,:]
-        else:
-            dat = ntk.ntk_channelmap.channel_map_data(dat, num_chans, hstype)
-
+        time, dat     = ntk.ntk_ecube.load_raw_gain_chmap_1probe(load_files[a],num_chans,hstype,nprobes= nprobes,lraw=1,te = -1, probenum = probenum)
         print('merging file {}'.format(a))
         eeg = np.concatenate([eeg, dat], axis = 1)
     try:
@@ -97,8 +48,7 @@ def checkLFPchan(rawdat_dir, hstype, hour, start_chan = 0, fs = 25000, num_chans
 
     os.chdir(rawdat_dir)
 
-    chan_num = 64
-    for chan in np.arange(start_chan, chan_num):
+    for chan in np.arange(start_chan, np.size(chan_map)):
         nyq = 0.5*fs # nyquist
         N  = 3    # Filter order
         Wn = [0.5/nyq,400/nyq] # Cutoff frequencies
@@ -125,6 +75,8 @@ def checkLFPchan(rawdat_dir, hstype, hour, start_chan = 0, fs = 25000, num_chans
         fsd = 200
         f, t_spec, x_spec = signal.spectrogram(downdatlfp, fs=fsd, window='hanning', nperseg=1000, noverlap=1000-1, mode='psd')
         del (downdatlfp)
+        # x_spec[x_spec > 500] = 0
+        print('remove noise')
         fmax = 64
         fmin = 1
         x_mesh, y_mesh = np.meshgrid(t_spec, f[(f<fmax) & (f>fmin)])

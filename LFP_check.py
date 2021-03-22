@@ -4,7 +4,6 @@ import numpy as np
 import scipy.signal as signal
 from scipy.integrate import simps
 import matplotlib.patches as patch
-from matplotlib import cm
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import neuraltoolkit as ntk
@@ -14,17 +13,29 @@ import time as timer
 import glob
 import math
 import sys
+import gc
+import json
 from sys import platform
-if platform == "darwin":
-    # matplotlib.use('TkAgg')
-    plt.switch_backend('TkAgg')
-else:
-    # matplotlib.use('Agg')
-    plt.switch_backend('Agg')
 
-def selectLFPchan(rawdat_dir, hstype, hour, start_chan = 0, fs = 25000, nprobes =1, num_chans = 64, probenum=0):
-    
-    print('probe number is {}'.format(probenum))
+def selectLFPchan(filename_sw,hour):
+    if platform == "darwin":
+     
+        plt.switch_backend('TkAgg')#
+    else:
+        plt.switch_backend('Agg')
+
+    with open(filename_sw, 'r') as f:
+           d = json.load(f)
+
+    rawdat_dir = str(d['rawdat_dir'])
+    fs = 25000
+    start_chan = 0
+    EMGinput = int(d['EMGinput'])
+    num_chans = int(d['numchan'])
+    hstype = d['HS']
+    probenum = int(d['probenum'])
+    nprobes = int(d['nprobes'])
+
     os.chdir(rawdat_dir)
     files = sorted(glob.glob('*.bin'))
     chan_map = ntk.find_channel_map(hstype[probenum],64) 
@@ -77,8 +88,9 @@ def selectLFPchan(rawdat_dir, hstype, hour, start_chan = 0, fs = 25000, nprobes 
         dat = []
 
         fsd = 200
-        # f, t_spec, x_spec = signal.spectrogram(downdatlfp, fs=fsd, window='hanning', nperseg=1000, noverlap=1000-1, mode='psd')
-        f, t_spec, x_spec = signal.spectrogram(downdatlfp, fs=fsd, window='hanning', nfft=400, detrend=False, noverlap=200, mode='psd')
+        f, t_spec, x_spec = signal.spectrogram(downdatlfp, fs=fsd, window='hanning', nperseg=1000, noverlap=1000-1, mode='psd')
+        # f, t_spec, x_spec = signal.spectrogram(downdatlfp, fs=fsd, window='hanning', nfft=400, detrend=False, noverlap=1000-1, mode='psd')
+        # f, t_spec, x_spec = signal.spectrogram(downdatlfp, fs=fsd, window='hanning', nfft=400, detrend=False, noverlap=200, mode='psd')
         del (downdatlfp)
         # x_spec[x_spec > 500] = 0
         print('remove noise')
@@ -101,5 +113,5 @@ def selectLFPchan(rawdat_dir, hstype, hour, start_chan = 0, fs = 25000, nprobes 
         del(f)
         del(t_spec)
         del(x_spec)
-        #del(downdatlfp)
+        gc.collect()
 

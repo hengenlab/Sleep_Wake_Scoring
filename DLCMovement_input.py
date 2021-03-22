@@ -12,7 +12,7 @@ import scipy.stats as stats
 from scipy import signal
 import matplotlib.patches as patches 
 import cv2
-from neuraltoolkit import NTKVideos 
+# from neuraltoolkit import NTKVideos 
 
 #first argument = name of h5 file to be processed
 #second argument = timeestamp of video save, as obtained from videotimestamp.vidtimestamp()
@@ -83,8 +83,6 @@ def get_movement(vidfile, num_labels = 1, plotter = 0, labels = False, savedir =
 		print('it failed to load')
 
 	#print(fr)
-	if fr == 0:
-		return
 
 	timevect_nansec = (timevect_frame/fr) * 1000 * 1000 * 1000 # in nanose
 
@@ -133,26 +131,33 @@ def get_movement(vidfile, num_labels = 1, plotter = 0, labels = False, savedir =
 	#print(binsz)
 	dxy = best_dxy
 
+	while np.size(dxy) < mp4_1.get(7):
+		dxy = np.append(dxy, np.float('nan'))
+
+
+	np.save(savedir + basename+'_full_movement_trace.npy', dxy)
+
 	t1 = int(basename[basename.find('T')+3:basename.find('T')+5])
-	t2 = int(basename[basename.find('T')+8:basename.find('T')+10]) 
+	t2 = int(basename[basename.find('T')+10:basename.find('T')+12]) 
 
 	if t2-t1 < 0:
 		print('This is the last video, I am going to help it reshape!')
 		while int(np.size(dxy)/binsz) != np.size(dxy)/binsz:
+			print('edit')
 			dxy = np.append(dxy, np.float('nan'))
 
-	while np.size(dxy) < mp4_1.get(7):
-		dxy = np.append(dxy, np.float('nan'))
+
+        # reshape and calculate averaged locomoation activity
 	try:
 		rs_dxy = np.reshape(dxy,[int(np.size(dxy)/binsz), binsz])
 	except ValueError:
 		#dxy = np.append(dxy, np.float('nan'))
 		print('cant reshape array with size'+str(np.size(dxy)))
-		m = np.size(dxy) % 15
+		m = np.size(dxy) % fr
 		if m<7:
 			right_size = np.size(dxy) - m
 		else:
-			right_size = np.size(dxy) + (15-m)
+			right_size = np.size(dxy) + (fr-m)
 		while np.size(dxy) > right_size:
 			dxy = dxy[0:-1]
 		while np.size(dxy) < right_size:
@@ -218,7 +223,7 @@ def get_movement(vidfile, num_labels = 1, plotter = 0, labels = False, savedir =
 			plt.title(vidfile)
 
 	np.save(savedir + basename+'_movement_trace.npy', med)
-	np.save(savedir + basename+'_full_movement_trace.npy', dxy)
+	
 	print('here')
 	return(basename)
 

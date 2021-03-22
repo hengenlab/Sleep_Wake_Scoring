@@ -16,8 +16,6 @@ import pandas as pd
 import cv2
 import neuraltoolkit as ntk
 import math
-from pylab import *
-from matplotlib import *
 
 
 
@@ -54,9 +52,9 @@ def init_motion(movement):
     time = movement[1]
     time_sec = time * 3600
     dt = time_sec[2] - time_sec[1]
-    dxy = movement[0]
+    dxy = movement[0]   # tmove is the dxy file with shape (2,54000) if video is 15Hz
     binsz = int(round(1 / dt))
-    bindxy = dxy.reshape(900, 60)
+    bindxy = dxy.reshape(900, int(binsz*4))    # 900 windows for 3600s; 15Hz --> 60 per window; 30Hz --> 120 per window
 
     raw_var = np.nanvar(bindxy, axis = 1)
     rs_dxy = np.reshape(dxy, [int(np.size(dxy) / binsz), binsz])
@@ -195,124 +193,17 @@ def plot_motion(ax, med, video_key=False):
             ax.add_patch(rect)
     ax.set_xlim([0, 60])
 
-def plot_spectrogram(ax, hr, eegdat, fs):
+def plot_spectrogram(ax, rawdat_dir, hr):
     ax.set_title('Spectrogram w/ EMG')
-    window_length = 5 # n seconds in windowing segments
-    noverlap = 4.9 # step size in sec
-    dt = 1/fs
-    t_elapsed = eegdat.shape[0]/fs
-    t = np.arange(0.0, t_elapsed, dt)
-    noverlap = noverlap * fs
-    NFFT = window_length * fs
-    minfreq = 1 # min freq in Hz
-    maxfreq = 16 # max freq in Hz
-    ax.set_xlabel('Time (seconds)')
-    ax.set_ylabel('Frequency (Hz)')
-    # the minfreq and maxfreq args will limit the frequencies
-    Pxx, freqs, bins, im = my_specgram(eegdat, ax, NFFT=NFFT, Fs=fs, noverlap=noverlap,
-                                cmap=cm.get_cmap('hsv'), minfreq = minfreq, maxfreq = maxfreq,
-                                xextent = (0,np.int(t_elapsed)) )
-
-    # img = mpimg.imread(rawdat_dir + 'specthr' + hr + '.jpg')
-    # ax.imshow(img, aspect = 'auto')
-    # ax.set_xlim(199, 1441)
-    # ax.set_ylim(178, 0)
-    # ax.set_xticks(np.linspace(199, 1441, 13))
-    # ax.set_xticklabels(np.arange(0, 65, 5))
-    # ticksy = [35, 100, 150]
-    # labelsy = [60, 6, 2]
-    # ax.set_yticks(ticksy, labelsy)
-
-
-def my_specgram(x, ax, NFFT=400, Fs=200, Fc=0, detrend=mlab.detrend_none,
-             window=mlab.window_hanning, noverlap=200,
-             cmap=None, xextent=None, pad_to=None, sides='default',
-             scale_by_freq=None, minfreq = None, maxfreq = None, **kwargs):
-    """
-    call signature::
-
-      specgram(x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
-               window=mlab.window_hanning, noverlap=128,
-               cmap=None, xextent=None, pad_to=None, sides='default',
-               scale_by_freq=None, minfreq = None, maxfreq = None, **kwargs)
-
-    Compute a spectrogram of data in *x*.  Data are split into
-    *NFFT* length segments and the PSD of each section is
-    computed.  The windowing function *window* is applied to each
-    segment, and the amount of overlap of each segment is
-    specified with *noverlap*.
-
-    %(PSD)s
-
-      *Fc*: integer
-        The center frequency of *x* (defaults to 0), which offsets
-        the y extents of the plot to reflect the frequency range used
-        when a signal is acquired and then filtered and downsampled to
-        baseband.
-
-      *cmap*:
-        A :class:`matplotlib.cm.Colormap` instance; if *None* use
-        default determined by rc
-
-      *xextent*:
-        The image extent along the x-axis. xextent = (xmin,xmax)
-        The default is (0,max(bins)), where bins is the return
-        value from :func:`mlab.specgram`
-
-      *minfreq, maxfreq*
-        Limits y-axis. Both required
-
-      *kwargs*:
-
-        Additional kwargs are passed on to imshow which makes the
-        specgram image
-
-      Return value is (*Pxx*, *freqs*, *bins*, *im*):
-
-      - *bins* are the time points the spectrogram is calculated over
-      - *freqs* is an array of frequencies
-      - *Pxx* is a len(times) x len(freqs) array of power
-      - *im* is a :class:`matplotlib.image.AxesImage` instance
-
-    Note: If *x* is real (i.e. non-complex), only the positive
-    spectrum is shown.  If *x* is complex, both positive and
-    negative parts of the spectrum are shown.  This can be
-    overridden using the *sides* keyword argument.
-
-    **Example:**
-
-    .. plot:: mpl_examples/pylab_examples/specgram_demo.py
-
-    """
-
-    #####################################
-    # modified  axes.specgram() to limit
-    # the frequencies plotted
-    #####################################
-
-    # this will fail if there isn't a current axis in the global scope
-    #ax = gca()
-    Pxx, freqs, bins = mlab.specgram(x, NFFT, Fs, detrend,
-         window, noverlap, pad_to, sides, scale_by_freq)
-
-    # modified here
-    #####################################
-    if minfreq is not None and maxfreq is not None:
-        Pxx = Pxx[(freqs >= minfreq) & (freqs <= maxfreq)]
-        freqs = freqs[(freqs >= minfreq) & (freqs <= maxfreq)]
-    #####################################
-
-    Z = 10. * np.log10(Pxx)
-    Z = np.flipud(Z)
-
-    if xextent is None: xextent = 0, np.amax(bins)
-    xmin, xmax = xextent
-    freqs += Fc
-    extent = xmin, xmax, freqs[0], freqs[-1]
-    im = ax.imshow(Z, cmap, extent=extent, **kwargs)
-    ax.axis('auto')
-
-    return Pxx, freqs, bins, im
+    img = mpimg.imread(rawdat_dir + 'specthr' + hr + '.jpg')
+    ax.imshow(img, aspect = 'auto')
+    ax.set_xlim(199, 1441)
+    ax.set_ylim(178, 0)
+    ax.set_xticks(np.linspace(199, 1441, 13))
+    ax.set_xticklabels(np.arange(0, 65, 5))
+    ticksy = [35, 100, 150]
+    labelsy = [60, 6, 2]
+    ax.set_yticks(ticksy, labelsy)
 
 def plot_predicted(ax, Predict_y, clf, Features):
     ax.set_title('Predicted States')
@@ -334,11 +225,11 @@ def plot_predicted(ax, Predict_y, clf, Features):
     predictions = clf.predict_proba(Features)
     confidence = np.max(predictions, 1)
     ax.plot(confidence, color = 'k')
-# rawdat_dir, hr, Predict_y, clf, Features, pos, med, video_key, fs=fs, eeg=downdatlfp
-def create_prediction_figure(rawdat_dir, hr, Predict_y, clf, Features, pos, fs, eeg, med=False, video_key=False):
+
+def create_prediction_figure(rawdat_dir, hr, Predict_y, clf, Features, pos, med=False, video_key=False):
     plt.ion()
     fig, (ax1, ax2, ax3) = plt.subplots(nrows = 3, ncols = 1, figsize = (11, 6))
-    plot_spectrogram(ax1, hr, eeg, fs)
+    plot_spectrogram(ax1,rawdat_dir, hr)
     plot_predicted(ax2, Predict_y, clf, Features)
     if pos:
         plot_motion(ax3, med, video_key)
@@ -510,9 +401,9 @@ def correct_bins(start_bin, end_bin, ax2, new_state):
         print('loc: ', location)
         ax2.add_patch(rectangle)
 
-def create_scoring_figure(rawdat_dir, hr, video_key, pos, med, eeg, fs):
+def create_scoring_figure(rawdat_dir, hr, video_key, pos, med):
     fig, (ax1, ax2, ax3) = plt.subplots(nrows = 3, ncols = 1, figsize = (11, 6))
-    plot_spectrogram(ax1, hr, eeg, fs)
+    plot_spectrogram(ax1,rawdat_dir, hr)
     if pos:
         plot_motion(ax3, med, video_key)
     ax2.set_ylim(0.3, 1)
@@ -573,48 +464,48 @@ def findPulse(dirb, df):
 
 def print_instructions():
     print('''\
-
-                            .--,       .--,
-                           ( (  \.---./  ) )
+     
+                            .--,       .--,  
+                           ( (  \.---./  ) ) 
                             '.__/o   o\__.'
                                {=  ^  =}
                                 >  -  <
         ____________________.""`-------`"".________________________
-
+         
                               INSTRUCTIONS
-
+                      
         Welcome to Sleep Wake Scoring!
-
+        
         The figure you're looking at consists of 3 plots:
         1. The spectrogram for the hour you're scoring
         2. The random forest model's predicted states
         3. The binned motion for the hour
-
+        
         TO CORRECT BINS:
         - click once on the middle figure to select the start of the bin you want to change
-        - then click the last spot of the bin you want to change
+        - then click the last spot of the bin you want to change   
         - switch to terminal and type the state you want that bin to become
-
+        
         VIDEO / RAW DATA:
-        - if you hover over the motion figure you enter ~~ movie mode ~~
+        - if you hover over the motion figure you enter ~~ movie mode ~~  
         - click on that figure where you want to pull up movie and the raw trace for
             the 4 seconds before, during, and after the point that you clicked
-
+        
         CURSOR:
         - because you have to click in certain figures it can be annoying to line up your mouse
-            with where you want to inspect
+            with where you want to inspect 
         - while selected in the scoring figure (called Figure 2) press 'l' (as in Lizzie) to toggle a black line across each plot
         - this line will stay there until you press 'l' again, then it will erase and move
         - adjust until you like your location, then click to select a bin or watch a movie
-
-        EXITING SCORING:
+        
+        EXITING SCORING:     
         - are you done correcting bins?
         - are you sure?
         - are you going to come to me/clayton/lizzie and ask how you 'go back' and 'change a few more bins'?
         - think for a second and then, when you're sure, press 'd'
         - it will then ask you if you want to save your states and/or update the random forest model
-            - choose wisely
-
+            - choose wisely 
+        
         NOTES:
         - all keys pressed should be lowercase. don't 'shift + d'. just 'd'.
         - the video window along with the raw trace figure will remain up and update when you click a new bin
@@ -623,15 +514,18 @@ def print_instructions():
             - always looking to stay ~fresh~ with those ~graphics~
         - if something isn't working, make sure you're on Figure 2 and not the raw trace/terminal/video
         - plz don't toggle line while in motion axes, it messes up the axes limits, not sure why, working on it
-
+        
         coming soon to sleep-wake code near you:
-        - coding the state while you're slected in the figure, so you don't have to switch to terminal
+        - coding the state while you're slected in the figure, so you don't have to switch to terminal 
         - automatically highlighting problem areas where the model isn't sure or a red flag is raised (going wake/rem/wake/rem)
         - letting you choose the best fitting model before you fix the states to limit the amont of corrections
-
-
+        
+        
         ANOUNCEMENTS:
         - if you're trying to code each bin individually (a.k.a. when it asks you if you want to correct the model you say 'no')
-            it doesn't save afterward yet. you will have to manually save it after you're done for the time being
-
+            it doesn't save afterward yet. you will have to manually save it after you're done for the time being 
+                                              
                                                ''')
+
+
+
