@@ -48,7 +48,7 @@ Please check XYF03.json file.
  import Sleep_Wake_Scoring as sw
  hour = 5  # choose a representative hour with both NREM, REM and wake
  filename_sw = 'XYF03.json'                                                                         
- sw.checkLFPchan(filename_sw, hour)
+ sw.selectLFPchan(filename_sw, hour)
 
 or
 
