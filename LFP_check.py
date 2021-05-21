@@ -28,6 +28,7 @@ def selectLFPchan(filename_sw,hour):
            d = json.load(f)
 
     rawdat_dir = str(d['rawdat_dir'])
+    LFP_dir = str[d['LFP_dir']]
     fs = 25000
     start_chan = 0
     EMGinput = int(d['EMGinput'])
@@ -56,12 +57,12 @@ def selectLFPchan(filename_sw,hour):
         time, dat     = ntk.ntk_ecube.load_raw_gain_chmap_1probe(load_files[a],num_chans,hstype,nprobes= nprobes,lraw=1,te = -1, probenum = probenum)
         print('merging file {}'.format(a))
         eeg = np.concatenate([eeg, dat], axis = 1)
+
+    os.chdir(LFP_dir)
     try:
         os.chdir('LFP_chancheck')
     except FileNotFoundError:
         os.mkdir('LFP_chancheck')
-
-    os.chdir(rawdat_dir)
 
     for chan in np.arange(start_chan, np.size(chan_map)):
         nyq = 0.5*fs # nyquist
@@ -103,7 +104,7 @@ def selectLFPchan(filename_sw,hour):
         plt.ylim(1,64)
         plt.xlim(0,3600)
         plt.yscale('log')
-        plt.savefig(rawdat_dir + 'LFP_chancheck/spect_ch' + str(chan)+'.jpg')
+        plt.savefig(LFP_dir + 'LFP_chancheck/spect_ch' + str(chan)+'.jpg')
         plt.close('all')
         #print('This is usage at step 5: ' + str(psutil.virtual_memory()))
         #plt.savefig('spect2.jpg')

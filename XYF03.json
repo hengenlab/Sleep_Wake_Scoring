@@ -2,6 +2,7 @@
  "motion_dir" : "/media/bs007r/XYF00003/XYF0003_1114videos/",
  "model_dir" : "/media/HlabShare/Sleep_Model/",
  "digi_dir" : "/media/bs007r/D1_rat/d2_2020-11-14_19-26-29/",
+ "LFP_dir" : "/media/HlabShare/Sleep_Scoring/XYF03/1114/",
  "animal": "XYF00003",
  "mod_name" : "rat_mouse",
  "epochlen" : 4,

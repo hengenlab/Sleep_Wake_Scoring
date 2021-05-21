@@ -35,6 +35,7 @@ def extract_lfp(filename_sw):
     rawdat_dir = str(d['rawdat_dir'])
     motion_dir = str(d['motion_dir'])
     model_dir = str(d['model_dir'])
+    LFP_dir = str[d['LFP_dir']]
     digi_dir = str(d['digi_dir'])
     animal = str(d['animal'])
     mod_name = str(d['mod_name'])
@@ -73,19 +74,19 @@ def extract_lfp(filename_sw):
 
     if cort is not 1:
         try:
-            selected_chans = np.load(rawdat_dir+'LFP_chancheck/selected_channels.npy')
+            selected_chans = np.load(LFP_dir+'LFP_chancheck/selected_channels.npy')
             # LFP_check = input('Have you checked the average LFP that you are about to use? (y/n)')
             if LFP_check is not 1:
-                hour = int(input('what hour did you use?'))
-                SWS.confirm_channels(selected_chans, raw_datdir, HS, hour)
-                print('Go find the individual and average spectrograms of your LFP in ' + rawdat_dir+'LFP_chancheck')
+                # hour = int(input('what hour did you use?'))
+                # sw.confirm_channels(selected_chans, raw_datdir, HS, hour)
+                print('Go find the individual and average spectrograms of your LFP in ' + LFP_dir+'LFP_chancheck')
                 sys.exit()
         except FileNotFoundError:
             LFP_check = input('You have not selected LFP channels, would you like to do that now? (y/n)')
             if LFP_check == 'y':
                 hour = int(input('what hour will you use?'))
                 #good_chans = [9, 14, 25, 32, 49, 57, 48]
-                SWS.checkLFPchan(rawdat_dir, HS, hour)
+                sw.selectLFPchan(filename_sw, hour)
                 sys.exit('Exiting program now. Please run plot_LFP on local computer to choose cells')
             if LFP_check == 'n':
                 sys.exit('Ok, I am exiting then')
@@ -207,10 +208,10 @@ def extract_lfp(filename_sw):
         average_EEG.append(np.mean(downdatlfp))
         var_EEG.append(np.var(downdatlfp))
 
-        np.save('Average_EEG_perhr.npy', average_EEG)
-        np.save('Var_EEG_perhr.npy', var_EEG)
+        np.save(LFP_dir + 'Average_EEG_perhr.npy', average_EEG)
+        np.save(LFP_dir + 'Var_EEG_perhr.npy', var_EEG)
 
-        np.save('EEGhr' + str(int((fil+12)/12)),downdatlfp)
+        np.save(LFP_dir + 'EEGhr' + str(int((fil+12)/12)),downdatlfp)
 
         print('Calculating bandpower...')
         #print('This is usage at step 5: ' + str(psutil.virtual_memory()))
@@ -234,12 +235,12 @@ def extract_lfp(filename_sw):
         if EMGinput >= 0:
             realtime = np.arange(np.size(EMGamp))/fsemg
             plt.plot(realtime,(EMGamp - np.nanmean(EMGamp))/np.nanstd(EMGamp))
-            np.save('EMGhr' + str(int((fil+12)/12)),EMGamp)
+            np.save(LFP_dir + 'EMGhr' + str(int((fil+12)/12)),EMGamp)
         plt.ylim(1,64)
         plt.xlim(0,3600)
         plt.yscale('log')
         plt.title('Time Period: ' + start_label + '-' + end_label)
-        plt.savefig('specthr' + str(int((fil+12)/12)) + '.jpg')
+        plt.savefig(LFP_dir + 'specthr' + str(int((fil+12)/12)) + '.jpg')
         plt.cla()
         plt.clf()
         plt.close('all')
@@ -257,8 +258,8 @@ def extract_lfp(filename_sw):
             delt = np.pad(delt, (0,dispd), 'constant')
 
         print('THIS IS THE USAGE AT THE END OF LOOP: ' + str(psutil.virtual_memory()))
-        np.save('delt' + str(int((fil+12)/12)) + '.npy',delt)
-        np.save('thet' + str(int((fil+12)/12)) + '.npy',thet)
+        np.save(LFP_dir + 'delt' + str(int((fil+12)/12)) + '.npy',delt)
+        np.save(LFP_dir + 'thet' + str(int((fil+12)/12)) + '.npy',thet)
 
         del(eeg)
         del(delt)
@@ -272,5 +273,5 @@ def extract_lfp(filename_sw):
 
     average_EEG = np.asarray(average_EEG)
     var_EEG = np.asarray(var_EEG)
-    np.save('Average_EEG_perhr.npy', average_EEG)
-    np.save('Var_EEG_perhr.npy', var_EEG)
+    np.save(LFP_dir + 'Average_EEG_perhr.npy', average_EEG)
+    np.save(LFP_dir + 'Var_EEG_perhr.npy', var_EEG)

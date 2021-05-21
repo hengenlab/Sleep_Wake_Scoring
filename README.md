@@ -14,9 +14,10 @@ chmod 700 install.sh
 For example,  
 ```
 {"rawdat_dir" : "/media/bs007r/XYF00003/XYF00003_2020-11-14_19-27-08/",
- "motion_dir" : "/media/bs007r/XYF00003/XYF0003_1114videos/",
+ "motion_dir" : "/media/bs007r/XYF00003/XYF0003_1114videos/",        # please save all DLC outputs to Hlabshare in the future
  "model_dir" : "/media/HlabShare/Sleep_Model/",
  "digi_dir" : "/media/bs007r/D1_rat/d2_2020-11-14_19-26-29/",
+ "LFP_dir" : "/media/HlabShare/Sleep_Scoring/XYF03/1114/"      # please save all LFP and sleep-scoring output to Hlabshare in the future
  "animal": "XYF00003",
  "mod_name" : "rat_mouse",
  "epochlen" : 4,

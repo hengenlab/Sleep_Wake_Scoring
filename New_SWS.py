@@ -29,23 +29,23 @@ def on_press(event):
 
 
 
-def start_swscoring(rawdat_dir, motion_dir, model_dir, animal, mod_name,
+def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
                     epochlen, fs, emg, pos, vid):
     print('this code is supressing warnings')
     warnings.filterwarnings("ignore")
 
     # #
-    # # rawdat_dir = '/Volumes/carina/EAB00047/EAB00047_2019-06-27_15-14-19_p9_c5/'
+    # # LFP_dir = '/Volumes/carina/EAB00047/EAB00047_2019-06-27_15-14-19_p9_c5/'
     # # motion_dir = '/Volumes/carina/EAB00047/EAB00047_2019-06-27_15-14-19_p9_c5_labeled_video/6_28_first_12/'
 
-    # # rawdat_dir = '/Volumes/bs005r/EAB00047/EAB00047_2019-06-10_15-11-36_p10_c4/'
+    # # LFP_dir = '/Volumes/bs005r/EAB00047/EAB00047_2019-06-10_15-11-36_p10_c4/'
     # # motion_dir = '/Volumes/bs005r/EAB00047/EAB00047_2019-06-10_15-11-36_p10_c4_labeled_video/'
 
-    # rawdat_dir = '/media/bs004r/KNR00004/KNR00004_2019-08-01_16-43-45_p1_c3/'
+    # LFP_dir = '/media/bs004r/KNR00004/KNR00004_2019-08-01_16-43-45_p1_c3/'
     # motion_dir = '/media/bs004r/KNR00004/KNR00004_2019-08-01_16-43-45_p1_c3_labeled_video/'
     # model_dir = '/media/HlabShare/Sleep_Model/'
 
-    # os.chdir(rawdat_dir)
+    # os.chdir(LFP_dir)
     meanEEG_perhr = np.load('Average_EEG_perhr.npy')
     var_EEG_perhr = np.load('Var_EEG_perhr.npy')
 
@@ -104,7 +104,7 @@ def start_swscoring(rawdat_dir, motion_dir, model_dir, animal, mod_name,
     else:
         EMGamp = False
 
-    os.chdir(rawdat_dir)
+    os.chdir(LFP_dir)
     normmean, normstd = SW_utils.normMean(meanEEG_perhr, var_EEG_perhr, hr)
 
     print('Generating EEG vectors...')
@@ -217,9 +217,9 @@ def start_swscoring(rawdat_dir, motion_dir, model_dir, animal, mod_name,
         Predict_y = clf.predict(Features)
         Predict_y = SW_utils.fix_states(Predict_y)
         if pos:
-            SW_utils.create_prediction_figure(rawdat_dir, hr, Predict_y, clf, Features, pos, med, video_key)
+            SW_utils.create_prediction_figure(LFP_dir, hr, Predict_y, clf, Features, pos, med, video_key)
         else:
-            SW_utils.create_prediction_figure(rawdat_dir, hr, Predict_y, clf, Features, pos)
+            SW_utils.create_prediction_figure(LFP_dir, hr, Predict_y, clf, Features, pos)
 
         # satisfaction = input('Satisfied?: y/n ') == 'y'
         plt.close('all')
@@ -227,7 +227,7 @@ def start_swscoring(rawdat_dir, motion_dir, model_dir, animal, mod_name,
         if satisfaction:
             mv_file = movement_files[int(hr)-1]
             t_stamp = mv_file[mv_file.find('_tmove')-18:mv_file.find('_tmove')]
-            filename = rawdat_dir + animal + '_SleepStates_' + t_stamp + '.npy'
+            filename = LFP_dir + animal + '_SleepStates_' + t_stamp + '.npy'
             np.save(filename, Predict_y)
             State = Predict_y
             update = input('Update model?(y/n): ') == 'y'
@@ -275,9 +275,9 @@ def start_swscoring(rawdat_dir, motion_dir, model_dir, animal, mod_name,
             line1, line2, line3 = SW_utils.pull_up_raw_trace(0, ax4, ax5, ax6, ax7, emg, start, end, realtime, downdatlfp, fs, mod_name, LFP_ylim, delt, thet, epochlen, EMGamp, ratio2)
             if pos:
                 # this should probably be a different figure without the confidence line?
-                fig, ax1, ax2, ax3 = SW_utils.create_prediction_figure(rawdat_dir, hr, Predict_y, clf, Features, pos, med, video_key)
+                fig, ax1, ax2, ax3 = SW_utils.create_prediction_figure(LFP_dir, hr, Predict_y, clf, Features, pos, med, video_key)
             else:
-                fig, ax1, ax2, ax3 = SW_utils.create_prediction_figure(rawdat_dir, hr, Predict_y, clf, Features, pos)
+                fig, ax1, ax2, ax3 = SW_utils.create_prediction_figure(LFP_dir, hr, Predict_y, clf, Features, pos)
 
             plt.ion()
             State = copy.deepcopy(Predict_y)
@@ -334,7 +334,7 @@ def start_swscoring(rawdat_dir, motion_dir, model_dir, animal, mod_name,
             if save_states:
                 mv_file = movement_files[int(hr) - 1]
                 t_stamp = mv_file[mv_file.find('_tmove') - 18:mv_file.find('_tmove')]
-                filename = rawdat_dir + animal + '_SleepStates_' + t_stamp + '.npy'
+                filename = LFP_dir + animal + '_SleepStates_' + t_stamp + '.npy'
                 np.save(filename, State)
             update = input('Would you like to update the model?: y/n ')=='y'
             if update:
@@ -380,7 +380,7 @@ def start_swscoring(rawdat_dir, motion_dir, model_dir, animal, mod_name,
 
 
             fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows = 4, ncols = 1, figsize = (11,6))
-            fig2, ax5, ax6, ax7 = SW_utils.create_scoring_figure(rawdat_dir, hr, video_key, pos, med)
+            fig2, ax5, ax6, ax7 = SW_utils.create_scoring_figure(LFP_dir, hr, video_key, pos, med)
             cursor = Cursor(ax5, ax6, ax7)
             cID3 = fig2.canvas.mpl_connect('key_press_event', on_press)
 
@@ -440,7 +440,7 @@ def start_swscoring(rawdat_dir, motion_dir, model_dir, animal, mod_name,
     else:
         print('not using the model. have to score by hand. just copy the last bit of code and put it here')
 
-# rawdat_dir, motion_dir, model_dir, animal, mod_name, epochlen, fs, emg, pos, vid
+# LFP_dir, motion_dir, model_dir, animal, mod_name, epochlen, fs, emg, pos, vid
 def load_data_for_sw(filename_sw):
     '''
      load_data_for_sw(filename_sw)
@@ -448,7 +448,7 @@ def load_data_for_sw(filename_sw):
     with open(filename_sw, 'r') as f:
            d = json.load(f)
 
-    rawdat_dir = str(d['rawdat_dir'])
+    LFP_dir = str(d['LFP_dir'])
     motion_dir = str(d['motion_dir'])
     model_dir = str(d['model_dir'])
     animal = str(d['animal'])
@@ -460,8 +460,8 @@ def load_data_for_sw(filename_sw):
     vid = int(d['vid'])
     fr = int(d['video_fr'])
 
-    os.chdir(rawdat_dir)
-    start_swscoring(rawdat_dir, motion_dir, model_dir, animal, mod_name,\
+    os.chdir(LFP_dir)
+    start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,\
                     epochlen, fs, emg, pos, vid)
 
 
