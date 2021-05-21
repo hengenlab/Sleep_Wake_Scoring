@@ -28,7 +28,7 @@ def selectLFPchan(filename_sw,hour):
            d = json.load(f)
 
     rawdat_dir = str(d['rawdat_dir'])
-    LFP_dir = str[d['LFP_dir']]
+    LFP_dir = str(d['LFP_dir'])
     fs = 25000
     start_chan = 0
     EMGinput = int(d['EMGinput'])

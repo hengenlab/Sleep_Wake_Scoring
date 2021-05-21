@@ -35,7 +35,7 @@ def extract_lfp(filename_sw):
     rawdat_dir = str(d['rawdat_dir'])
     motion_dir = str(d['motion_dir'])
     model_dir = str(d['model_dir'])
-    LFP_dir = str[d['LFP_dir']]
+    LFP_dir = str(d['LFP_dir'])
     digi_dir = str(d['digi_dir'])
     animal = str(d['animal'])
     mod_name = str(d['mod_name'])
