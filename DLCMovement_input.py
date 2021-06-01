@@ -59,7 +59,7 @@ def get_movement(vidfile, num_labels = 1, plotter = 0, labels = False, savedir =
 	print('USING THIS VERSION')
 	print(vidfile)
 	print(type(vidfile))
-	basename = vidfile[:-3]
+	basename = vidfile.split('/')[-1][:-3]
 	print(basename)
 	print(type(basename))
 	mp4_1 = cv2.VideoCapture(savedir +basename+'_labeled.mp4')
