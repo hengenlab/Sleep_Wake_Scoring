@@ -83,8 +83,8 @@ def extract_DLC(filename_sw):
 		lstream = 0
 		# get video attributes
 		v = ntk.NTKVideos(videofilename, lstream)
-		string_idx = videofilename.find('e3v')
-		which_vid.append(np.full((1,int(v.length)), videofilename[string_idx:])[0])
+	#	string_idx = videofilename.find('e3v')
+		which_vid.append(np.full((1,int(v.length)), videofilename.split('/')[-1])[0])
 		print(v.length)
 
 		leng.append(v.length)
