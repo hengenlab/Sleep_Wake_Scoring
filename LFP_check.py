@@ -37,8 +37,15 @@ def selectLFPchan(filename_sw,hour):
     probenum = int(d['probenum'])
     nprobes = int(d['nprobes'])
 
-    os.chdir(rawdat_dir)
-    files = sorted(glob.glob('*.bin'))
+    if(rawdat_dir[-4:] == '.txt'):
+        file1 = open(rawdat_dir, 'r')
+        lines = file1.readlines()
+        files = [line.strip('\n') for line in lines]
+    else:
+        os.chdir(rawdat_dir)
+        files = sorted(glob.glob('*.bin'))
+
+
     chan_map = ntk.find_channel_map(hstype[probenum],64) 
 
     fil = hour*12

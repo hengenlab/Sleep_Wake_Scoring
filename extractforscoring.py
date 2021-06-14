@@ -58,10 +58,15 @@ def extract_lfp(filename_sw):
     print(motion_dir)
     print(rawdat_dir)
 
-    os.chdir(rawdat_dir)
-    files = sorted(glob.glob('*.bin'))
-
-    os.chdir(rawdat_dir)   
+ 
+    if(rawdat_dir[-4:] == '.txt'):
+        file1 = open(rawdat_dir, 'r')
+        lines = file1.readlines()
+        files = [line.strip('\n') for line in lines]
+    else:
+        os.chdir(rawdat_dir)
+        files = sorted(glob.glob('*.bin'))
+   
     filesindex = np.arange((num*12),np.size(files),12)
     if len(filesindex) == 0:
         raise ValueError('No files in this directory, check num')
