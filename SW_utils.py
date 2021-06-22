@@ -54,6 +54,8 @@ def init_motion(movement):
     dt = time_sec[2] - time_sec[1]
     dxy = movement[0]   # tmove is the dxy file with shape (2,54000) if video is 15Hz
     binsz = int(round(1 / dt))
+    if dxy.shape[0] > 54000: #reshape if there are extra frames such as 54001
+        dxy = dxy[:54000]
     bindxy = dxy.reshape(900, int(binsz*4))    # 900 windows for 3600s; 15Hz --> 60 per window; 30Hz --> 120 per window
 
     raw_var = np.nanvar(bindxy, axis = 1)
