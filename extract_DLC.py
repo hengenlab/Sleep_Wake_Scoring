@@ -96,10 +96,10 @@ def extract_DLC(filename_sw):
 
 	if digital:
 		os.chdir(digi_dir)
-		digi_files = sorted(glob.glob('*.bin'))
+		digi_files = sorted(glob.glob('D*.bin'))
 
 		os.chdir(rawdat_dir)
-		files = sorted(glob.glob('*.bin'))
+		files = sorted(glob.glob('H*.bin'))
 		stmp = findPulse(digi_dir,digi_files[0])
 		print("stmp is:")
 		print(stmp)

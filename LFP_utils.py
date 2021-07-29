@@ -22,7 +22,7 @@ def checkLFPchan(rawdat_dir, hstype, hour, start_chan = 0, fs = 25000, nprobes =
     
     print('probe number is {}'.format(probenum))
     os.chdir(rawdat_dir)
-    files = sorted(glob.glob('*.bin'))
+    files = sorted(glob.glob('H*.bin'))
     chan_map = ntk.find_channel_map(hstype[probenum],64) 
 
     fil = hour*12
@@ -171,7 +171,7 @@ def confirm_channels(chans, raw_datdir, hstype, hour):
 
     spect_dir = raw_datdir+'LFP_chancheck/'
     os.chdir(raw_datdir)
-    files = sorted(glob.glob('*.bin'))
+    files = sorted(glob.glob('H*.bin'))
     if hstype == 'hs64':
         chan_map = np.array([26, 30, 6,  2,  18, 22, 14, 10, 12, 16, 8,  4,
                              28, 32, 24, 20, 48, 44, 36, 40, 64, 60, 52, 56,
