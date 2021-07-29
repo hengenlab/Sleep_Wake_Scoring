@@ -311,19 +311,22 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
                     State[start_bin:end_bin] = new_state
                     cursor.bins = []
                     cursor.change_bins = False
-                if cursor.movie_mode and cursor.movie_bin>0:
-                    if vid:
-                        start = int(cursor.movie_bin * 60 * fs)
-                        end = int(((cursor.movie_bin * 60) + 12) * fs)
-                        i=0
-                        SW_utils.update_raw_trace(line1, line2, line3, ax4, fig, start, end,i, downdatlfp, delt, thet, fs, epochlen, emg, ratio2, EMGamp)
-                        fig2.canvas.draw()
-                        fig2.tight_layout()
-                        SW_utils.pull_up_movie(start, end, vid_sample, video_key, motion_dir, fs, epochlen, ratio2, dt)
-                        cursor.movie_bin = 0
+                if cursor.movie_bin is not None:
+                    if cursor.movie_mode and cursor.movie_bin>0:
+                        if vid:
+                                start = int(cursor.movie_bin * 60 * fs)
+                                end = int(((cursor.movie_bin * 60) + 12) * fs)
+                                i=0
+                                SW_utils.update_raw_trace(line1, line2, line3, ax4, fig, start, end,i, downdatlfp, delt, thet, fs, epochlen, emg, ratio2, EMGamp)
+                                fig2.canvas.draw()
+                                fig2.tight_layout()
+                                SW_utils.pull_up_movie(start, end, vid_sample, video_key, motion_dir, fs, epochlen, ratio2, dt)
+                                cursor.movie_bin = 0
 
-                    else:
-                        print("you don't have video, sorry")
+                        else:
+                            print("you don't have video, sorry")
+                else:
+                    print("click inside the motion plot")
                 if cursor.DONE:
                     DONE = True
 
