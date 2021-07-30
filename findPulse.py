@@ -10,7 +10,7 @@ def findPulse(dirb, df):
 	dirb: digital binary directory
 	df: the first file in that directory '''
 	thresh = 800
-	files = glob.glob(dirb+'/*.bin')
+	files = glob.glob(dirb+'/D*.bin')
 	files = np.sort(files)
 	flag = False
 	for f in files:

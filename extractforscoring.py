@@ -65,7 +65,7 @@ def extract_lfp(filename_sw):
         files = [line.strip('\n') for line in lines]
     else:
         os.chdir(rawdat_dir)
-        files = sorted(glob.glob('*.bin'))
+        files = sorted(glob.glob('H*.bin'))
    
     filesindex = np.arange((num*12),np.size(files),12)
     if len(filesindex) == 0:
