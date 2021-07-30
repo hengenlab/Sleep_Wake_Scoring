@@ -167,59 +167,79 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
         nans = np.full(np.shape(animal_name), np.nan)
 
         os.chdir(model_dir)
-        if pos and emg:
-            clf = load(mod_name + '_Motion_EMG.joblib')
-        if not pos and emg:
-            clf = load(mod_name + '_EMG.joblib')
-        if pos and not emg:
-            clf = load(mod_name + '_Motion.joblib')
-        if not pos and not emg:
-            clf = load(mod_name + '_no_move.joblib')
+        if mod_name == "load_scores":
+            mv_file = movement_files[int(hr)-1]
+            t_stamp = mv_file[mv_file.find('_tmove')-18:mv_file.find('_tmove')]
+            filename = LFP_dir + animal + '_SleepStates_' + t_stamp + '.npy'
+            Predict_y = np.load(filename)
+            print("Predict_y ", Predict_y)
+            # 1 – Active Wake, Green
+            # 2 – NREM, Blue
+            # 3 – REM, red
+            # 5 – QW, White
+            Predict_y[Predict_y == 1] = 0
+            Predict_y[Predict_y == 2] = 2
+            Predict_y[Predict_y == 3] = 5
 
-        # feature list
-        FeatureList = []
-        if pos and not emg:
-            FeatureList = [animal_num, delta_pre, delta_pre2, delta_pre3, delta_post, delta_post2, delta_post3, EEGdelta,
-                           theta_pre, theta_pre2, theta_pre3, theta_post, theta_post2, theta_post3,
-                           EEGtheta, EEGalpha, EEGbeta, EEGgamma, EEGnb, nb_pre, delt_thet, EEGfire, EEGamp, EEGmax,
-                           EEGmean, binned_mot, raw_var]
-        elif not pos and not emg:
-            FeatureList = [animal_num, delta_pre, delta_pre2, delta_pre3, delta_post, delta_post2, delta_post3, EEGdelta,
-                           theta_pre, theta_pre2, theta_pre3, theta_post, theta_post2, theta_post3,
-                           EEGtheta, EEGalpha, EEGbeta, EEGgamma, EEGnb, nb_pre, delt_thet, EEGfire, EEGamp, EEGmax,
-                           EEGmean, nans, nans]
-
-        elif not pos and emg:
-            FeatureList = [animal_num, delta_pre, delta_pre2, delta_pre3, delta_post, delta_post2, delta_post3, EEGdelta,
-                           theta_pre, theta_pre2, theta_pre3, theta_post, theta_post2, theta_post3,
-                           EEGtheta, EEGalpha, EEGbeta, EEGgamma, EEGnb, nb_pre, delt_thet, EEGfire, EEGamp, EEGmax,
-                           EEGmean, EMG, nans]
-        elif pos and emg:
-            FeatureList = [animal_num, delta_pre, delta_pre2, delta_pre3, delta_post, delta_post2, delta_post3, EEGdelta,
-                           theta_pre, theta_pre2, theta_pre3, theta_post, theta_post2, theta_post3,
-                           EEGtheta, EEGalpha, EEGbeta, EEGgamma, EEGnb, nb_pre, delt_thet, EEGfire, EEGamp, EEGmax,
-                           EEGmean, EMG, binned_mot, raw_var]
-
-        FeatureList_smoothed = []
-        for f in FeatureList:
-            FeatureList_smoothed.append(signal.medfilt(f, 5))
-        Features = np.column_stack((FeatureList_smoothed))
-
-        Features = np.nan_to_num(Features)
-
-        # print("Type.......", type(Features))
-        # temp_inf_test = np.isinf(Features)
-        # print(np.where(temp_inf_test == 1))
-        # temp_nan_test = np.isnan(Features)
-        # print(np.where(temp_nan_test == 1))
-
-
-        Predict_y = clf.predict(Features)
-        Predict_y = SW_utils.fix_states(Predict_y)
-        if pos:
-            SW_utils.create_prediction_figure(LFP_dir, hr, Predict_y, clf, Features, pos, med, video_key)
+            if pos:
+                SW_utils.create_prediction_figure(LFP_dir, hr, Predict_y, None, None, pos, med, video_key)
+            else:
+                SW_utils.create_prediction_figure(LFP_dir, hr, Predict_y, None, None, pos)
         else:
-            SW_utils.create_prediction_figure(LFP_dir, hr, Predict_y, clf, Features, pos)
+            if pos and emg:
+                clf = load(mod_name + '_Motion_EMG.joblib')
+            if not pos and emg:
+                clf = load(mod_name + '_EMG.joblib')
+            if pos and not emg:
+                clf = load(mod_name + '_Motion.joblib')
+            if not pos and not emg:
+                clf = load(mod_name + '_no_move.joblib')
+
+            # feature list
+            FeatureList = []
+            if pos and not emg:
+                FeatureList = [animal_num, delta_pre, delta_pre2, delta_pre3, delta_post, delta_post2, delta_post3, EEGdelta,
+                               theta_pre, theta_pre2, theta_pre3, theta_post, theta_post2, theta_post3,
+                               EEGtheta, EEGalpha, EEGbeta, EEGgamma, EEGnb, nb_pre, delt_thet, EEGfire, EEGamp, EEGmax,
+                               EEGmean, binned_mot, raw_var]
+            elif not pos and not emg:
+                FeatureList = [animal_num, delta_pre, delta_pre2, delta_pre3, delta_post, delta_post2, delta_post3, EEGdelta,
+                               theta_pre, theta_pre2, theta_pre3, theta_post, theta_post2, theta_post3,
+                               EEGtheta, EEGalpha, EEGbeta, EEGgamma, EEGnb, nb_pre, delt_thet, EEGfire, EEGamp, EEGmax,
+                               EEGmean, nans, nans]
+
+            elif not pos and emg:
+                FeatureList = [animal_num, delta_pre, delta_pre2, delta_pre3, delta_post, delta_post2, delta_post3, EEGdelta,
+                               theta_pre, theta_pre2, theta_pre3, theta_post, theta_post2, theta_post3,
+                               EEGtheta, EEGalpha, EEGbeta, EEGgamma, EEGnb, nb_pre, delt_thet, EEGfire, EEGamp, EEGmax,
+                               EEGmean, EMG, nans]
+            elif pos and emg:
+                FeatureList = [animal_num, delta_pre, delta_pre2, delta_pre3, delta_post, delta_post2, delta_post3, EEGdelta,
+                               theta_pre, theta_pre2, theta_pre3, theta_post, theta_post2, theta_post3,
+                               EEGtheta, EEGalpha, EEGbeta, EEGgamma, EEGnb, nb_pre, delt_thet, EEGfire, EEGamp, EEGmax,
+                               EEGmean, EMG, binned_mot, raw_var]
+
+            FeatureList_smoothed = []
+            for f in FeatureList:
+                FeatureList_smoothed.append(signal.medfilt(f, 5))
+            Features = np.column_stack((FeatureList_smoothed))
+
+            Features = np.nan_to_num(Features)
+
+            # print("Type.......", type(Features))
+            # temp_inf_test = np.isinf(Features)
+            # print(np.where(temp_inf_test == 1))
+            # temp_nan_test = np.isnan(Features)
+            # print(np.where(temp_nan_test == 1))
+
+
+            Predict_y = clf.predict(Features)
+            Predict_y = SW_utils.fix_states(Predict_y)
+            print("Predict_y ", Predict_y)
+            if pos:
+                SW_utils.create_prediction_figure(LFP_dir, hr, Predict_y, clf, Features, pos, med, video_key)
+            else:
+                SW_utils.create_prediction_figure(LFP_dir, hr, Predict_y, clf, Features, pos)
 
         # satisfaction = input('Satisfied?: y/n ') == 'y'
         plt.close('all')
@@ -273,11 +293,19 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
             realtime = np.arange(np.size(downdatlfp)) / fs
             fig2, (ax4, ax5, ax6, ax7) = plt.subplots(nrows = 4, ncols = 1, figsize = (11,6))
             line1, line2, line3 = SW_utils.pull_up_raw_trace(0, ax4, ax5, ax6, ax7, emg, start, end, realtime, downdatlfp, fs, mod_name, LFP_ylim, delt, thet, epochlen, EMGamp, ratio2)
-            if pos:
-                # this should probably be a different figure without the confidence line?
-                fig, ax1, ax2, ax3 = SW_utils.create_prediction_figure(LFP_dir, hr, Predict_y, clf, Features, pos, med, video_key)
+
+            if mod_name == "load_scores":
+                if pos:
+                    # this should probably be a different figure without the confidence line?
+                    fig, ax1, ax2, ax3 = SW_utils.create_prediction_figure(LFP_dir, hr, Predict_y, None, None, pos, med, video_key)
+                else:
+                    fig, ax1, ax2, ax3 = SW_utils.create_prediction_figure(LFP_dir, hr, Predict_y, None, None, pos)
             else:
-                fig, ax1, ax2, ax3 = SW_utils.create_prediction_figure(LFP_dir, hr, Predict_y, clf, Features, pos)
+                if pos:
+                    # this should probably be a different figure without the confidence line?
+                    fig, ax1, ax2, ax3 = SW_utils.create_prediction_figure(LFP_dir, hr, Predict_y, clf, Features, pos, med, video_key)
+                else:
+                    fig, ax1, ax2, ax3 = SW_utils.create_prediction_figure(LFP_dir, hr, Predict_y, clf, Features, pos)
 
             plt.ion()
             State = copy.deepcopy(Predict_y)
@@ -442,6 +470,10 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
 
     else:
         print('not using the model. have to score by hand. just copy the last bit of code and put it here')
+        mv_file = movement_files[int(hr) - 1]
+        t_stamp = mv_file[mv_file.find('_tmove') - 18:mv_file.find('_tmove')]
+        filename = LFP_dir + animal + '_SleepStates_' + t_stamp + '.npy'
+        print("filename!!! ", filename)
 
 # LFP_dir, motion_dir, model_dir, animal, mod_name, epochlen, fs, emg, pos, vid
 def load_data_for_sw(filename_sw):

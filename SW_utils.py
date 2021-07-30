@@ -212,6 +212,10 @@ def plot_spectrogram(ax, rawdat_dir, hr):
 
 def plot_predicted(ax, Predict_y, clf, Features):
     ax.set_title('Predicted States')
+    # 1 – Active Wake, Green
+    # 2 – NREM, Blue
+    # 3 – REM, red
+    # 5 – QW, White
     for state in np.arange(np.size(Predict_y)):
         if Predict_y[state] == 0:
             rect7 = patch.Rectangle((state, 0), 3.8, height = 1, color = 'green')
@@ -227,9 +231,10 @@ def plot_predicted(ax, Predict_y, clf, Features):
             ax.add_patch(rect7)
     ax.set_ylim(0.3, 1)
     ax.set_xlim(0, 900)
-    predictions = clf.predict_proba(Features)
-    confidence = np.max(predictions, 1)
-    ax.plot(confidence, color = 'k')
+    if clf is not None:
+        predictions = clf.predict_proba(Features)
+        confidence = np.max(predictions, 1)
+        ax.plot(confidence, color = 'k')
 
 def create_prediction_figure(rawdat_dir, hr, Predict_y, clf, Features, pos, med=False, video_key=False):
     plt.ion()
