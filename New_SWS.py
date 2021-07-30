@@ -167,6 +167,17 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
         nans = np.full(np.shape(animal_name), np.nan)
 
         os.chdir(model_dir)
+        mv_file = movement_files[int(hr)-1]
+        t_stamp = mv_file[mv_file.find('_tmove')-18:mv_file.find('_tmove')]
+        filename = LFP_dir + animal + '_SleepStates_' + t_stamp + '.npy'
+        if (os.path.exists(filename) and os.path.isfile(filename)):
+            mod_name = "load_scores"
+            print("filename ", filename)
+            print("111model nameeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", mod_name)
+        else:
+            print("filename ", filename)
+            print("222model nameeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", mod_name)
+
         if mod_name == "load_scores":
             mv_file = movement_files[int(hr)-1]
             t_stamp = mv_file[mv_file.find('_tmove')-18:mv_file.find('_tmove')]
@@ -363,10 +374,23 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
             plt.close('all')
             save_states = input('Would you like to save these sleep states?: y/n ') == 'y'
             if save_states:
-                mv_file = movement_files[int(hr) - 1]
-                t_stamp = mv_file[mv_file.find('_tmove') - 18:mv_file.find('_tmove')]
-                filename = LFP_dir + animal + '_SleepStates_' + t_stamp + '.npy'
-                np.save(filename, State)
+                if mod_name == "load_scores":
+                    mv_file = movement_files[int(hr) - 1]
+                    t_stamp = mv_file[mv_file.find('_tmove') - 18:mv_file.find('_tmove')]
+                    loverwrite = input('Would you like to overwrite these sleep states?: y/n ') == 'y'
+                    if loverwrite:
+                        filename = LFP_dir + animal + '_SleepStates_' + t_stamp + '.npy'
+                        np.save(filename, State)
+                    else:
+                        username = input('Enter username initials/condition?:')
+                        print("username ", username)
+                        filename = LFP_dir + animal + '_SleepStates_' + t_stamp + '_' + str(username) + '.npy'
+                        np.save(filename, State)
+                else:
+                    mv_file = movement_files[int(hr) - 1]
+                    t_stamp = mv_file[mv_file.find('_tmove') - 18:mv_file.find('_tmove')]
+                    filename = LFP_dir + animal + '_SleepStates_' + t_stamp + '.npy'
+                    np.save(filename, State)
             update = input('Would you like to update the model?: y/n ')=='y'
             if update:
                 State[State == 1] = 0

@@ -211,7 +211,10 @@ def plot_spectrogram(ax, rawdat_dir, hr):
     ax.set_yticks(ticksy, labelsy)
 
 def plot_predicted(ax, Predict_y, clf, Features):
-    ax.set_title('Predicted States')
+    if clf is not None:
+        ax.set_title('Predicted States')
+    else:
+        ax.set_title('Loaded Scores')
     # 1 – Active Wake, Green
     # 2 – NREM, Blue
     # 3 – REM, red
