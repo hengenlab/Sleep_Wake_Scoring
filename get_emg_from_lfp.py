@@ -47,13 +47,13 @@ def emg_from_lfp(filename_sw):
 
 	if platform == "darwin":
 
-	    plt.switch_backend('TkAgg')
+		plt.switch_backend('TkAgg')
 	else:
 
-	    plt.switch_backend('Agg')
+		plt.switch_backend('Agg')
 
 	with open(filename_sw, 'r') as f:
-	       d = json.load(f)
+		d = json.load(f)
 
 	rawdat_dir = str(d['rawdat_dir'])
 	# motion_dir = str(d['motion_dir'])
@@ -72,33 +72,33 @@ def emg_from_lfp(filename_sw):
 	finalfs=1250
 
 	if(rawdat_dir[-4:] == '.txt'):
-	    file1 = open(rawdat_dir, 'r')
-	    lines = file1.readlines()
-	    files = [line.strip('\n') for line in lines]
+		file1 = open(rawdat_dir, 'r')
+		lines = file1.readlines()
+		files = [line.strip('\n') for line in lines]
 	else:
-	    os.chdir(rawdat_dir)
-	    files = sorted(glob.glob('H*.bin'))
+		os.chdir(rawdat_dir)
+		files = sorted(glob.glob('H*.bin'))
 
 	filesindex = np.arange((num*12),np.size(files),12)
 	if len(filesindex) == 0:
-	    raise ValueError('No files in this directory, check num')
+		raise ValueError('No files in this directory, check num')
 
 	rawfiles = sorted(glob.glob(rawdat_dir + 'H*.bin')) #every hour
 
 	for fil in filesindex:
-	    print('STARTING LOOP: '+str(fil))
-	    print('THIS IS THE STARTING USAGE: ' + str(psutil.virtual_memory()))
-	    start_label = rawfiles[fil][30:-4]
-	    end_label = rawfiles[fil+12][30:-4]
-	    # THIS CAN BE CONSOLIDATED INTO A FEW LINES LATER. THIS IS WHEN SAM IS LEARNING...
-	    # start importing your data
+		print('STARTING LOOP: '+str(fil))
+		print('THIS IS THE STARTING USAGE: ' + str(psutil.virtual_memory()))
+		start_label = rawfiles[fil][30:-4]
+		end_label = rawfiles[fil+12][30:-4]
+		# THIS CAN BE CONSOLIDATED INTO A FEW LINES LATER. THIS IS WHEN SAM IS LEARNING...
+		# start importing your data
 
-	    # select the 12 files that you will work on at a time. this is to prevent
-	    # overloading RAM; since the default is to write 5 minute files, this will
-	    # effectively load an hour's worth of data at a time
-	    load_files = rawfiles[fil:fil+12]
+		# select the 12 files that you will work on at a time. this is to prevent
+		# overloading RAM; since the default is to write 5 minute files, this will
+		# effectively load an hour's worth of data at a time
+		load_files = rawfiles[fil:fil+12]
 
-	    print('Working on hour ' + str(int((fil+12)/12)))	
+		print('Working on hour ' + str(int((fil+12)/12)))
 
 		full_selected_emg = np.array([])
 		for a in np.arange(0,np.size(load_files)):
@@ -122,7 +122,7 @@ def emg_from_lfp(filename_sw):
 			if disp > 0:
 				emg_selected = np.pad(emg_selected, (0,disp), 'constant')
 			elif disp < 0:
-			    emg_selected = emg_selected[0:int(reclen*finalfs)]
+				emg_selected = emg_selected[0:int(reclen*finalfs)]
 
 			# full_selected_emg = np.concatenate([full_selected_emg, emg_selected], axis = 1)
 			full_selected_emg = np.hstack([full_selected_emg,emg_selected])
