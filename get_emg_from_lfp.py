@@ -15,12 +15,12 @@ from sys import platform
 import json
 import psutil
 
-def get_highfreq_1chan(dgc_1chan,finalfs,reclen):
+def get_highfreq_1chan(dgc_1chan,fs,finalfs,reclen):
 	bdgc = ntk.butter_bandpass(dgc_1chan, 300, 600, fs, 3)
 	downsamp = signal.resample(bdgc, int(finalfs*reclen))
 	return(downsamp)
 
-def get_emg_1chan(dgc,nprobes,probechans,window,finalfs,reclen):
+def get_emg_1chan(dgc,nprobes,probechans,window,fs,finalfs,reclen):
 	randchan1 = np.random.randint(0,probechans)
 	randchan2 = np.random.randint(0,probechans)
 
@@ -29,8 +29,8 @@ def get_emg_1chan(dgc,nprobes,probechans,window,finalfs,reclen):
 	dgc_probeA = dgc[(randprobes[0]*probechans):((randprobes[0]*probechans)+probechans),:]
 	dgc_probeB = dgc[(randprobes[1]*probechans):((randprobes[1]*probechans)+probechans),:]
 
-	hfreq_p1 = get_highfreq_1chan(dgc_probeA[randchan1,:],finalfs=finalfs,reclen=reclen)
-	hfreq_p2 = get_highfreq_1chan(dgc_probeB[randchan2,:],finalfs=finalfs,reclen=reclen)
+	hfreq_p1 = get_highfreq_1chan(dgc_probeA[randchan1,:],fs=fs,finalfs=finalfs,reclen=reclen)
+	hfreq_p2 = get_highfreq_1chan(dgc_probeB[randchan2,:],fs=fs,finalfs=finalfs,reclen=reclen)
 
 	chdf = pd.DataFrame({'ch1': hfreq_p1, 'ch2': hfreq_p2})
 	emg = chdf['ch1'].rolling(int(window*finalfs)).corr(chdf['ch2']).values
@@ -113,7 +113,7 @@ def emg_from_lfp(filename_sw):
 
 			for e in np.arange(n_emg_chans):
 				print(f'Getting emg: {e+1}/{n_emg_chans}')
-				emg_chans[e,:] = get_emg_1chan(dgc,nprobes,probechans,window=0.5,finalfs=finalfs,reclen=reclen)
+				emg_chans[e,:] = get_emg_1chan(dgc,nprobes,probechans,window=0.5,fs=fs,finalfs=finalfs,reclen=reclen)
 
 			emg_selected = np.mean(emg_chans,axis=0)
 
