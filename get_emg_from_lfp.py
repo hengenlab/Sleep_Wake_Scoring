@@ -85,20 +85,20 @@ def emg_from_lfp(filename_sw):
 
 	rawfiles = sorted(glob.glob(rawdat_dir + 'H*.bin')) #every hour
 
-    for fil in filesindex:
-        print('STARTING LOOP: '+str(fil))
-        print('THIS IS THE STARTING USAGE: ' + str(psutil.virtual_memory()))
-        start_label = rawfiles[fil][30:-4]
-        end_label = rawfiles[fil+12][30:-4]
-        # THIS CAN BE CONSOLIDATED INTO A FEW LINES LATER. THIS IS WHEN SAM IS LEARNING...
-        # start importing your data
+	for fil in filesindex:
+	    print('STARTING LOOP: '+str(fil))
+	    print('THIS IS THE STARTING USAGE: ' + str(psutil.virtual_memory()))
+	    start_label = rawfiles[fil][30:-4]
+	    end_label = rawfiles[fil+12][30:-4]
+	    # THIS CAN BE CONSOLIDATED INTO A FEW LINES LATER. THIS IS WHEN SAM IS LEARNING...
+	    # start importing your data
 
-        # select the 12 files that you will work on at a time. this is to prevent
-        # overloading RAM; since the default is to write 5 minute files, this will
-        # effectively load an hour's worth of data at a time
-        load_files = rawfiles[fil:fil+12]
+	    # select the 12 files that you will work on at a time. this is to prevent
+	    # overloading RAM; since the default is to write 5 minute files, this will
+	    # effectively load an hour's worth of data at a time
+	    load_files = rawfiles[fil:fil+12]
 
-        print('Working on hour ' + str(int((fil+12)/12)))	
+	    print('Working on hour ' + str(int((fil+12)/12)))	
 
 		full_selected_emg = np.array([])
 		for a in np.arange(0,np.size(load_files)):
