@@ -19,6 +19,7 @@ import json
 from findPulse import findPulse
 from matplotlib import cm
 from sys import platform
+from Sleep_Wake_Scoring import LFP_check as lfpcheck
 import gc
 
 def extract_lfp(filename_sw):
@@ -91,7 +92,7 @@ def extract_lfp(filename_sw):
             if LFP_check == 'y':
                 hour = int(input('what hour will you use?'))
                 #good_chans = [9, 14, 25, 32, 49, 57, 48]
-                sw.selectLFPchan(filename_sw, hour)
+                lfpcheck.selectLFPchan(filename_sw, hour)
                 sys.exit('Exiting program now. Please run plot_LFP on local computer to choose cells')
             if LFP_check == 'n':
                 sys.exit('Ok, I am exiting then')
