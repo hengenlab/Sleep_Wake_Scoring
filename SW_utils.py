@@ -48,42 +48,52 @@ def check_time_period(h5files, vidfiles): # previously check3
     if timestamps_h5 != timestamps_vid:
         sys.exit('h5 files and video files not aligned')
 
+
 def init_motion(movement):
+
+    # Time to seconds
     time = movement[1]
     time_sec = time * 3600
+
+    # Get bin size Movement
     dt = time_sec[2] - time_sec[1]
-    dxy = movement[0]   # tmove is the dxy file with shape (2,54000) if video is 15Hz
+    # print("dt ", dt)
+    # tmove is the dxy file with shape (2,54000) if video is 15Hz
+    dxy = movement[0]
+
+    # Get video fps
+    # 1/dt gives 15 fps if dt =0.06666
     binsz = int(round(1 / dt))
-    print(dxy.shape)
-    if (dxy.shape[0] > 54000) & (dxy.shape[0]<54015): #reshape if there are extra frames such as 54001
+    # print(dxy.shape)
+
+    # Adjust if there is extra frames
+    # reshape if there are extra frames such as 54001
+    if (dxy.shape[0] > 54000) and (dxy.shape[0] < 54015):
         dxy = dxy[:54000]
-    elif (dxy.shape[0] > 108000) & (dxy.shape[0]<108030):
+    elif (dxy.shape[0] > 108000) and (dxy.shape[0] < 108030):
         dxy = dxy[:108000]
-    bindxy = dxy.reshape(900, int(binsz*4))    # 900 windows for 3600s; 15Hz --> 60 per window; 30Hz --> 120 per window
 
-    raw_var = np.nanvar(bindxy, axis = 1)
+    # Reshape 4s bins
+    # 900 windows for 3600s; 15Hz --> 60 per window; 30Hz --> 120 per window
+    bindxy = dxy.reshape(900, int(binsz*4))
+    # print("sh bindxy ", bindxy.shape)
+    # Variance for each 4seconds
+    raw_var = np.nanvar(bindxy, axis=1)
+    # print("sh dxy ", np.size(dxy))
+    # Reshape to 1 second
     rs_dxy = np.reshape(dxy, [int(np.size(dxy) / binsz), binsz])
+    # print("sh rs_dxy ", rs_dxy.shape)
 
-    med = np.median(rs_dxy, axis = 1)
-    hist = np.histogram(med[~np.isnan(med)], bins = 1000)
-    csum = np.cumsum(hist[0])
-    th = np.size(med) * 0.95
-    outliers_idx = np.where(csum > th)[0]
-    if np.size(outliers_idx) > 0:
-        outliers_idx = outliers_idx[0]
-        outliers = np.where(med > hist[1][outliers_idx])[0]
-        for i in outliers:
-            if i == 0:
-                med[i] = med[i + 2]
-            else:
-                med[i] = med[i - 1]
-                a = i - 1
-            while med[i] > hist[1][outliers_idx]:
-                a = i - 1
-                med[i] = med[a]
-    binned_mot = np.nanmean(np.reshape(med, (900, 4)), axis = 1)
-    binned_mot[np.where(np.isnan(binned_mot))] = 0
-    raw_var[np.where(np.isnan(raw_var))] = 0
+    # median for each second
+    med = np.median(rs_dxy, axis=1)
+
+    # Changing to 4s bins
+    binned_mot = np.nanmean(np.reshape(med, (900, 4)), axis=1)
+
+    # Nan is set to zero
+    # binned_mot[np.where(np.isnan(binned_mot))] = 0
+    # raw_var[np.where(np.isnan(raw_var))] = 0
+    # print("sh binned_mot ", binned_mot.shape)
     return binned_mot, raw_var, dxy, med, dt
 
 def normMean(meanEEG_perhr, var_EEG_perhr, hr):
