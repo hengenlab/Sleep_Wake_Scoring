@@ -67,27 +67,21 @@ def dlc_dist_from_features(mfile, fps, hour_sec=3600,
 
     if lmedian:
         dlc_dist_median = np.nanmedian(np.asarray(dlc_dist), axis=0)
-        print("sh0  dlc_dist_median ", dlc_dist_median.shape)
         if lplot:
             ax[len(dlc_features)].plot(dlc_dist_median)
             ax[len(dlc_features)].set_title("Median dist")
 
         if (dlc_dist_median.shape[0] % fps) == 0:
-            print("sh  dlc_dist_median ", dlc_dist_median.shape)
             dlc_dist_median_persec = \
                 dlc_dist_median.reshape(-1, fps)
         else:
-            print("sh2  dlc_dist_median ", dlc_dist_median.shape)
             print("WARNING not multiple of fps ", fps, " got ",
                   dlc_dist_median.shape[0])
             dlc_dist_median_persec = \
                 dlc_dist_median[0:int(hour_sec*fps)].reshape(hour_sec, fps)
 
-        print("sh dlc_dist_median_persec ", dlc_dist_median_persec.shape)
         dlc_dist_median_persec_mean = np.nanmedian(dlc_dist_median_persec,
                                                    axis=1)
-        # print("sh dlc_dist_median_persec_mean ",
-        #       dlc_dist_median_persec_mean.shape)
         if lplot:
             ax[len(dlc_features) + 1].plot(dlc_dist_median_persec_mean)
             ax[len(dlc_features) + 1].set_title("Median dist/conds")
@@ -128,7 +122,7 @@ if __name__ == "__main__":
         fps = 15
         # hour_sec = 3600
         # cutoff_val = 0.90
-        lplot = 0
+        lplot = 1
         mfile = op.join(motion_dir, mfile)
 
         dlc_dist_from_features(mfile, fps,
