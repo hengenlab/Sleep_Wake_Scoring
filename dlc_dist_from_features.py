@@ -6,8 +6,17 @@ import glob
 
 
 def dlc_dist_from_features(mfile, fps, hour_sec=3600,
-                           cutoff_val=0.90, lplot=0):
+                           cutoff_val=0.90,
+                           lmedian=1,
+                           lplot=0):
     '''
+    mfile : motion file
+    fps : video fps
+    hour_sec : (default, 3600 hour in sec)
+    cutoff_val : (default, 0.90)
+    lmedian : (default, median across features)
+    lplot : (default 0, no plots)
+
     '''
     # Get features
     dlc_positions, dlc_features = \
@@ -56,43 +65,65 @@ def dlc_dist_from_features(mfile, fps, hour_sec=3600,
             ax[i].plot(dlc_dist[i])
             ax[i].set_title(str(dlc_features[i]))
 
-    dlc_dist_median = np.nanmedian(np.asarray(dlc_dist), axis=0)
-    if lplot:
-        ax[len(dlc_features)].plot(dlc_dist_median)
-        ax[len(dlc_features)].set_title("Median dist")
+    if lmedian:
+        dlc_dist_median = np.nanmedian(np.asarray(dlc_dist), axis=0)
+        print("sh0  dlc_dist_median ", dlc_dist_median.shape)
+        if lplot:
+            ax[len(dlc_features)].plot(dlc_dist_median)
+            ax[len(dlc_features)].set_title("Median dist")
 
-    # if (dlc_dist_median.shape[0] == (hour_sec * fps)):
-    #     dlc_dist_median_persec = \
-    #         dlc_dist_median.reshape(hour_sec, fps)
-    # else:
-    #     print("WARNING expected ", hour_sec*fps, " got ",
-    #           dlc_dist_median.shape[0])
-    #     dlc_dist_median_persec = \
-    #         dlc_dist_median[0:int(hour_sec*fps)].reshape(hour_sec, fps)
+        if (dlc_dist_median.shape[0] % fps) == 0:
+            print("sh  dlc_dist_median ", dlc_dist_median.shape)
+            dlc_dist_median_persec = \
+                dlc_dist_median.reshape(-1, fps)
+        else:
+            print("sh2  dlc_dist_median ", dlc_dist_median.shape)
+            print("WARNING not multiple of fps ", fps, " got ",
+                  dlc_dist_median.shape[0])
+            dlc_dist_median_persec = \
+                dlc_dist_median[0:int(hour_sec*fps)].reshape(hour_sec, fps)
 
-    if (dlc_dist_median.shape[0] % fps) == 0:
-        dlc_dist_median_persec = \
-            dlc_dist_median.reshape(-1, fps)
+        print("sh dlc_dist_median_persec ", dlc_dist_median_persec.shape)
+        dlc_dist_median_persec_mean = np.nanmedian(dlc_dist_median_persec,
+                                                   axis=1)
+        # print("sh dlc_dist_median_persec_mean ",
+        #       dlc_dist_median_persec_mean.shape)
+        if lplot:
+            ax[len(dlc_features) + 1].plot(dlc_dist_median_persec_mean)
+            ax[len(dlc_features) + 1].set_title("Median dist/conds")
     else:
-        print("WARNING not multiple of fps ", fps, " got ",
-              dlc_dist_median.shape[0])
-        dlc_dist_median_persec = \
-            dlc_dist_median[0:int(hour_sec*fps)].reshape(hour_sec, fps)
+        dlc_dist_features = np.asarray(dlc_dist)
+        if lplot:
+            ax[len(dlc_features)].plot(dlc_dist_features.T,
+                                       label=dlc_features)
+            ax[len(dlc_features)].set_title("dist features")
+            ax[len(dlc_features)].legend()
 
-    # print("sh dlc_dist_median_persec ", dlc_dist_median_persec.shape)
-    dlc_dist_median_persec_mean = np.nanmean(dlc_dist_median_persec, axis=1)
-    # print("sh dlc_dist_median_persec_mean ",
-    #       dlc_dist_median_persec_mean.shape)
-    if lplot:
-        ax[len(dlc_features) + 1].plot(dlc_dist_median_persec_mean)
-        ax[len(dlc_features) + 1].set_title("Median dist in seconds")
+        if (dlc_dist_features.shape[0] % fps) == 0:
+            dlc_dist_features_persec = \
+                dlc_dist_features.reshape(len(dlc_features), -1, fps)
+        else:
+            print("WARNING not multiple of fps ", fps, " got ",
+                  dlc_dist_features.shape[0])
+            dlc_dist_features_persec = \
+                dlc_dist_features[:, 0:int(hour_sec*fps)].reshape(3,
+                                                                  hour_sec,
+                                                                  fps)
+        dlc_dist_features_persec_mean = np.nanmedian(dlc_dist_features_persec,
+                                                     axis=2)
+        if lplot:
+            ax[len(dlc_features) + 1].plot(dlc_dist_features_persec_mean.T,
+                                           label=dlc_features)
+            ax[len(dlc_features) + 1].set_title("Median dist features/seconds")
+            ax[len(dlc_features) + 1].legend()
+
     if lplot:
         plt.show()
 
 
 if __name__ == "__main__":
     motion_dir = '/media/bs001r/James_AD_Project/KDR00014/10182021/'
-    mfiles = glob.glob(motion_dir + op.sep + '*.h5')
+    mfiles = glob.glob(motion_dir + op.sep + '*.h5')[0:1]
     for mfile in mfiles:
         fps = 15
         # hour_sec = 3600
@@ -103,4 +134,5 @@ if __name__ == "__main__":
         dlc_dist_from_features(mfile, fps,
                                hour_sec=3600,
                                cutoff_val=0.90,
+                               lmedian=1,
                                lplot=lplot)
