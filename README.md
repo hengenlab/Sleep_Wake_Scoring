@@ -92,7 +92,6 @@ sw.manually_add_selected_channels('/home/kbn/ABC00001.json', best_channels)
 ``` 
 
 ##### Running LFP extract  
-*ipython*
 ```
 Use sorting code to extract LFP. For more details check README.md in spikesorter code. 
 Keep everything same as sorting input for spkint_wrapper_input.json and mountainsort.json
@@ -106,13 +105,13 @@ It is best to select single channel from  different tetrode groups
 tetrode recordings.  Channel number starts at 1 not 0.
 ```
 or
-```
-import Sleep_Wake_Scoring as sw 
-sw.extract_lfp('XYF03.json')
+```diff
+- Use method above using spikesorter  
+- import Sleep_Wake_Scoring as sw 
+- sw.extract_lfp('XYF03.json')
 ``` 
 
 #### Get movement traces from DLC analysis
-*ipython*
 
 ```
 import Sleep_Wake_Scoring as sw
