@@ -70,33 +70,42 @@ ntk.selectlfpchans(rawdat_dir, outdir, hstype, hour,
 # the best probe to extract lfp
 ```
 or
+```diff
+- Use method above using ntk.selectlfpchans  
+- import Sleep_Wake_Scoring as sw
+- hour = 5  # choose a representative hour with both NREM, REM and wake
+- filename_sw = 'XYF03.json'  
+- sw.selectLFPchan(filename_sw, hour)
 ```
-
- import Sleep_Wake_Scoring as sw
- hour = 5  # choose a representative hour with both NREM, REM and wake
- filename_sw = 'XYF03.json'                                                                         
- sw.selectLFPchan(filename_sw, hour)
-
 or
-
+```
 Add channels manually
 import Sleep_Wake_Scoring as sw 
 sw.manually_add_selected_channels(filename_sw, best_channels_for_lfp)
 filename_sw : json input file, please check json_input_files directory
 best_channels_for_lfp : Best 5 channels for lfp
- 
 Examples :
 import Sleep_Wake_Scoring as sw 
 import numpy as np
-
 best_channels = np.array([1, 2, 3, 4, 5])
 sw.manually_add_selected_channels('/home/kbn/ABC00001.json', best_channels)
-
-
 ``` 
 
 ##### Running LFP extract  
 *ipython*
+```
+Use sorting code to extract LFP. For more details check README.md in spikesorter code. 
+Keep everything same as sorting input for spkint_wrapper_input.json and mountainsort.json
+except in spkint_wrapper_input.json
+change
+1. "spk_sorter": "m", to "spk_sorter": "lfp",
+   
+2.  "lfp" : 0,  to "lfp": [70, 86, 100, 121],
+where 70, 86, 100 and 121 are the channels to be extracted.   
+It is best to select single channel from  different tetrode groups   
+tetrode recordings.  Channel number starts at 1 not 0.
+```
+or
 ```
 import Sleep_Wake_Scoring as sw 
 sw.extract_lfp('XYF03.json')
