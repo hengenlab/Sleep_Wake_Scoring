@@ -81,8 +81,8 @@ or
 
 Add channels manually
 import Sleep_Wake_Scoring as sw 
-sw.manually_add_selected_channels(rawdir_name, best_channels_for_lfp)
-rawdir_name : Directory where rawdata exists
+sw.manually_add_selected_channels(filename_sw, best_channels_for_lfp)
+filename_sw : json input file, please check json_input_files directory
 best_channels_for_lfp : Best 5 channels for lfp
  
 Examples :
@@ -90,7 +90,7 @@ import Sleep_Wake_Scoring as sw
 import numpy as np
 
 best_channels = np.array([1, 2, 3, 4, 5])
-sw.manually_add_selected_channels('/home/kbn/', best_channels)
+sw.manually_add_selected_channels('/home/kbn/ABC00001.json', best_channels)
 
 
 ``` 
