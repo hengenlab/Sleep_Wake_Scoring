@@ -34,7 +34,8 @@ def check_spectrograms(filename_sw):
         for ii in range(4):
             img = mpimg.imread(fl_list[count])
             name_str = str(fl_list[count]).replace(str(LFP_dir_spec), '')\
-                .replace('.jpg', '').replace('/', '').replace('spect', '')
+                .replace('.jpg', '').replace('/', '').replace('spect', '')\
+                .replace("_", ' ')
             count = count + 1
             ax1[ii].imshow(img, aspect='auto')
             # ax1[ii].set_ylabel(str(count))
