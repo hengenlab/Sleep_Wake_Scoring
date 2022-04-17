@@ -447,43 +447,6 @@ def update_raw_trace(line1, line2, line3, ax4, fig, start, end,i, downdatlfp, de
         ax4.fill_between(length, bottom, EMGamp[int(i * 4 * epochlen):int(i * 4 * epochlen + 4 * 3 * epochlen)], color = 'red')
     fig.canvas.draw()
 
-def findPulse(dirb, df):
-	'''
-	finds the binary file that contains the sync pulse for the camera
-	dirb: digital binary directory
-	df: the first file in that directory '''
-	t,dr = ntk.load_digital_binary(dirb+df)
-
-	max_pos=np.where(dr==1)
-	zpos = np.where(dr==0)
-	first_on = max_pos[0][0]
-	next_off = zpos[0][first_on]
-	dif = next_off-first_on
-	thresh = dif*2
-
-	files = os.listdir(dirb)
-	files = np.sort(files)
-	flag = False
-	for f in files:
-		path = dirb+f
-		print(path)
-		t,dr = ntk.load_digital_binary(path)
-		max_pos=np.where(dr==1)
-
-		for i in range(len(max_pos[0])-thresh):
-			if (max_pos[0][i+thresh]-max_pos[0][i]) == thresh:
-				print('binary file:',path, '\nindex of the pulse in the max_pos array: ', i)
-				if dr[max_pos[0][i]-5000] > 0:
-					plt.plot(dr[max_pos[0][i]-5000:max_pos[0][i]+5000])
-				else:
-					plt.plot(dr[0:max_pos[0][i]*2])
-				flag = True
-				ret = t + i/25000 * 1000*1000*1000
-				return ret
-
-		if flag:
-			print('plz stop')
-			break
 
 def print_instructions():
     print('''\
