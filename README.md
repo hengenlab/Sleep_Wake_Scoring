@@ -45,6 +45,7 @@ Please check XYF03.json file.
 
 ##### Find best channels  
 ```
+# Create spectrograms
 import neuraltoolkit as ntk
 rawdat_dir='/media/KDR00032/KDR00032_L1_W2_2022-01-24_09-08-46/'
 # Standard /media/HlabShare/Sleep_Scoring/ABC00001/LFP_chancheck/'
@@ -68,18 +69,16 @@ ntk.selectlfpchans(rawdat_dir, outdir, hstype, hour,
                    probenum=1, probechans=64, lfp_lowpass=250)
 # Now go through the spectrograms and select best lfp channels in
 # the best probe to extract lfp
+
 ```
-or
-```diff
-- Use method above using ntk.selectlfpchans  
-- import Sleep_Wake_Scoring as sw
-- hour = 5  # choose a representative hour with both NREM, REM and wake
-- filename_sw = 'XYF03.json'  
-- sw.selectLFPchan(filename_sw, hour)
 ```
-or
+# Plot spectrograms
+import Sleep_Wake_Scoring as sw
+sw.check_spectrograms('json_input_files/KDR00014.json')
 ```
-Add channels manually
+
+```
+# Add channels manually
 import Sleep_Wake_Scoring as sw 
 sw.manually_add_selected_channels(filename_sw, best_channels_for_lfp)
 filename_sw : json input file, please check json_input_files directory
@@ -90,7 +89,16 @@ import numpy as np
 best_channels = np.array([1, 2, 3, 4, 5])
 sw.manually_add_selected_channels('/home/kbn/ABC00001.json', best_channels)
 ``` 
-
+   
+or
+  
+```diff
+- Use method above using ntk.selectlfpchans  
+- import Sleep_Wake_Scoring as sw
+- hour = 5  # choose a representative hour with both NREM, REM and wake
+- filename_sw = 'XYF03.json'  
+- sw.selectLFPchan(filename_sw, hour)
+```
 ##### Running LFP extract  
 ```
 Use sorting code to extract LFP. For more details check README.md in spikesorter code. 
