@@ -6,3 +6,4 @@ from .extractforscoring import *
 from .extract_DLC import *
 from .selected_channels import *
 from .LFP_check import *
+from .check_spectrograms import check_spectrograms 
