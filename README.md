@@ -123,7 +123,33 @@ or
 
 ```
 import Sleep_Wake_Scoring as sw
-sw.extract_DLC('XYF03.json')
+sw.extract_DLC('XYF03.json')  
+```
+
+#### Finding offset for json file input
+```
+# datadir: data directory where digital file is located
+# ch : channel where Watchtower signal is recorded,
+#      remember number starts from 0
+# nfiles: First how many files to check for pulse change
+#      (default first 10 files)
+# fs: Sampling rate of digital file (default 25000)
+# fps: Frames per second of video file (default 15)
+# lnew: default 1, new digital files.
+#      0 for old digital files with only one channel
+# fig_indx: Default None, if index is given it plot figure
+datadir = '/home/kbn/ABC12345/ABC_L9_W2_/'
+ch = 1   #  _L9_W2_  zero indexing
+nfiles = 10
+fs = 25000
+fps = 15
+fig_indx = 1
+video_start_index =\
+    ntk.find_video_start_index(datadir, ch, nfiles=nfiles,
+                                   fs=fs, fps=fps,
+                                   lnew=1, fig_indx=fig_indx)
+# Offset is in seconds so divide by fs
+print("offset ", video_start_index/fs)  
 ```
 
 ##### Running Sleep Wake Scoring Module  
