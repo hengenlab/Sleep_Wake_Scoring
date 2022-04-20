@@ -21,6 +21,15 @@ class Cursor(object):
         self.ylims_ax2 = ax2.get_ylim()
         self.ylims_ax3 = ax3.get_ylim()
 
+        # Created for vlines
+        # Create a combined transform from ax1 data to ax2 data
+        self.combinedTransform1to2 = ax1.transData + ax2.transData.inverted()
+        # Create a combined transform from ax1 data to ax3 data
+        self.combinedTransform1to3 = ax1.transData + ax3.transData.inverted()
+        # store vlines previously plotted
+        self.vl = []
+
+
         line1 = ax1.plot([0,0], [self.ylims_ax1[0], self.ylims_ax1[1]], linewidth = 0.5, color = 'k')
         ml1 = line1.pop(0)
 
@@ -84,7 +93,47 @@ class Cursor(object):
                 self.change_bins = True
         else:
             if event.inaxes != self.ax2:
-                print('please click in the second figure to select bins')
+                print('Please click in the second figure to select bins')
+                print('Ploting vertical line for alignment')
+
+                # Create a combined transform from ax1 data to ax2 data
+                combinedTransform1to2 = self.ax1.transData + self.ax2.transData.inverted()
+                # Create a combined transform from ax1 data to ax3 data
+                combinedTransform1to3 = self.ax1.transData + self.ax3.transData.inverted()
+
+                # Everything below in this block is to plot vline across
+                # all axes ending draw vline
+
+                # convert event coordinates for all axes
+                c1to2 = combinedTransform1to2.transform((event.xdata,
+                                                         event.ydata))
+                c1to3 = combinedTransform1to3.transform((event.xdata,
+                                                         event.ydata))
+                # remove previous lines if it is there
+                for vl_i in self.vl:
+                    vl_i.remove()
+
+                # plot same line across axes
+                vl1 = self.ax1.axvline(x=event.xdata, color='m',
+                                       zorder=10, lw=1, linestyle='dashed')
+                vl2 = self.ax2.axvline(x=c1to2[0], color='m',
+                                       zorder=10, lw=1, linestyle='dashed')
+                vl3 = self.ax3.axvline(x=c1to3[0], color='m',
+                                       zorder=10, lw=1, linestyle='dashed')
+
+                # clean up old avlines and add new ones
+                self.vl = None
+                self.vl = []
+                self.vl.append(vl1)
+                self.vl.append(vl2)
+                self.vl.append(vl3)
+
+                # draw vline
+                self.ax1.figure.canvas.draw_idle()
+                self.ax2.figure.canvas.draw_idle()
+                self.ax3.figure.canvas.draw_idle()
+
+
             else:
                 self.bins.append(math.floor(event.xdata))
                 print(f'FIRST CLICK ----- xdata:{event.xdata} x:{event.x} axes: {event.inaxes}')
