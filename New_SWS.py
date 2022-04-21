@@ -379,7 +379,8 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
                 if cursor.change_bins:
                     bins = np.sort(cursor.bins)
                     start_bin = cursor.bins[0]
-                    end_bin = cursor.bins[1]
+                    end_bin = cursor.bins[1] + 1
+                    # print("start_bin ", start_bin, " end_bin ", end_bin)
                     print(f'changing bins: {start_bin} to {end_bin}')
                     SW_utils.clear_bins(bins, ax2)
                     fig.canvas.draw()
