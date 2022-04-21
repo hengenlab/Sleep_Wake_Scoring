@@ -206,9 +206,8 @@ Boom. Boom. FIYA POWER...
         CURSOR:
         - because you have to click in certain figures it can be annoying to line up your mouse
             with where you want to inspect 
-        - while selected in the scoring figure (called Figure 2) press 'l' (as in Lizzie) to toggle a black line across each plot
-        - this line will stay there until you press 'l' again, then it will erase and move
-        - adjust until you like your location, then click to select a bin or watch a movie
+        - clicking figure (spectrogram) will created magenta dashed line across all 3 plots to check alignment.
+        - clicking again removes old line and shows new line.
         
         EXITING SCORING:     
         - are you done correcting bins?
