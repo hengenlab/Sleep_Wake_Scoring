@@ -58,26 +58,27 @@ class Cursor(object):
             self.DONE = True
         elif event.key in [1, 2, 3, 4]:
             self.STATE.append(event.key)
-        elif event.key == 'l':
-            print(f'toggling line!! xdata: {event.xdata} ydata: {event.ydata}')
-            for line in self.lines:
-                line.remove()
-            line1 = self.ax1.plot([self.spect_x_axis[int(event.xdata)],
-                                   self.spect_x_axis[int(event.xdata)]],
-                                  [self.ylims_ax1[0], self.ylims_ax1[1]],
-                                  linewidth=0.5, color='k')
-            line2 = self.ax2.plot([int(event.xdata), int(event.xdata)],
-                                  [self.ylims_ax2[0],
-                                   self.ylims_ax2[1]],
-                                  linewidth=0.5, color='k')
-            line3 = self.ax3.plot([self.movement_x_axis[int(event.xdata)],
-                                   self.movement_x_axis[int(event.xdata)]],
-                                  [self.ylims_ax3[0],
-                                   self.ylims_ax3[1]],
-                                  linewidth=0.5, color='k')
-            self.lines[0] = line1.pop(0)
-            self.lines[1] = line2.pop(0)
-            self.lines[2] = line3.pop(0)
+        # elif event.key == 'l':
+        #     print(f'toggling line!! xdata: {event.xdata}
+        #           ydata: {event.ydata}')
+        #     for line in self.lines:
+        #         line.remove()
+        #     line1 = self.ax1.plot([self.spect_x_axis[int(event.xdata)],
+        #                            self.spect_x_axis[int(event.xdata)]],
+        #                           [self.ylims_ax1[0], self.ylims_ax1[1]],
+        #                           linewidth=0.5, color='k')
+        #     line2 = self.ax2.plot([int(event.xdata), int(event.xdata)],
+        #                           [self.ylims_ax2[0],
+        #                            self.ylims_ax2[1]],
+        #                           linewidth=0.5, color='k')
+        #     line3 = self.ax3.plot([self.movement_x_axis[int(event.xdata)],
+        #                            self.movement_x_axis[int(event.xdata)]],
+        #                           [self.ylims_ax3[0],
+        #                            self.ylims_ax3[1]],
+        #                           linewidth=0.5, color='k')
+        #     self.lines[0] = line1.pop(0)
+        #     self.lines[1] = line2.pop(0)
+        #     self.lines[2] = line3.pop(0)
 
     def in_axes(self, event):
         if event.inaxes == self.ax3:
