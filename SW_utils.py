@@ -172,7 +172,7 @@ def post_pre(post, pre):
 
 
 def fix_states(states, alter_nums=False):
-    if alter_nums == True:
+    if alter_nums:
         states[states == 1] = 0
         states[states == 3] = 5
 
@@ -184,7 +184,7 @@ def fix_states(states, alter_nums=False):
 
             if (states[ss] == 0 and states[ss+1] == 5):
                 states[ss] = 2
-    if alter_nums == True:
+    if alter_nums:
         states[states == 0] = 1
         states[states == 5] = 3
     return states
@@ -203,11 +203,12 @@ def plot_motion(ax, med, video_key=False):
     ax.set_xticks(np.linspace(0, 60, 13))
     ax.set_ylim(0, 10)
     if video_key is not False:
-        title = [np.unique(video_key[1, :])[i][0:42] + ' \n ' for i in np.arange(np.size(np.unique(video_key[1, :])))]
+        title = [np.unique(video_key[1, :])[i][0:42] + ' \n '
+                 for i in np.arange(np.size(np.unique(video_key[1, :])))]
         title = ''.join(title)
         title = title[0:-3]
     else:
-        title = 'there is no video file. at some point should fix this so it pulls from the DLC data not just the video title'
+        title = "there is no video file, later fix pulls it from the DLC data"
     ax.set_title(title)
     sorted_med = np.sort(med)
     idx = np.where(sorted_med > max(sorted_med) * 0.50)[0][0]
@@ -326,14 +327,24 @@ def load_joblib(FeatureList, ymot, yemg, mod_name):
 
 def retrain_model(Sleep_Model, x_features, model_dir, jobname):
     prop = 1 / 2
-    model_inputs = Sleep_Model[x_features][0:int((max(Sleep_Model.index) + 1) * prop)].apply(pd.to_numeric)
+    model_inputs = \
+        Sleep_Model[x_features][0:
+                                int((max(Sleep_Model.index) + 1) * prop)]\
+        .apply(pd.to_numeric)
     train_x = model_inputs.values
-    model_input_states = Sleep_Model['State'][0:int((max(Sleep_Model.index) + 1) * prop)].apply(pd.to_numeric)
+    model_input_states = \
+        Sleep_Model['State'][0:
+                             int((max(Sleep_Model.index) + 1) * prop)]\
+        .apply(pd.to_numeric)
     train_y = model_input_states.values
 
-    model_test = Sleep_Model[x_features][int((max(Sleep_Model.index) + 1) * prop):].apply(pd.to_numeric)
+    model_test = \
+        Sleep_Model[x_features][int((max(Sleep_Model.index) + 1) * prop):]\
+        .apply(pd.to_numeric)
     test_x = model_test.values
-    model_test_states = Sleep_Model['State'][int((max(Sleep_Model.index) + 1) * prop):].apply(pd.to_numeric)
+    model_test_states = \
+        Sleep_Model['State'][int((max(Sleep_Model.index) + 1) * prop):]\
+        .apply(pd.to_numeric)
     test_y = model_test_states.values
 
     print('Calculating tree...')
@@ -343,10 +354,15 @@ def retrain_model(Sleep_Model, x_features, model_dir, jobname):
 
     Satisfaction = input('Satisfied?: ')
     if Satisfaction == 'y':
-        clf = random_forest_classifier(Sleep_Model[x_features].apply(pd.to_numeric).values,
-                                       Sleep_Model['State'].apply(pd.to_numeric).values)
-        print("Train Accuracy :: ", accuracy_score(Sleep_Model['State'].apply(pd.to_numeric).values,
-                                                   clf.predict(Sleep_Model[x_features].apply(pd.to_numeric).values)))
+        clf = \
+            random_forest_classifier(Sleep_Model[x_features]
+                                     .apply(pd.to_numeric).values,
+                                     Sleep_Model['State']
+                                     .apply(pd.to_numeric).values)
+        print("Train Accuracy :: ",
+              accuracy_score(Sleep_Model['State'].apply(pd.to_numeric).values,
+                             clf.predict(Sleep_Model[x_features]
+                             .apply(pd.to_numeric).values)))
         dump(clf, model_dir + jobname)
 
 
