@@ -29,7 +29,8 @@ def check_h5_file_size(h5files):  # previously Check1
 def check_time_stamps(files):  # previously check2
     # makes sure time stamps on videos are continuous
     str_idx = files[0].find('e3v') + 17
-    timestamps = [files[i][str_idx:str_idx + 9] for i in np.arange(np.size(files))]
+    timestamps = [files[i][str_idx:str_idx + 9]
+                  for i in np.arange(np.size(files))]
     if (timestamps[0] == timestamps[1]):
         chk = str(input('Were1 these videos seperated for DLC? (y/n)'))
     for i in np.arange(np.size(files) - 1):
@@ -39,14 +40,17 @@ def check_time_stamps(files):  # previously check2
         # hr4 = timestamps[i + 1][5:9]
         if hr2 != hr3:
             if chk == 'n':
-                sys.exit('hour ' + str(i) + ' is not continuous with hour ' + str(i + 1))
+                sys.exit('hour ' + str(i) +
+                         ' is not continuous with hour ' + str(i + 1))
 
 
 def check_time_period(h5files, vidfiles):  # previously check3
     # makes sure that videos and h5 files are over the same period of time
     str_idx = h5files[0].find('e3v') + 17
-    timestamps_h5 = [h5files[i][str_idx:str_idx + 9] for i in np.arange(np.size(h5files))]
-    timestamps_vid = [vidfiles[i][str_idx:str_idx + 9] for i in np.arange(np.size(vidfiles))]
+    timestamps_h5 = [h5files[i][str_idx:str_idx + 9]
+                     for i in np.arange(np.size(h5files))]
+    timestamps_vid = [vidfiles[i][str_idx:str_idx + 9]
+                      for i in np.arange(np.size(vidfiles))]
     if timestamps_h5 != timestamps_vid:
         sys.exit('h5 files and video files not aligned')
 
@@ -98,26 +102,31 @@ def init_motion(movement):
     # print("sh binned_mot ", binned_mot.shape)
     return binned_mot, raw_var, dxy, med, dt
 
+
 def normMean(meanEEG_perhr, var_EEG_perhr, hr):
     if int(hr) - 1 < 12:
         normmean = np.mean(meanEEG_perhr[0:24])
         normvar = np.mean(var_EEG_perhr[0:24])
     elif np.size(meanEEG_perhr) - int(hr) < 12:
-        normmean = np.mean(meanEEG_perhr[np.size(meanEEG_perhr) - 24: np.size(meanEEG_perhr)])
-        normvar = np.mean(var_EEG_perhr[np.size(var_EEG_perhr) - 24: np.size(var_EEG_perhr)])
+        normmean = np.mean(meanEEG_perhr[np.size(meanEEG_perhr) - 24:
+                                         np.size(meanEEG_perhr)])
+        normvar = np.mean(var_EEG_perhr[np.size(var_EEG_perhr) - 24:
+                                        np.size(var_EEG_perhr)])
     else:
         normmean = np.mean(meanEEG_perhr[int(hr) - 12: int(hr) + 12])
         normvar = np.mean(var_EEG_perhr[int(hr) - 12: int(hr) + 12])
     normstd = np.sqrt(normvar)
     return normmean, normstd
 
+
 def generate_EEG(downdatlfp, bin, fs, normmean, normstd):
-    binl = bin * fs  # bin size in array slots
+    # binl = bin * fs  # bin size in array slots
     EEGamp = np.zeros(int(np.size(downdatlfp) / (4 * fs)))
     EEGmean = np.zeros(int(np.size(downdatlfp) / (4 * fs)))
     for i in np.arange(np.size(EEGamp)):
         EEGamp[i] = np.var(downdatlfp[4 * fs * (i):(4 * fs * (i + 1))])
-        EEGmean[i] = np.mean(np.abs(downdatlfp[4 * fs * (i):(4 * fs * (i + 1))]))
+        EEGmean[i] = np.mean(np.abs(downdatlfp[4 * fs * (i):
+                                    (4 * fs * (i + 1))]))
     EEGamp = (EEGamp - normmean) / normstd
 
     EEGmax = np.zeros(int(np.size(downdatlfp) / (4 * fs)))
@@ -126,6 +135,7 @@ def generate_EEG(downdatlfp, bin, fs, normmean, normstd):
     EEGmax = (EEGmax - np.average(EEGmax)) / np.std(EEGmax)
     return EEGamp, EEGmax, EEGmean
 
+
 def generate_EMG(EMGamp):
     fse = int(np.size(EMGamp) / 900)
     EMG_idx = np.arange(0, 900 * fse + fse, fse)
@@ -133,6 +143,7 @@ def generate_EMG(EMGamp):
     for i in np.arange(np.size(EMG)):
         EMG[i] = np.average(EMGamp[EMG_idx[i]:EMG_idx[i + 1]])
     return EMG
+
 
 def bandPower(low, high, downdatlfp, epochlen, fs):
 	win = epochlen * fs
@@ -384,9 +395,12 @@ def plot_theta(ax, start, end, fs, theta):
     ax.set_ylim(np.min(theta),np.max(theta)/3)
     ax.set_title('Theta power (4 - 8 Hz)')
     bottom_3 = ax.get_ylim()[0]
-    rectangle_3 = patch.Rectangle((fs * 4, bottom_3), fs * 4, height = -bottom_3 / 5)
+    rectangle_3 = patch.Rectangle((fs * 4, bottom_3),
+                                  fs * 4,
+                                  height=-bottom_3 / 5)
     ax.add_patch(rectangle_3)
     return line3
+
 
 def plot_LFP(start, end, ax, downdatlfp, realtime, fs, LFP_ylim):
     line1, = ax.plot(realtime[start:end], downdatlfp[start:end])
@@ -394,23 +408,32 @@ def plot_LFP(start, end, ax, downdatlfp, realtime, fs, LFP_ylim):
     ax.set_title('LFP')
     ax.set_ylim(-LFP_ylim, LFP_ylim)
     bottom = -LFP_ylim
-    rectangle = patch.Rectangle((start/fs+4, bottom),4,height=-bottom/5)
+    rectangle = patch.Rectangle((start/fs+4, bottom),
+                                4, height=-bottom/5)
     ax.add_patch(rectangle)
     return line1
 
+
 def plot_EMG(i, ax, length, bottom, EMGamp, epochlen, x, start, end):
     # anything with EMG will error
-    ax.fill_between(length, bottom, EMGamp[int(i * 4 * epochlen):int(i * 4 * epochlen) + int(end / x - start / x)], color = 'red')
+    ax.fill_between(length, bottom,
+                    EMGamp[int(i * 4 * epochlen):
+                           int(i * 4 * epochlen) + int(end / x - start / x)],
+                    color='red')
     ax.set_titel('EMG power')
     ax.set_xlim(0, int((end - start) / x) - 1)
     ax.set_ylim(-1, 5)
+
 
 def clear_bins(bins, ax2):
     for b in np.arange(bins[0], bins[1]):
         b = math.floor(b)
         location = b
-        rectangle = patch.Rectangle((location, 0), 1.5, height = 2, color = 'white')
+        rectangle = patch.Rectangle((location, 0), 1.5,
+                                    height=2, color='white')
         ax2.add_patch(rectangle)
+
+
 def correct_bins(start_bin, end_bin, ax2, new_state):
     for b in np.arange(start_bin, end_bin):
         b = math.floor(b)
@@ -422,7 +445,8 @@ def correct_bins(start_bin, end_bin, ax2, new_state):
             color = 'blue'
         if new_state == 3:
             color = 'red'
-        rectangle = patch.Rectangle((location, 0), 1.5, height = 2, color = color)
+        rectangle = patch.Rectangle((location, 0), 1.5,
+                                    height=2, color=color)
         print('loc: ', location)
         ax2.add_patch(rectangle)
 
