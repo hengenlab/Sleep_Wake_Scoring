@@ -148,18 +148,20 @@ def generate_EMG(EMGamp):
 def bandPower(low, high, downdatlfp, epochlen, fs):
     win = epochlen * fs
     EEG = np.zeros(int(np.size(downdatlfp)/(epochlen*fs)))
-    EEGreshape = np.reshape(downdatlfp,(-1,fs*epochlen))
+    EEGreshape = np.reshape(downdatlfp, (-1, fs*epochlen))
     freqs, psd = signal.welch(EEGreshape, fs, nperseg=win, scaling='density')
     idx_min = np.argmax(freqs > low) - 1
     idx_max = np.argmax(freqs > high) - 1
     idx = np.zeros(dtype=bool, shape=freqs.shape)
     idx[idx_min:idx_max] = True
-    EEG = simps(psd[:,idx], freqs[idx])
+    EEG = simps(psd[:, idx], freqs[idx])
     return EEG, idx
+
 
 def normalize(toNorm):
     norm = (toNorm - np.average(toNorm))/np.std(toNorm)
     return norm
+
 
 def post_pre(post, pre):
     post = np.append(post, 0)
@@ -168,28 +170,31 @@ def post_pre(post, pre):
     pre = pre[0:-1]
     return post, pre
 
-def fix_states(states, alter_nums = False):
+
+def fix_states(states, alter_nums=False):
     if alter_nums == True:
-            states[states == 1] = 0
-            states[states == 3] = 5
+        states[states == 1] = 0
+        states[states == 3] = 5
 
     for ss in np.arange(np.size(states)-1):
-            #check if it is a flicker state
-            if (ss != 0 and ss < np.size(states)-1):
-                    if states[ss+1] == states[ss-1]:
-                            states[ss] = states[ss+1]
+        # check if it is a flicker state
+        if (ss != 0 and ss < np.size(states)-1):
+            if states[ss+1] == states[ss-1]:
+                states[ss] = states[ss+1]
 
             if (states[ss] == 0 and states[ss+1] == 5):
-                    states[ss] = 2
+                states[ss] = 2
     if alter_nums == True:
-            states[states == 0] = 1
-            states[states == 5] = 3
+        states[states == 0] = 1
+        states[states == 5] = 3
     return states
+
 
 def random_forest_classifier(features, target):
     clf = RandomForestClassifier(n_estimators=300)
     clf.fit(features, target)
     return clf
+
 
 def plot_motion(ax, med, video_key=False):
     x_vals = np.linspace(0, 60, np.size(med))
@@ -217,14 +222,16 @@ def plot_motion(ax, med, video_key=False):
             x = x_vals[vals[0]]
             y = 0
             width = x_vals[vals[-1]] - x
-            rect = patch.Rectangle((x, y), width, h, color = '#b7e1a1', alpha = 0.5)
+            rect = patch.Rectangle((x, y), width, h, color='#b7e1a1',
+                                   alpha=0.5)
             ax.add_patch(rect)
     ax.set_xlim([0, 60])
+
 
 def plot_spectrogram(ax, rawdat_dir, hr):
     ax.set_title('Spectrogram w/ EMG')
     img = mpimg.imread(rawdat_dir + 'specthr' + hr + '.jpg')
-    ax.imshow(img, aspect = 'auto')
+    ax.imshow(img, aspect='auto')
     ax.set_xlim(199, 1441)
     ax.set_ylim(178, 0)
     ax.set_xticks(np.linspace(199, 1441, 13))
@@ -232,6 +239,7 @@ def plot_spectrogram(ax, rawdat_dir, hr):
     ticksy = [35, 100, 150]
     labelsy = [60, 6, 2]
     ax.set_yticks(ticksy, labelsy)
+
 
 def plot_predicted(ax, Predict_y, clf, Features):
     if clf is not None:
@@ -244,38 +252,46 @@ def plot_predicted(ax, Predict_y, clf, Features):
     # 5 – QW, White
     for state in np.arange(np.size(Predict_y)):
         if Predict_y[state] == 0:
-            rect7 = patch.Rectangle((state, 0), 3.8, height = 1, color = 'green')
+            rect7 = patch.Rectangle((state, 0), 3.8,
+                                    height=1, color='green')
             ax.add_patch(rect7)
         elif Predict_y[state] == 2:
-            rect7 = patch.Rectangle((state, 0), 3.8, height = 1, color = 'blue')
+            rect7 = patch.Rectangle((state, 0), 3.8,
+                                    height=1, color='blue')
             ax.add_patch(rect7)
         elif Predict_y[state] == 5:
-            rect7 = patch.Rectangle((state, 0), 3.8, height = 1, color = 'red')
+            rect7 = patch.Rectangle((state, 0), 3.8,
+                                    height=1, color='red')
             ax.add_patch(rect7)
         elif Predict_y[state] == 4:
-            rect7 = patch.Rectangle((state, 0), 3.8, height = 1, color = '#a8a485')
+            rect7 = patch.Rectangle((state, 0), 3.8,
+                                    height=1, color='#a8a485')
             ax.add_patch(rect7)
     ax.set_ylim(0.3, 1)
     ax.set_xlim(0, 900)
     if clf is not None:
         predictions = clf.predict_proba(Features)
         confidence = np.max(predictions, 1)
-        ax.plot(confidence, color = 'k')
+        ax.plot(confidence, color='k')
 
-def create_prediction_figure(rawdat_dir, hr, Predict_y, clf, Features, pos, med=False, video_key=False):
+
+def create_prediction_figure(rawdat_dir, hr, Predict_y, clf,
+                             Features, pos, med=False, video_key=False):
     plt.ion()
-    fig, (ax1, ax2, ax3) = plt.subplots(nrows = 3, ncols = 1, figsize = (11, 6))
-    plot_spectrogram(ax1,rawdat_dir, hr)
+    fig, (ax1, ax2, ax3) = \
+        plt.subplots(nrows=3, ncols=1, figsize=(11, 6))
+    plot_spectrogram(ax1, rawdat_dir, hr)
     plot_predicted(ax2, Predict_y, clf, Features)
     if pos:
         plot_motion(ax3, med, video_key)
     fig.tight_layout()
     return fig, ax1, ax2, ax3
 
+
 def update_sleep_model(model_dir, mod_name, df_additions):
     try:
-        Sleep_Model = np.load(file = model_dir + mod_name + '_model.pkl',
-                              allow_pickle = True)
+        Sleep_Model = np.load(file=model_dir + mod_name + '_model.pkl',
+                              allow_pickle=True)
         Sleep_Model = Sleep_Model.append(df_additions, ignore_index=True)
     except FileNotFoundError:
         print('no model created...I will save this one')
