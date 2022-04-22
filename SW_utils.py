@@ -146,45 +146,45 @@ def generate_EMG(EMGamp):
 
 
 def bandPower(low, high, downdatlfp, epochlen, fs):
-	win = epochlen * fs
-	EEG = np.zeros(int(np.size(downdatlfp)/(epochlen*fs)))
-	EEGreshape = np.reshape(downdatlfp,(-1,fs*epochlen))
-	freqs, psd = signal.welch(EEGreshape, fs, nperseg=win, scaling='density')
-	idx_min = np.argmax(freqs > low) - 1
-	idx_max = np.argmax(freqs > high) - 1
-	idx = np.zeros(dtype=bool, shape=freqs.shape)
-	idx[idx_min:idx_max] = True
-	EEG = simps(psd[:,idx], freqs[idx])
-	return EEG, idx
+    win = epochlen * fs
+    EEG = np.zeros(int(np.size(downdatlfp)/(epochlen*fs)))
+    EEGreshape = np.reshape(downdatlfp,(-1,fs*epochlen))
+    freqs, psd = signal.welch(EEGreshape, fs, nperseg=win, scaling='density')
+    idx_min = np.argmax(freqs > low) - 1
+    idx_max = np.argmax(freqs > high) - 1
+    idx = np.zeros(dtype=bool, shape=freqs.shape)
+    idx[idx_min:idx_max] = True
+    EEG = simps(psd[:,idx], freqs[idx])
+    return EEG, idx
 
 def normalize(toNorm):
-	norm = (toNorm - np.average(toNorm))/np.std(toNorm)
-	return norm
+    norm = (toNorm - np.average(toNorm))/np.std(toNorm)
+    return norm
 
 def post_pre(post, pre):
-	post = np.append(post, 0)
-	post = np.delete(post, 0)
-	pre = np.append(0, pre)
-	pre = pre[0:-1]
-	return post, pre
+    post = np.append(post, 0)
+    post = np.delete(post, 0)
+    pre = np.append(0, pre)
+    pre = pre[0:-1]
+    return post, pre
 
 def fix_states(states, alter_nums = False):
-	if alter_nums == True:
-		states[states == 1] = 0
-		states[states == 3] = 5
+    if alter_nums == True:
+            states[states == 1] = 0
+            states[states == 3] = 5
 
-	for ss in np.arange(np.size(states)-1):
-		#check if it is a flicker state
-		if (ss != 0 and ss < np.size(states)-1):
-			if states[ss+1] == states[ss-1]:
-				states[ss] = states[ss+1]
+    for ss in np.arange(np.size(states)-1):
+            #check if it is a flicker state
+            if (ss != 0 and ss < np.size(states)-1):
+                    if states[ss+1] == states[ss-1]:
+                            states[ss] = states[ss+1]
 
-		if (states[ss] == 0 and states[ss+1] == 5):
-			states[ss] = 2
-	if alter_nums == True:
-		states[states == 0] = 1
-		states[states == 5] = 3
-	return states
+            if (states[ss] == 0 and states[ss+1] == 5):
+                    states[ss] = 2
+    if alter_nums == True:
+            states[states == 0] = 1
+            states[states == 5] = 3
+    return states
 
 def random_forest_classifier(features, target):
     clf = RandomForestClassifier(n_estimators=300)
