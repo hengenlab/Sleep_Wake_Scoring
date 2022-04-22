@@ -274,8 +274,9 @@ def create_prediction_figure(rawdat_dir, hr, Predict_y, clf, Features, pos, med=
 
 def update_sleep_model(model_dir, mod_name, df_additions):
     try:
-        Sleep_Model = np.load(file = model_dir + mod_name + '_model.pkl', allow_pickle = True)
-        Sleep_Model = Sleep_Model.append(df_additions, ignore_index = True)
+        Sleep_Model = np.load(file = model_dir + mod_name + '_model.pkl',
+                              allow_pickle = True)
+        Sleep_Model = Sleep_Model.append(df_additions, ignore_index=True)
     except FileNotFoundError:
         print('no model created...I will save this one')
         df_additions.to_pickle(model_dir + mod_name + '_model.pkl')
@@ -283,27 +284,29 @@ def update_sleep_model(model_dir, mod_name, df_additions):
     Sleep_Model.to_pickle(model_dir + mod_name + '_model.pkl')
     return Sleep_Model
 
+
 def load_joblib(FeatureList, ymot, yemg, mod_name):
     x_features = copy.deepcopy(FeatureList)
     [x_features.remove(i) for i in ['Animal_Name', 'Time_Interval', 'State']]
-    jobname =''
-    if not ymot and yemg :
+    jobname = ''
+    if not ymot and yemg:
         x_features.remove('Motion')
         jobname = mod_name + '_EMG.joblib'
 
-    if not yemg and ymot :
+    if not yemg and ymot:
         x_features.remove('EMG')
         jobname = mod_name + '_Motion.joblib'
 
-    if yemg and ymot :
+    if yemg and ymot:
         jobname = mod_name + '_Motion_EMG.joblib'
 
-    if not yemg and not ymot :
+    if not yemg and not ymot:
         x_features.remove('EMG')
         x_features.remove('Motion')
         jobname = mod_name + '_no_move.joblib'
         print('Just so you know...this model has no EMG and no Motion')
     return jobname, x_features
+
 
 def retrain_model(Sleep_Model, x_features, model_dir, jobname):
     prop = 1 / 2
@@ -331,9 +334,11 @@ def retrain_model(Sleep_Model, x_features, model_dir, jobname):
         dump(clf, model_dir + jobname)
 
 
-def pull_up_movie(start, end, vid_sample, video_key, motion_dir, fs, epochlen, ratio2, dt):
+def pull_up_movie(start, end, vid_sample, video_key, motion_dir, fs,
+                  epochlen, ratio2, dt):
     print(f'start: {start} end: {end}')
-    vid_win_idx = np.where(np.logical_and(vid_sample >= start, vid_sample < end))[0]
+    vid_win_idx = np.where(np.logical_and(vid_sample >= start,
+                                          vid_sample < end))[0]
     vid_win = video_key[2][vid_win_idx]
     if np.size(np.where(vid_win == 'nan')[0]) > 0:
         print('There is no video here')
@@ -345,10 +350,12 @@ def pull_up_movie(start, end, vid_sample, video_key, motion_dir, fs, epochlen, r
             return
         else:
             vidfilename = np.unique(video_key[1][vid_win_idx])[0]
-            score_win = np.arange(int(vid_win[0]) + int(np.size(vid_win) / 3), int(vid_win[0]) + int((np.size(vid_win) / 3) * 2))
-    x = (end - start) / ratio2
-    length = np.arange(int(end / x - start / x))
-    bottom = np.zeros(int(end / x - start / x))
+            score_win = \
+                np.arange(int(vid_win[0]) + int(np.size(vid_win) / 3),
+                          int(vid_win[0]) + int((np.size(vid_win) / 3) * 2))
+    # x = (end - start) / ratio2
+    # length = np.arange(int(end / x - start / x))
+    # bottom = np.zeros(int(end / x - start / x))
     print('Pulling up video ....')
     cap = cv2.VideoCapture(motion_dir + vidfilename)
     if not cap.isOpened():
@@ -358,12 +365,18 @@ def pull_up_movie(start, end, vid_sample, video_key, motion_dir, fs, epochlen, r
         ret, frame = cap.read()
         if ret:
             if f in score_win:
-                cv2.putText(frame, "SCORE WINDOW", (50, 105), cv2.FONT_HERSHEY_PLAIN, 4, (225, 0, 0), 2)
+                cv2.putText(frame, "SCORE WINDOW", (50, 105),
+                            cv2.FONT_HERSHEY_PLAIN, 4, (225, 0, 0), 2)
             cv2.imshow('Frame', frame)
             cv2.waitKey(int((dt * 10e2) / 4))
     cap.release()
-def pull_up_raw_trace(i, ax1, ax2, ax3,ax4, emg, start, end, realtime, downdatlfp, fs, mod_name, LFP_ylim, delt, theta, epochlen, EMGamp, ratio2):
-    print('pull up the second figure for that bin - maybe. Option to click through a few bins around it?')
+
+
+def pull_up_raw_trace(i, ax1, ax2, ax3, ax4, emg, start, end, realtime,
+                      downdatlfp, fs, mod_name, LFP_ylim, delt,
+                      theta, epochlen, EMGamp, ratio2):
+    print('pull up the second figure for that bin ')
+    print('\t - maybe. Option to click through a few bins around it?')
     x = (end - start) / ratio2
     length = np.arange(int(end / x - start / x))
     bottom = np.zeros(int(end / x - start / x))
@@ -379,20 +392,24 @@ def pull_up_raw_trace(i, ax1, ax2, ax3,ax4, emg, start, end, realtime, downdatlf
 
     return line1, line2, line3
 
+
 def plot_delta(delt, start, end, fs, ax):
     line2, = ax.plot(delt[start:end])
     ax.set_xlim(0, end-start)
     ax.set_ylim(np.min(delt), np.max(delt) / 3)
     bottom_2 = ax.get_ylim()[0]
-    rectangle_2 = patch.Rectangle((fs*4,bottom_2),fs*4,height=float(-bottom_2/5))
+    rectangle_2 = patch.Rectangle((fs*4, bottom_2),
+                                  fs*4,
+                                  height=float(-bottom_2/5))
     ax.add_patch(rectangle_2)
     ax.set_title('Delta power (0.5 - 4 Hz)')
     return line2
 
+
 def plot_theta(ax, start, end, fs, theta):
     line3, = ax.plot(theta[start:end])
     ax.set_xlim(0, end-start)
-    ax.set_ylim(np.min(theta),np.max(theta)/3)
+    ax.set_ylim(np.min(theta), np.max(theta)/3)
     ax.set_title('Theta power (4 - 8 Hz)')
     bottom_3 = ax.get_ylim()[0]
     rectangle_3 = patch.Rectangle((fs * 4, bottom_3),
