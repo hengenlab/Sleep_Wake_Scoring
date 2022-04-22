@@ -56,8 +56,8 @@ class Cursor(object):
         if event.key == 'd':
             print('DONE SCORING')
             self.DONE = True
-        elif event.key in [1, 2, 3, 4]:
-            self.STATE.append(event.key)
+        # elif event.key in [1, 2, 3, 4]:
+        #     self.STATE.append(event.key)
         # elif event.key == 'l':
         #     print(f'toggling line!! xdata: {event.xdata}
         #           ydata: {event.ydata}')
