@@ -553,6 +553,7 @@ def print_instructions():
         - click once on the middle figure to select the start of the bin you
           want to change
         - then click the last spot of the bin you want to change
+        - now color change to turquoise of the selected region
         - switch to terminal and type the state you want that bin to become
 
         VIDEO / RAW DATA:
