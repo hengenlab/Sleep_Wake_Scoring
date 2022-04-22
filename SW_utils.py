@@ -479,7 +479,7 @@ def clear_bins(bins, ax2):
         b = math.floor(b)
         location = b
         rectangle = patch.Rectangle((location, 0), 1.5,
-                                    height=2, color='white')
+                                    height=2, color='turquoise')
         ax2.add_patch(rectangle)
 
 
