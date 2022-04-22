@@ -204,8 +204,6 @@ Boom. Boom. FIYA POWER...
             the 4 seconds before, during, and after the point that you clicked
         
         CURSOR:
-        - because you have to click in certain figures it can be annoying to line up your mouse
-            with where you want to inspect 
         - clicking figure (spectrogram) will created magenta dashed line across all 3 plots to check alignment.
         - clicking again removes old line and shows new line.
         
