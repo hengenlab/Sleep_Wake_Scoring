@@ -555,6 +555,12 @@ def print_instructions():
         - then click the last spot of the bin you want to change
         - now color change to turquoise of the selected region
         - switch to terminal and type the state you want that bin to become
+            Valid values are 1, 2, 3, 4 and 5
+              1 – Active Wake, Green
+              2 – NREM, Blue
+              3 – REM, red
+              4 micro-arousal (not used often)
+              5 – Quiet Wake, White
 
         VIDEO / RAW DATA:
         - if you hover over the motion figure you enter ~~ movie mode ~~
