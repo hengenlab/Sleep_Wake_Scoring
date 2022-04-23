@@ -23,6 +23,9 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
     print('this code is supressing warnings')
     warnings.filterwarnings("ignore")
 
+    # Valid states you can enter
+    valid_sw_states = [1, 2, 3, 4, 5]
+
     # os.chdir(LFP_dir)
     meanEEG_perhr = np.load('Average_EEG_perhr.npy')
     var_EEG_perhr = np.load('Var_EEG_perhr.npy')
@@ -385,11 +388,30 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
                     SW_utils.clear_bins(bins, ax2)
                     fig.canvas.draw()
                     # new_state = int(input('What state should these be?: '))
-                    try:
-                        new_state = int(input('What state should these be?: '))
-                    except Exception as e:
-                        print("Error ", e)
-                        new_state = int(input('What state should these be?: '))
+
+                    # Loop until user enters valid integer
+                    while True:
+                        try:
+                            new_state = \
+                                int(input('What state should these be?: '))
+                            if new_state not in valid_sw_states:
+                                raise\
+                                    ValueError('Not a valid value')
+                        except Exception as e:
+                            print("Error ", e)
+                            print('''\
+                                   Valid values are 1, 2, 3, 4 and 5
+                                   # 1 – Active Wake, Green
+                                   # 2 – NREM, Blue
+                                   # 3 – REM, red
+                                   # 4 micro-arousal (not used often)
+                                   # 5 – Quiet Wake, White\n''')
+                            continue
+                        if new_state in valid_sw_states:
+                            break
+
+                    # new_state = \
+                    # int(input('What state should these be?: '))
                     SW_utils.correct_bins(start_bin, end_bin, ax2, new_state)
                     fig.canvas.draw()
                     State[start_bin:end_bin] = new_state
