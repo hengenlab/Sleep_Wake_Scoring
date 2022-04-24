@@ -8,11 +8,7 @@ import sys
 import json
 from findPulse import findPulse
 
-def check1(h5files):
-# Checks to make sure that all of the h5 files are the same size
-	sizes = [os.stat(i).st_size for i in h5files]
-	if np.size(np.unique(sizes))>1:
-		sys.exit('Not all of the h5 files are the same size')
+
 def check2(files):
 	str_idx = files[0].find('e3v') + 17
 	timestamps = [files[i][str_idx:str_idx+9] for i in np.arange(np.size(files))]
