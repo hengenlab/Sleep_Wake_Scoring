@@ -4,39 +4,10 @@ import neuraltoolkit as ntk
 import glob
 import DLCMovement_input
 import math
-import sys
 import json
 from findPulse import findPulse
 from SW_utils import check_time_stamps
 from SW_utils import check_time_period
-
-
-# def check2(files):
-#     str_idx = files[0].find('e3v') + 17
-#     timestamps = [files[i][str_idx:str_idx+9]
-#                   for i in np.arange(np.size(files))]
-#     chk = []
-#     if timestamps[0] == timestamps[1]:
-#         chk = input('Were these videos seperated for DLC? (y/n)')
-#     for i in np.arange(np.size(files)-1):
-#         # hr1 = timestamps[i][0:4]
-#         hr2 = timestamps[i][5:9]
-#         hr3 = timestamps[i+1][0:4]
-#         # hr4 = timestamps[i+1][5:9]
-#         if hr2 != hr3:
-#             if chk == 'n':
-#                 sys.exit('hour '+str(i) +
-#                          ' is not continuous with hour ' + str(i+1))
-#
-#
-# def check3(h5files, vidfiles):
-#     str_idx = h5files[0].find('e3v') + 17
-#     timestamps_h5 = [h5files[i][str_idx:str_idx+9]
-#                      for i in np.arange(np.size(h5files))]
-#     timestamps_vid = [vidfiles[i][str_idx:str_idx+9]
-#                       for i in np.arange(np.size(vidfiles))]
-#     if timestamps_h5 != timestamps_vid:
-#         sys.exit('h5 files and video files not aligned')
 
 
 def extract_DLC(filename_sw):
@@ -75,9 +46,6 @@ def extract_DLC(filename_sw):
     h5 = sorted(glob.glob(motion_dir+'*.h5'))
     vidfiles = sorted(glob.glob(motion_dir+'*labeled.mp4'))
 
-    # check2(h5)
-    # check2(vidfiles)
-    # check3(h5, vidfiles)
     check_time_stamps(h5)
     check_time_stamps(vidfiles)
     check_time_period(h5, vidfiles)
