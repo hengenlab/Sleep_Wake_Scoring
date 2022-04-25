@@ -46,6 +46,8 @@ def extract_DLC(filename_sw):
     h5 = sorted(glob.glob(motion_dir+'*.h5'))
     vidfiles = sorted(glob.glob(motion_dir+'*labeled.mp4'))
 
+    # check h5 files have same size
+    check_h5_file_size(h5)
     check_time_stamps(h5)
     check_time_stamps(vidfiles)
     check_time_period(h5, vidfiles)
