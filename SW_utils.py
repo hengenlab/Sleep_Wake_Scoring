@@ -17,6 +17,8 @@ import cv2
 # import neuraltoolkit as ntk
 import math
 import os.path as op
+import re
+from datetime import datetime
 
 
 def check_h5_file_size(h5files):
@@ -33,6 +35,27 @@ def check_h5_file_size(h5files):
     if np.size(np.unique(sizes)) > 1:
         raise \
             ValueError('Not all of the h5 files are the same size')
+
+
+def get_time_from_h5_videofiles(sw_input_files_list):
+    '''
+    Get timestamps from files with file names *20210126T051544-061545* format
+
+    get_time_from_h5_videofiles(sw_input_files_list)
+        sw_input_files_list : list of h5 files or video files
+    '''
+    sw_input_file_realtime_dt_list = None
+    sw_input_file_realtime_dt_list = []
+    for sw_input_file in sw_input_files_list:
+        sw_input_file_indx = \
+            re.search(r'\d\d\d\d\d\d\d\dT\d\d\d\d\d\d', sw_input_file)
+        sw_input_file_realtime_dt = \
+            datetime.strptime(sw_input_file[sw_input_file_indx.start():
+                                            sw_input_file_indx.end()]
+                              .replace("T", " "), "%Y%m%d %H%M%S")
+        sw_input_file_realtime_dt_list.append(sw_input_file_realtime_dt)
+        # print(time.mktime(dt.timetuple()))
+    return sw_input_file_realtime_dt_list
 
 
 def check_time_stamps(files):  # previously check2
