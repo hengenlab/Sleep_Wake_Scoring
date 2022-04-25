@@ -1,4 +1,3 @@
-import os
 import numpy as np
 import sys
 from scipy.integrate import simps
@@ -17,13 +16,23 @@ import pandas as pd
 import cv2
 # import neuraltoolkit as ntk
 import math
+import os.path as op
 
 
-def check_h5_file_size(h5files):  # previously Check1
-    # Checks to make sure that all of the h5 files are the same size
-    sizes = [os.stat(i).st_size for i in h5files]
+def check_h5_file_size(h5files):
+    '''
+    Checks to make sure that all of the h5 files are the same size
+
+    check_h5_file_size(h5files)
+        h5files : list of h5files locations
+    '''
+
+    sizes = \
+        [op.getsize(i) if op.isfile(i)
+         else sys.exit('file ' + i + ' not found') for i in h5files]
     if np.size(np.unique(sizes)) > 1:
-        sys.exit('Not all of the h5 files are the same size')
+        raise \
+            ValueError('Not all of the h5 files are the same size')
 
 
 def check_time_stamps(files):  # previously check2
