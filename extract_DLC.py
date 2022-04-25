@@ -81,9 +81,9 @@ def extract_DLC(filename_sw):
         print(stmp)
 
         os.chdir(rawdat_dir)
-        time, dat = ntk.load_raw_binary(files[0], 64)
-        print(time[0])
-        offset = (stmp-time[0])
+        timed, dat = ntk.load_raw_binary(files[0], 64)
+        print(timed[0])
+        offset = (stmp-timed[0])
 
     else:
         print("manually adjust the offset between video and neural recording")
