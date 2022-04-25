@@ -81,9 +81,19 @@ def extract_DLC(filename_sw):
         print(stmp)
 
         os.chdir(rawdat_dir)
-        timed, dat = ntk.load_raw_binary(files[0], 64)
-        print(timed[0])
-        offset = (stmp-timed[0])
+
+        # please note as we are using t_only=1,
+        # number of channels (64), hstype (['hs64'])
+        # and nprobes (1) does not matter as only timestamp
+        # is read and returned.
+        time_d = \
+            ntk.load_raw_binary_gain_chmap(files[0],
+                                           64,
+                                           ['hs64'],
+                                           nprobes=1,
+                                           t_only=1)
+        print(time_d[0])
+        offset = (stmp-time_d[0])
 
     else:
         print("manually adjust the offset between video and neural recording")
