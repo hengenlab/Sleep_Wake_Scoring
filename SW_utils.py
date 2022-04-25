@@ -59,21 +59,40 @@ def get_time_from_h5_videofiles(sw_input_files_list):
 
 
 def check_time_stamps(files):  # previously check2
-    # makes sure time stamps on videos are continuous
-    str_idx = files[0].find('e3v') + 17
-    timestamps = [files[i][str_idx:str_idx + 9]
-                  for i in np.arange(np.size(files))]
-    if (timestamps[0] == timestamps[1]):
-        chk = str(input('Were1 these videos seperated for DLC? (y/n)'))
-    for i in np.arange(np.size(files) - 1):
-        # hr1 = timestamps[i][0:4]
-        hr2 = timestamps[i][5:9]
-        hr3 = timestamps[i + 1][0:4]
-        # hr4 = timestamps[i + 1][5:9]
-        if hr2 != hr3:
-            if chk == 'n':
-                sys.exit('hour ' + str(i) +
-                         ' is not continuous with hour ' + str(i + 1))
+    # # makes sure time stamps on videos are continuous
+    # str_idx = files[0].find('e3v') + 17
+    # timestamps = [files[i][str_idx:str_idx + 9]
+    #               for i in np.arange(np.size(files))]
+    # if (timestamps[0] == timestamps[1]):
+    #     chk = str(input('Were1 these videos seperated for DLC? (y/n)'))
+    # for i in np.arange(np.size(files) - 1):
+    #     # hr1 = timestamps[i][0:4]
+    #     hr2 = timestamps[i][5:9]
+    #     hr3 = timestamps[i + 1][0:4]
+    #     # hr4 = timestamps[i + 1][5:9]
+    #     if hr2 != hr3:
+    #         if chk == 'n':
+    #             sys.exit('hour ' + str(i) +
+    #                      ' is not continuous with hour ' + str(i + 1))
+    sw_input_file_realtime_dt_list =\
+            get_time_from_h5_videofiles(files)
+    if sw_input_file_realtime_dt_list != \
+            sorted(sw_input_file_realtime_dt_list):
+        print("\n")
+        print("="*42)
+        print(sw_input_file_realtime_dt_list)
+        print("="*42)
+        print("\n")
+        print("NOT SAME AS ")
+        print("\n")
+        print("="*42)
+        print(sorted(sw_input_file_realtime_dt_list))
+        print("="*42)
+        print("\n")
+        print("Files are not continouse in time")
+        chk = str(input('To continue? (y/n)'))
+        if chk.lower() == 'n':
+            raise ValueError('Files are not continous')
 
 
 def check_time_period(h5files, vidfiles):  # previously check3
