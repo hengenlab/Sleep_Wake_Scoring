@@ -6,6 +6,7 @@ import DLCMovement_input
 import math
 import json
 from findPulse import findPulse
+from SW_utils import check_h5_file_size
 from SW_utils import check_time_stamps
 from SW_utils import check_time_period
 
