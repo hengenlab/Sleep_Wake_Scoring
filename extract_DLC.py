@@ -5,7 +5,7 @@ import glob
 import DLCMovement_input
 import math
 import json
-from findPulse import findPulse
+# from findPulse import findPulse
 from SW_utils import check_h5_file_size
 from SW_utils import check_time_stamps
 from SW_utils import check_time_period
@@ -23,7 +23,7 @@ def extract_DLC(filename_sw):
     # animal = str(d['animal'])
     # mod_name = str(d['mod_name'])
     # epochlen = int(d['epochlen'])
-    # fs = int(d['fs'])
+    fs = int(d['fs'])
     # emg = int(d['emg'])
     # pos = int(d['pos'])
     # vid = int(d['vid'])
@@ -73,13 +73,42 @@ def extract_DLC(filename_sw):
     frame = np.concatenate(frame)
     print(leng)   # video length
 
+    # if digital channel number is given
+    # Load first digital file then find timestamp
+    # add to it v_start_index in nanoseconds = stmp
+    # Substract stmp from headstage timestamp to find offset
     if digital:
         os.chdir(digi_dir)
         digi_files = sorted(glob.glob('D*.bin'))
 
         os.chdir(rawdat_dir)
         files = sorted(glob.glob('H*.bin'))
-        stmp = findPulse(digi_dir, digi_files[0])
+
+        # stmp = findPulse(digi_dir, digi_files[0])
+        try:
+            # get first files timestamp
+            stmp_digital = \
+                ntk.load_digital_binary_allchannels(digi_files[0],
+                                                    t_only=1,
+                                                    channel=digital-1)
+            # get video start index
+            v_start_index =\
+                ntk.find_video_start_index(digi_dir, digital-1, nfiles=10,
+                                           fs=fs, fps=fr,
+                                           lnew=1, fig_indx=None)
+        except Exception as e:
+            print("Got error", e, " trying old digital files")
+            # get first files timestamp
+            stmp_digital = ntk.load_digital_binary(digi_files[0],
+                                                   t_only=1,
+                                                   lcheckdigi64=1)
+            # get video start index
+            v_start_index =\
+                ntk.find_video_start_index(digi_dir, digital-1, nfiles=10,
+                                           fs=fs, fps=fr,
+                                           lnew=0, fig_indx=None)
+        # Add to timestamp , v_start_index in nanoseconds
+        stmp = stmp_digital[0] + ((v_start_index/fs) * 1e9)
         print("stmp is:")
         print(stmp)
 
