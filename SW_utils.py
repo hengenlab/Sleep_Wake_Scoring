@@ -88,11 +88,28 @@ def check_time_stamps(sw_input_files_list):
 
 
 def check_time_period(h5files, vidfiles):
-    # makes sure that videos and h5 files are over the same period of time
+    '''
+    Check videos and h5 files are over the same period of time
+
+    check_time_period(h5files, vidfiles)
+        h5files : list of h5 files
+        vidfiles : list of video files
+    '''
 
     timestamps_h5 = get_time_from_h5_videofiles(h5files)
     timestamps_vid = get_time_from_h5_videofiles(vidfiles)
     if timestamps_h5 != timestamps_vid:
+        print("\n")
+        print("="*42)
+        print(timestamps_h5)
+        print("="*42)
+        print("\n")
+        print("NOT SAME AS ")
+        print("\n")
+        print("="*42)
+        print(timestamps_vid)
+        print("="*42)
+        print("\n")
         raise ValueError('h5 files and video files not aligned')
 
 
