@@ -87,15 +87,13 @@ def check_time_stamps(sw_input_files_list):
             raise ValueError('Files are not continous')
 
 
-def check_time_period(h5files, vidfiles):  # previously check3
+def check_time_period(h5files, vidfiles):
     # makes sure that videos and h5 files are over the same period of time
-    str_idx = h5files[0].find('e3v') + 17
-    timestamps_h5 = [h5files[i][str_idx:str_idx + 9]
-                     for i in np.arange(np.size(h5files))]
-    timestamps_vid = [vidfiles[i][str_idx:str_idx + 9]
-                      for i in np.arange(np.size(vidfiles))]
+
+    timestamps_h5 = get_time_from_h5_videofiles(h5files)
+    timestamps_vid = get_time_from_h5_videofiles(vidfiles)
     if timestamps_h5 != timestamps_vid:
-        sys.exit('h5 files and video files not aligned')
+        raise ValueError('h5 files and video files not aligned')
 
 
 def init_motion(movement):
