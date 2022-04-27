@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import matplotlib.patches as patch
 # from lizzie_work import DLCMovement_input
-import DLCMovement_input
+# import DLCMovement_input
 import copy
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
@@ -268,13 +268,13 @@ def plot_motion(ax, med, video_key=False):
     else:
         title = "there is no video file, later fix pulls it from the DLC data"
     ax.set_title(title)
-    sorted_med = np.sort(med)
-    idx = np.where(sorted_med > max(sorted_med) * 0.50)[0][0]
-    if idx == 0:
-        thresh = sorted_med[idx]
-    else:
-        thresh = np.nanmean(sorted_med[0:idx])
-    h = plt.gca().get_ylim()[1]
+    # sorted_med = np.sort(med)
+    # idx = np.where(sorted_med > max(sorted_med) * 0.50)[0][0]
+    # if idx == 0:
+    #     thresh = sorted_med[idx]
+    # else:
+    #     thresh = np.nanmean(sorted_med[0:idx])
+    # h = plt.gca().get_ylim()[1]
     # consec = DLCMovement_input.group_consecutives(np.where(med > thresh)[0])
     # for vals in consec:
     #     if len(vals) > 5:
