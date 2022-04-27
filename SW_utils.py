@@ -275,15 +275,15 @@ def plot_motion(ax, med, video_key=False):
     else:
         thresh = np.nanmean(sorted_med[0:idx])
     h = plt.gca().get_ylim()[1]
-    consec = DLCMovement_input.group_consecutives(np.where(med > thresh)[0])
-    for vals in consec:
-        if len(vals) > 5:
-            x = x_vals[vals[0]]
-            y = 0
-            width = x_vals[vals[-1]] - x
-            rect = patch.Rectangle((x, y), width, h, color='#b7e1a1',
-                                   alpha=0.5)
-            ax.add_patch(rect)
+    # consec = DLCMovement_input.group_consecutives(np.where(med > thresh)[0])
+    # for vals in consec:
+    #     if len(vals) > 5:
+    #         x = x_vals[vals[0]]
+    #         y = 0
+    #         width = x_vals[vals[-1]] - x
+    #         rect = patch.Rectangle((x, y), width, h, color='#b7e1a1',
+    #                                alpha=0.5)
+    #         ax.add_patch(rect)
     ax.set_xlim([0, 60])
 
 
