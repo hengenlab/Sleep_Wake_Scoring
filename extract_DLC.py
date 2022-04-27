@@ -2,11 +2,12 @@ import os
 import numpy as np
 import neuraltoolkit as ntk
 import glob
-import DLCMovement_input
+# import DLCMovement_input
+from .dlc_dist_from_features import dlc_dist_from_features
 import math
 import json
 # from findPulse import findPulse
-from SW_utils import check_h5_file_size
+# from SW_utils import check_h5_file_size
 from SW_utils import check_time_stamps
 from SW_utils import check_time_period
 
@@ -23,12 +24,12 @@ def extract_DLC(filename_sw):
     # animal = str(d['animal'])
     # mod_name = str(d['mod_name'])
     # epochlen = int(d['epochlen'])
-    fs = int(d['fs'])
+    # fs = int(d['fs'])
     # emg = int(d['emg'])
     # pos = int(d['pos'])
     # vid = int(d['vid'])
     num = int(d['num'])
-    num_labels = int(d['num_labels'])
+    # num_labels = int(d['num_labels'])
     # cort = int(d['cort'])
     # EMGinput = int(d['EMGinput'])
     # numchan = int(d['numchan'])
@@ -36,7 +37,7 @@ def extract_DLC(filename_sw):
     # LFP_check = int(d['LFP_check'])
     # probenum = int(d['probenum'])
     # nprobes = int(d['nprobes'])
-    fr = int(d['video_fr'])
+    fps = int(d['video_fr'])
     digital = int(d['digital'])
     align_offset = d['offset']
 
@@ -48,7 +49,7 @@ def extract_DLC(filename_sw):
     vidfiles = sorted(glob.glob(motion_dir+'*labeled.mp4'))
 
     # check h5 files have same size
-    check_h5_file_size(h5)
+    # check_h5_file_size(h5)
     check_time_stamps(h5)
     check_time_stamps(vidfiles)
     check_time_period(h5, vidfiles)
@@ -94,10 +95,11 @@ def extract_DLC(filename_sw):
             # get video start index
             v_start_index =\
                 ntk.find_video_start_index(digi_dir, digital-1, nfiles=10,
-                                           fs=fs, fps=fr,
+                                           fs=25000, fps=fps,
                                            lnew=1, fig_indx=None)
         except Exception as e:
             print("Got error", e, " trying old digital files")
+            os.chdir(digi_dir)
             # get first files timestamp
             stmp_digital = ntk.load_digital_binary(digi_files[0],
                                                    t_only=1,
@@ -105,10 +107,13 @@ def extract_DLC(filename_sw):
             # get video start index
             v_start_index =\
                 ntk.find_video_start_index(digi_dir, digital-1, nfiles=10,
-                                           fs=fs, fps=fr,
+                                           fs=25000, fps=fps,
                                            lnew=0, fig_indx=None)
         # Add to timestamp , v_start_index in nanoseconds
-        stmp = stmp_digital[0] + ((v_start_index/fs) * 1e9)
+        print("digital timestamp ", stmp_digital)
+        print("video start is  ", v_start_index, " samples")
+        print("video start is  ", v_start_index/25000, " seconds")
+        stmp = stmp_digital[0] + ((v_start_index/25000) * 1e9)
         print("stmp is:")
         print(stmp)
 
@@ -125,14 +130,16 @@ def extract_DLC(filename_sw):
                                            nprobes=1,
                                            t_only=1)
         print(time_d[0])
-        offset = (stmp-time_d[0])
+        offset = stmp - time_d[0]
+        print("offset is  ", offset, " nanoseconds")
+        print("offset is  ", offset/1e9, " seconds")
 
     else:
         print("manually adjust the offset between video and neural recording")
         offset = align_offset * 1e9
 
     print(offset)
-    alignedtime = (1000*1000*1000)*np.arange(np.int(np.sum(leng)))/fr + offset
+    alignedtime = (1000*1000*1000)*np.arange(np.int(np.sum(leng)))/fps + offset
     print(alignedtime)
 
     mot_vect = []
@@ -140,10 +147,16 @@ def extract_DLC(filename_sw):
 
     for i in np.arange(np.size(h5)):
         b = h5[i]
+        # basename = \
+        #     DLCMovement_input.get_movement(b, savedir=motion_dir,
+        #                                    num_labels=num_labels,
+        #                                    labels=False)
         basename = \
-            DLCMovement_input.get_movement(b, savedir=motion_dir,
-                                           num_labels=num_labels,
-                                           labels=False)
+            dlc_dist_from_features(b, fps,
+                                   hour_sec=3600,
+                                   cutoff_val=0.90,
+                                   lmedian=1,
+                                   lplot=0)
         vect = np.load(motion_dir+basename+'_full_movement_trace.npy')
         if np.size(vect) > leng[i]:
             print('removing one nan')

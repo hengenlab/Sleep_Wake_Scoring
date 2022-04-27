@@ -17,7 +17,14 @@ def dlc_dist_from_features(mfile, fps, hour_sec=3600,
     lmedian : (default, median across features)
     lplot : (default 0, no plots)
 
+    returns :
+        basename of mfile
+
     '''
+
+    # get basename
+    basename = op.splitext(op.split(mfile)[1])[0]
+
     # Get features
     dlc_positions, dlc_features = \
         ntk.dlc_get_position(mfile,
@@ -67,6 +74,9 @@ def dlc_dist_from_features(mfile, fps, hour_sec=3600,
 
     if lmedian:
         dlc_dist_median = np.nanmedian(np.asarray(dlc_dist), axis=0)
+        full_move_filename = op.splitext(mfile)[0] + \
+            '_full_movement_trace.npy'
+        np.save(full_move_filename, dlc_dist_median)
         if lplot:
             ax[len(dlc_features)].plot(dlc_dist_median)
             ax[len(dlc_features)].set_title("Median dist")
@@ -84,6 +94,7 @@ def dlc_dist_from_features(mfile, fps, hour_sec=3600,
                                                    axis=1)
         if lplot:
             ax[len(dlc_features) + 1].plot(dlc_dist_median_persec_mean)
+            ax[len(dlc_features) + 1].set_ylim([0, 10])
             ax[len(dlc_features) + 1].set_title("Median dist/conds")
     else:
         dlc_dist_features = np.asarray(dlc_dist)
@@ -113,6 +124,8 @@ def dlc_dist_from_features(mfile, fps, hour_sec=3600,
 
     if lplot:
         plt.show()
+
+    return basename
 
 
 if __name__ == "__main__":
