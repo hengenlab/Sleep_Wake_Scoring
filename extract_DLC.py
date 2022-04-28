@@ -2,14 +2,11 @@ import os
 import numpy as np
 import neuraltoolkit as ntk
 import glob
-# import DLCMovement_input
-from .dlc_dist_from_features import dlc_dist_from_features
+from Sleep_Wake_Scoring.dlc_dist_from_features import dlc_dist_from_features
 import math
 import json
-# from findPulse import findPulse
-# from SW_utils import check_h5_file_size
-from SW_utils import check_time_stamps
-from SW_utils import check_time_period
+from Sleep_Wake_Scoring.SW_utils import check_time_stamps
+from Sleep_Wake_Scoring.SW_utils import check_time_period
 
 
 def extract_DLC(filename_sw):

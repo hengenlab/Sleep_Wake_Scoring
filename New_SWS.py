@@ -7,15 +7,11 @@ import sys
 import os
 import json
 from joblib import load
-# from lizzie_work import DLCMovement_input
-# import DLCMovement_input
 import cv2
 import pandas as pd
 import warnings
-# from Sleep_Wake_Scoring import SW_utils
-import SW_utils
-# from Sleep_Wake_Scoring import Cursor
-from SW_Cursor import Cursor
+import Sleep_Wake_Scoring.SW_utils as SW_utils
+from Sleep_Wake_Scoring.SW_Cursor import Cursor
 
 
 def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
