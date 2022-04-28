@@ -35,7 +35,7 @@ For example,
  "probenum": 0,      # the probenum you want to extract LFP  probe1 = 0 in python  
  "nprobes" : 1,
  "video_fr":30,      # video 15Hz or 30Hz
- "digital":0,        # 1: Use digital files to align LFP and videos; 0: manually alignment
+ "digital":0,        # 1-64: Use digital files to align LFP and videos; 0: manually alignment
  "offset":7.4        # offset between LFP and video (always start the recording first then save the video), only works when digital == 0
 }
 
@@ -150,6 +150,22 @@ video_start_index =\
                                    lnew=1, fig_indx=fig_indx)
 # Offset is in seconds so divide by fs
 print("offset ", video_start_index/fs)  
+```
+
+#### Finding offset automatically
+
+```
+In json input:
+"digital": 4,        # 1-64: Use digital files to align LFP and videos; 0: manually alignment
+Here 4 is the channel watchtower data is recorded to.
+
+Channel number starts from 1.
+
+Recorded data folder name has this information. 
+For example if ABC12345_L3_W2_2021-12-06_08-57-21
+is the recorded data folder name. Then channel 2 is used for watchtower.
+
+For old style digital files, channel number is always 1.
 ```
 
 ##### Running Sleep Wake Scoring Module  
