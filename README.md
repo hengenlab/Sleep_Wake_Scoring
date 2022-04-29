@@ -1,18 +1,31 @@
 # Sleep_Wake_Scoring
 
+---
 
-#### Installation
+We use a multivariate approach to scoring sleep in high resolution (4 second bins); we use machine learning to adaptively incorporate user input and predict the arousal state of subsequent data. This allows us to score months worth of continuous acquisition in hours.
+
+
+---
+
+### Installation
+#### Create conda environment
 ```
 conda create -n Sleep_Wake_Scoring_env python=3  
-conda activate Sleep_Wake_Scoring_env 
-
+conda activate Sleep_Wake_Scoring_env
+conda install pip
+```
+#### Dowload Sleep_Wake_Scoring
+```
 git clone https://github.com/hengenlab/Sleep_Wake_Scoring.git 
+```
 
+#### Using pip
+```
 cd locationofSleep_Wake_Scoring/Sleep_Wake_Scoring/
 For example cd /home/kbn/git/Sleep_Wake_Scoring/
 pip install .
 ```
-
+---
 #### Usage
 
 ##### Create a json file with info
