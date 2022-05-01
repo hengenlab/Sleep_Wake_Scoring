@@ -1,5 +1,4 @@
 from setuptools import setup
-import subprocess
 
 with open("README.md", 'r') as f:
     long_description = f.read()
