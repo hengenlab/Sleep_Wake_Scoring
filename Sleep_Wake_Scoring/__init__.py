@@ -1,9 +1,9 @@
-from .SW_utils import *
-from .SW_Cursor import *
-from .New_SWS import *
-from .extractforscoring import *
-from .extract_DLC import *
-from .selected_channels import *
-from .LFP_check import *
-from .check_spectrograms import check_spectrograms
-from .dlc_dist_from_features import dlc_dist_from_features
+from .SW_utils import *  # noqa: F401 F40
+from .SW_Cursor import *  # noqa: F401 F40
+from .New_SWS import *  # noqa: F401 F40
+from .extractforscoring import *  # noqa: F401 F40
+from .extract_DLC import *  # noqa: F401 F40
+from .selected_channels import *  # noqa: F401 F40
+from .LFP_check import *  # noqa: F401 F40
+from .check_spectrograms import check_spectrograms  # noqa: F401 F40
+from .dlc_dist_from_features import dlc_dist_from_features  # noqa: F401 F40
