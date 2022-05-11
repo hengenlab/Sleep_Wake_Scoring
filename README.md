@@ -36,6 +36,7 @@ For example,
  "model_dir" : "/media/HlabShare/Sleep_Model/",
  "digi_dir" : "/media/bs007r/D1_rat/d2_2020-11-14_19-26-29/",
  "LFP_dir" : "/media/HlabShare/Sleep_Scoring/XYF03/1114/"      # please save all LFP and sleep-scoring output to Hlabshare in the future
+ "recblock_structure": "/kdr35_02022022/*/probe1/*/*lfp_group0.npy",  # please make sure it is just pointing to one recording block
  "animal": "XYF00003",
  "mod_name" : "rat_mouse",
  "epochlen" : 4,
@@ -129,6 +130,11 @@ change
 where 70, 86, 100 and 121 are the channels to be extracted.   
 It is best to select single channel from  different tetrode groups   
 tetrode recordings.  Channel number starts at 1 not 0.
+```
+##### Generate spectrograms, delta and theta
+```
+import Sleep_Wake_Scoring as sw
+sw.extract_delta_theta_from_lfp('/home/kbn/ABC00001.json')
 ```
 or
 ```diff
