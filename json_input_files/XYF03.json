@@ -3,6 +3,7 @@
  "model_dir" : "/media/HlabShare/Sleep_Model/",
  "digi_dir" : "/media/bs007r/D1_rat/d2_2020-11-14_19-26-29/",
  "LFP_dir" : "/media/HlabShare/Sleep_Scoring/XYF03/1114/",
+ "recblock_structure": "/xyf03/*/probe1/*/*lfp_group0.npy",
  "animal": "XYF00003",
  "mod_name" : "rat_mouse",
  "epochlen" : 4,

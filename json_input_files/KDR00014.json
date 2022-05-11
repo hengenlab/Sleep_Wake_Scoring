@@ -3,6 +3,7 @@
  "model_dir" : "/media/HlabShare/Sleep_Model/",
  "digi_dir" : "/media/bs004r/KDR00014/KDR00014_L9_W2_2021-10-18_13-41-19/",
  "LFP_dir" : "/media/HlabShare/Sleep_Scoring/KDR00014/",
+ "recblock_structure": "/kdr14/*/probe1/*/*lfp_group0.npy",
  "animal": "KDR00014",
  "mod_name" : "rat_mouse",
  "epochlen" : 4,
