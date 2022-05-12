@@ -39,13 +39,13 @@ def extract_delta_theta_from_lfp(filename_sw):
     if len(fl_list) > 1:
         for indx, fl in enumerate(fl_list[1:]):
             if indx == 0:
-                lfp_tmp1 = np.load(fl[indx], allow_pickle=True)
-                lfp_tmp2 = np.load(fl[indx+1], allow_pickle=True)
+                lfp_tmp1 = np.load(fl_list[indx], allow_pickle=True)
+                lfp_tmp2 = np.load(fl_list[indx+1], allow_pickle=True)
                 lfp_all = np.column_stack((lfp_tmp1, lfp_tmp2))
                 del lfp_tmp1
                 del lfp_tmp2
             elif indx > 0:
-                lfp_tmp1 = np.load(fl[indx+1], allow_pickle=True)
+                lfp_tmp1 = np.load(fl_list[indx+1], allow_pickle=True)
                 lfp_all = np.column_stack((lfp_all, lfp_tmp1))
                 del lfp_tmp1
             print("sh lfp_all ", lfp_all.shape, flush=True)
