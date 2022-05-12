@@ -130,11 +130,11 @@ class Cursor(object):
 
                 # plot same line across axes
                 vl1 = self.ax1.axvline(x=event.xdata, color='m',
-                                       zorder=10, lw=1, linestyle='dashed')
+                                       zorder=10, lw=1.5, linestyle='dashed')
                 vl2 = self.ax2.axvline(x=c1to2[0], color='m',
-                                       zorder=10, lw=1, linestyle='dashed')
+                                       zorder=10, lw=1.5, linestyle='dashed')
                 vl3 = self.ax3.axvline(x=c1to3[0], color='m',
-                                       zorder=10, lw=1, linestyle='dashed')
+                                       zorder=10, lw=1.5, linestyle='dashed')
 
                 # clean up old avlines and add new ones
                 self.vl = None
