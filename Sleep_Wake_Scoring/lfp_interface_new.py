@@ -26,7 +26,8 @@ def extract_delta_theta_from_lfp(filename_sw):
     LFP_dir = str(d['LFP_dir'])
     recblock_structure = str(d['recblock_structure'])
     print("recblock_structure ", recblock_structure)
-    fl_list = sorted(glob.glob(LFP_dir + recblock_structure))
+    # fl_list = sorted(glob.glob(LFP_dir + recblock_structure))
+    fl_list = ntk.natural_sort(glob.glob(LFP_dir + recblock_structure))
     for indx, fl in enumerate(fl_list):
         print(indx, " ", fl)
 
