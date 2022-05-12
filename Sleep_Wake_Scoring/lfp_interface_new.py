@@ -26,10 +26,21 @@ def extract_delta_theta_from_lfp(filename_sw):
     LFP_dir = str(d['LFP_dir'])
     recblock_structure = str(d['recblock_structure'])
     print("recblock_structure ", recblock_structure)
-    # fl_list = sorted(glob.glob(LFP_dir + recblock_structure))
     fl_list = ntk.natural_sort(glob.glob(LFP_dir + recblock_structure))
     for indx, fl in enumerate(fl_list):
         print(indx, " ", fl)
+    lorder = input('Is files in correct order?: y/n') == 'y'
+    if lorder:
+        print("creating spectrograms with this file order")
+    else:
+        fl_list = sorted(glob.glob(LFP_dir + recblock_structure))
+        for indx, fl in enumerate(fl_list):
+            print(indx, " ", fl)
+        lorder = input('Is files in correct order now?: y/n') == 'y'
+        if lorder:
+            print("creating spectrograms with this file order")
+        else:
+            raise ValueError('Files are not in order')
 
     # check LFPdir
     if not os.path.exists(LFP_dir) and not os.path.isdir(LFP_dir):
