@@ -36,11 +36,11 @@ For example,
  "model_dir" : "/media/HlabShare/Sleep_Model/",
  "digi_dir" : "/media/bs007r/D1_rat/d2_2020-11-14_19-26-29/",
  "LFP_dir" : "/media/HlabShare/Sleep_Scoring/XYF03/1114/"      # please save all LFP and sleep-scoring output to Hlabshare in the future
- "recblock_structure": "/kdr35_02022022/*/probe1/*/*lfp_group0.npy",  # please make sure it is just pointing to one recording block
+ "recblock_structure": "/XYF00003_02022022/*/probe1/*/*lfp_group0.npy",  # please check sub section below recblock
  "animal": "XYF00003",
  "mod_name" : "rat_mouse",
  "epochlen" : 4,
- "fs" : 200,
+ "fs" : 500,
  "emg" : 0,
  "pos": 1,
  "vid": 1,
@@ -62,7 +62,32 @@ For example,
 Please check XYF03.json file.  
 ```
 
-##### Find best channels  
+###### recblock
+```
+As many users are using different methods/directory structure to save lfp,
+recblock_structure guides Sleep_Wake_Scoring to find lfp files (*lfp_group0.npy)
+for each recording block.
+
+The list of paths to lfp_group0.npy files are created by
+concatenating LFP_dir with recblock_structure.
+
+Please make sure the following things.
+1.  Make sure that all lfp is extracted from the entire restart/"recording block".
+As Sleep_Wake_Scoring depends on hour labels. 
+So missing lfp files will create inconsistent hour labels.
+
+2. Do not mix different restart/"recording blocks" together.
+
+3. While generating spectrograms, delta and theta 
+import Sleep_Wake_Scoring as sw
+sw.extract_delta_theta_from_lfp('/home/kbn/ABC00001.json')
+Answer the question
+"Is files in correct order?: y/n"
+accurately.
+
+```
+
+##### 1. Find best channels  
 ```
 # Create spectrograms
 import neuraltoolkit as ntk
@@ -118,7 +143,7 @@ or
 - filename_sw = 'XYF03.json'  
 - sw.selectLFPchan(filename_sw, hour)
 ```
-##### Running LFP extract  
+##### 2. Running LFP extract  
 ```
 Use sorting code to extract LFP. For more details check README.md in spikesorter code. 
 Keep everything same as sorting input for spkint_wrapper_input.json and mountainsort.json
@@ -131,7 +156,7 @@ where 70, 86, 100 and 121 are the channels to be extracted.
 It is best to select single channel from  different tetrode groups   
 tetrode recordings.  Channel number starts at 1 not 0.
 ```
-##### Generate spectrograms, delta and theta
+##### 3. Generate spectrograms, delta and theta
 ```
 import Sleep_Wake_Scoring as sw
 sw.extract_delta_theta_from_lfp('/home/kbn/ABC00001.json')
@@ -143,7 +168,7 @@ or
 - sw.extract_lfp('XYF03.json')
 ``` 
 
-#### Get movement traces from DLC analysis
+#### 4. Get movement traces from DLC analysis
 
 ```
 import Sleep_Wake_Scoring as sw
@@ -192,7 +217,7 @@ is the recorded data folder name. Then channel 2 is used for watchtower.
 For old style digital files, channel number is always 1.
 ```
 
-##### Running Sleep Wake Scoring Module  
+##### 5. Running Sleep Wake Scoring Module  
 *ipython*
 ```
 import Sleep_Wake_Scoring as sw
