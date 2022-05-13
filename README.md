@@ -218,7 +218,7 @@ For old style digital files, channel number is always 1.
 ```
 
 ##### 5. Running Sleep Wake Scoring Module  
-*ipython*
+
 ```
 import Sleep_Wake_Scoring as sw
 sw.load_data_for_sw('XYF03.json')
