@@ -345,14 +345,16 @@ def plot_predicted(ax, Predict_y, clf, Features):
 
 
 def create_prediction_figure(rawdat_dir, hr, Predict_y, clf,
-                             Features, pos, med=False, video_key=False):
+                             Features, pos, med=False, video_key=False,
+                             newemg=None):
     plt.ion()
     fig, (ax1, ax2, ax3) = \
         plt.subplots(nrows=3, ncols=1, figsize=(11, 6))
     plot_spectrogram(ax1, rawdat_dir, hr)
     plot_predicted(ax2, Predict_y, clf, Features)
     if pos:
-        plot_motion(ax3, med, video_key)
+        print("newemg"*100, newemg)
+        plot_motion(ax3, med, video_key, newemg=newemg)
     fig.tight_layout()
     return fig, ax1, ax2, ax3
 
@@ -568,12 +570,12 @@ def correct_bins(start_bin, end_bin, ax2, new_state):
         ax2.add_patch(rectangle)
 
 
-def create_scoring_figure(rawdat_dir, hr, video_key, pos, med):
+def create_scoring_figure(rawdat_dir, hr, video_key, pos, med, newemg=None):
     fig, (ax1, ax2, ax3) = plt.subplots(nrows=3, ncols=1,
                                         figsize=(11, 6))
     plot_spectrogram(ax1, rawdat_dir, hr)
     if pos:
-        plot_motion(ax3, med, video_key)
+        plot_motion(ax3, med, video_key, newemg=newemg)
     ax2.set_ylim(0.3, 1)
     ax2.set_xlim(0, 900)
     fig.show()
