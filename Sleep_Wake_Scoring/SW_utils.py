@@ -254,7 +254,12 @@ def random_forest_classifier(features, target):
     return clf
 
 
-def plot_motion(ax, med, video_key=False):
+def plot_motion(ax, med, video_key=False, newemg=None):
+    '''
+    plot_motion(ax, med, video_key=False, newemg=None)
+    med : motion from dlc
+    newemg : emg from spike sorter
+    '''
     x_vals = np.linspace(0, 60, np.size(med))
     ax.plot(x_vals, med)
     ax.set_xlim(0, 60)
@@ -285,6 +290,11 @@ def plot_motion(ax, med, video_key=False):
     #                                alpha=0.5)
     #         ax.add_patch(rect)
     ax.set_xlim([0, 60])
+    if newemg is not None:
+        # Create a twin axes to plot newemg in orange
+        ax2 = ax.twinx()
+        ax2.plot(x_vals, newemg, color='orange')
+        ax2.set_ylabel('EMG', color='orange')
 
 
 def plot_spectrogram(ax, rawdat_dir, hr):
