@@ -47,12 +47,20 @@ def get_time_from_h5_videofiles(sw_input_files_list):
     sw_input_file_realtime_dt_list = None
     sw_input_file_realtime_dt_list = []
     for sw_input_file in sw_input_files_list:
-        sw_input_file_indx = \
-            re.search(r'\d\d\d\d\d\d\d\dT\d\d\d\d\d\d', sw_input_file)
-        sw_input_file_realtime_dt = \
-            datetime.strptime(sw_input_file[sw_input_file_indx.start():
-                                            sw_input_file_indx.end()]
-                              .replace("T", " "), "%Y%m%d %H%M%S")
+        try:
+            sw_input_file_indx = \
+                re.search(r'\d\d\d\d\d\d\d\dT\d\d\d\d\d\d', sw_input_file)
+            sw_input_file_realtime_dt = \
+                datetime.strptime(sw_input_file[sw_input_file_indx.start():
+                                                sw_input_file_indx.end()]
+                                  .replace("T", " "), "%Y%m%d %H%M%S")
+        except AttributeError as e:
+            print("Error ", e)
+            raise ValueError(
+                'Check h5/video name has 20210126T051544-061545 format')
+        except Exception as e:
+            print("Error ", e)
+            raise RuntimeError('Error ', e, ' in get_time_from_h5_videofiles')
         sw_input_file_realtime_dt_list.append(sw_input_file_realtime_dt)
         # print(time.mktime(dt.timetuple()))
     return sw_input_file_realtime_dt_list
