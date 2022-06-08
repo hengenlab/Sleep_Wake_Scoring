@@ -170,9 +170,9 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
             # 2 – NREM, Blue
             # 3 – REM, red
             # 5 – QW, White
-            Predict_y[Predict_y == 1] = 0
-            Predict_y[Predict_y == 2] = 2
-            Predict_y[Predict_y == 3] = 5
+            # Predict_y[Predict_y == 1] = 0
+            # Predict_y[Predict_y == 2] = 2
+            # Predict_y[Predict_y == 3] = 5
 
             if pos:
                 SW_utils.create_prediction_figure(LFP_dir, hr, Predict_y,
@@ -242,6 +242,12 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
             # print(np.where(temp_nan_test == 1))
 
             Predict_y = clf.predict(Features)
+            # In random forest
+            # 0 is wake but we save 1 as wake to numpy
+            # 5 is REM but we save 3 as REM to numpy
+            # so convert before proceeding further
+            Predict_y[Predict_y == 0] = 1
+            Predict_y[Predict_y == 5] = 3
             # Predict_y = SW_utils.fix_states(Predict_y)
             print("Predict_y ", Predict_y)
 
@@ -292,9 +298,6 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
 
             plt.ion()
             State = copy.deepcopy(Predict_y)
-            State[State == 0] = 1
-            State[State == 2] = 2
-            State[State == 5] = 3
             cursor = Cursor(ax1, ax2, ax3)
 
             # cID = \

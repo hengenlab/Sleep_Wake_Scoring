@@ -318,7 +318,18 @@ def plot_spectrogram(ax, rawdat_dir, hr):
     ax.set_yticks(ticksy, labelsy)
 
 
-def plot_predicted(ax, Predict_y, clf, Features):
+def plot_predicted(ax, Predict_y, clf=None, features=None):
+    '''
+    plot_predicted(ax, Predict_y, clf=None, features=None)
+
+    Plotted colors are
+    # 1 – Active Wake, Green
+    # 2 – NREM, Blue
+    # 3 – REM, red
+    # 4 – micro arousal, yellow
+    # 5 – QW, White
+    # else - wrong states, cyan
+    '''
     if clf is not None:
         ax.set_title('Predicted States')
     else:
@@ -328,7 +339,7 @@ def plot_predicted(ax, Predict_y, clf, Features):
     # 3 – REM, red
     # 5 – QW, White
     for state in np.arange(np.size(Predict_y)):
-        if Predict_y[state] == 0:
+        if Predict_y[state] == 1:
             rect7 = patch.Rectangle((state, 0), 3.8,
                                     height=1, color='green')
             ax.add_patch(rect7)
@@ -336,18 +347,27 @@ def plot_predicted(ax, Predict_y, clf, Features):
             rect7 = patch.Rectangle((state, 0), 3.8,
                                     height=1, color='blue')
             ax.add_patch(rect7)
-        elif Predict_y[state] == 5:
+        elif Predict_y[state] == 3:
             rect7 = patch.Rectangle((state, 0), 3.8,
                                     height=1, color='red')
             ax.add_patch(rect7)
         elif Predict_y[state] == 4:
             rect7 = patch.Rectangle((state, 0), 3.8,
-                                    height=1, color='#a8a485')
+                                    height=1, color='yellow')
+            #                       height=1, color='#a8a485')
+            ax.add_patch(rect7)
+        elif Predict_y[state] == 5:
+            rect7 = patch.Rectangle((state, 0), 3.8,
+                                    height=1, color='white')
+            ax.add_patch(rect7)
+        else:
+            rect7 = patch.Rectangle((state, 0), 3.8,
+                                    height=1, color='cyan')
             ax.add_patch(rect7)
     ax.set_ylim(0.3, 1)
     ax.set_xlim(0, 900)
     if clf is not None:
-        predictions = clf.predict_proba(Features)
+        predictions = clf.predict_proba(features)
         confidence = np.max(predictions, 1)
         ax.plot(confidence, color='k')
 
@@ -563,15 +583,19 @@ def clear_bins(bins, ax2):
 
 def correct_bins(start_bin, end_bin, ax2, new_state):
     for b in np.arange(start_bin, end_bin):
-        b = math.floor(b)
-        location = b
-        color = 'white'
+        location = math.floor(b)
+        # location = b
+        color = 'cyan'
         if new_state == 1:
             color = 'green'
-        if new_state == 2:
+        elif new_state == 2:
             color = 'blue'
-        if new_state == 3:
+        elif new_state == 3:
             color = 'red'
+        elif new_state == 4:
+            color = 'yellow'
+        elif new_state == 5:
+            color = 'white'
         rectangle = patch.Rectangle((location, 0), 1.5,
                                     height=2, color=color)
         print('loc: ', location)
