@@ -107,7 +107,6 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
     EEG_broadtheta, idx_broadtheta = SW_utils.bandPower(2, 16, downdatlfp,
                                                         epochlen, fs)
 
-    print('Boom. Boom. FIYA POWER...')
     EEGfire, idx_fire = SW_utils.bandPower(4, 20, downdatlfp, epochlen, fs)
 
     EEGnb = EEGtheta / EEG_broadtheta
@@ -154,35 +153,17 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
         filename = LFP_dir + animal + '_SleepStates_' + t_stamp + '.npy'
         if (os.path.exists(filename) and os.path.isfile(filename)):
             mod_name = "load_scores"
-            print("filename ", filename)
-            print("111model nameeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", mod_name)
-        else:
-            print("filename ", filename)
-            print("222model nameeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", mod_name)
-
-        if mod_name == "load_scores":
-            mv_file = movement_files[int(hr)-1]
-            t_stamp = mv_file[mv_file.find('_tmove')-18:mv_file.find('_tmove')]
-            filename = LFP_dir + animal + '_SleepStates_' + t_stamp + '.npy'
+            print("\n\n\n", "=" * 42)
+            print("Loading previously scored file")
+            print("scored filename is : ", filename)
             Predict_y = np.load(filename)
-            print("Predict_y ", Predict_y)
-            # 1 – Active Wake, Green
-            # 2 – NREM, Blue
-            # 3 – REM, red
-            # 5 – QW, White
-            # Predict_y[Predict_y == 1] = 0
-            # Predict_y[Predict_y == 2] = 2
-            # Predict_y[Predict_y == 3] = 5
-
-            if pos:
-                SW_utils.create_prediction_figure(LFP_dir, hr, Predict_y,
-                                                  None, None, pos, med,
-                                                  video_key)
-            else:
-                SW_utils.create_prediction_figure(LFP_dir, hr,
-                                                  Predict_y, None,
-                                                  None, pos)
+            print("Human scored values are \n", Predict_y)
+            print("=" * 42, "\n\n\n")
         else:
+            print("\n\n\n", "=" * 42)
+            print("Using random forest to predict states")
+            print("model name is: ", mod_name)
+
             if pos and emg:
                 clf = load(mod_name + '_Motion_EMG.joblib')
             if not pos and emg:
@@ -249,7 +230,8 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
             Predict_y[Predict_y == 0] = 1
             Predict_y[Predict_y == 5] = 3
             # Predict_y = SW_utils.fix_states(Predict_y)
-            print("Predict_y ", Predict_y)
+            print("Random forest predicted values are \n", Predict_y)
+            print("=" * 42, "\n\n\n")
 
         # fix = input('Do you want to fix the models states?: y/n')=='y'
         fix = 1
@@ -369,7 +351,7 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
                             cursor.movie_bin = 0
 
                         else:
-                            print("you don't have video, sorry")
+                            print("you don't have video, please extract motion using dlc")
                 else:
                     print("click inside the motion plot")
                 if cursor.DONE:

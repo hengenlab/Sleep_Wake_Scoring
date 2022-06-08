@@ -381,7 +381,6 @@ def create_prediction_figure(rawdat_dir, hr, Predict_y, clf,
     plot_spectrogram(ax1, rawdat_dir, hr)
     plot_predicted(ax2, Predict_y, clf, Features)
     if pos:
-        print("newemg"*100, newemg)
         plot_motion(ax3, med, video_key, newemg=newemg)
     fig.tight_layout()
     return fig, ax1, ax2, ax3
@@ -598,7 +597,7 @@ def correct_bins(start_bin, end_bin, ax2, new_state):
             color = 'white'
         rectangle = patch.Rectangle((location, 0), 1.5,
                                     height=2, color=color)
-        print('loc: ', location)
+        print('location: ', location)
         ax2.add_patch(rectangle)
 
 
