@@ -237,23 +237,23 @@ def post_pre(post, pre):
     return post, pre
 
 
-def fix_states(states, alter_nums=False):
-    if alter_nums:
-        states[states == 1] = 0
-        states[states == 3] = 5
-
-    for ss in np.arange(np.size(states)-1):
-        # check if it is a flicker state
-        if (ss != 0 and ss < np.size(states)-1):
-            if states[ss+1] == states[ss-1]:
-                states[ss] = states[ss+1]
-
-            if (states[ss] == 0 and states[ss+1] == 5):
-                states[ss] = 2
-    if alter_nums:
-        states[states == 0] = 1
-        states[states == 5] = 3
-    return states
+# def fix_states(states, alter_nums=False):
+#     if alter_nums:
+#         states[states == 1] = 0
+#         states[states == 3] = 5
+#
+#     for ss in np.arange(np.size(states)-1):
+#         # check if it is a flicker state
+#         if (ss != 0 and ss < np.size(states)-1):
+#             if states[ss+1] == states[ss-1]:
+#                 states[ss] = states[ss+1]
+#
+#             if (states[ss] == 0 and states[ss+1] == 5):
+#                 states[ss] = 2
+#     if alter_nums:
+#         states[states == 0] = 1
+#         states[states == 5] = 3
+#     return states
 
 
 def random_forest_classifier(features, target):

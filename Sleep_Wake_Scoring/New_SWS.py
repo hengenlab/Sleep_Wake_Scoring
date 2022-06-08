@@ -242,7 +242,7 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
             # print(np.where(temp_nan_test == 1))
 
             Predict_y = clf.predict(Features)
-            Predict_y = SW_utils.fix_states(Predict_y)
+            # Predict_y = SW_utils.fix_states(Predict_y)
             print("Predict_y ", Predict_y)
 
         # fix = input('Do you want to fix the models states?: y/n')=='y'
