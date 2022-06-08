@@ -647,7 +647,7 @@ def print_instructions():
 
         The figure you're looking at consists of 3 plots:
         1. The spectrogram for the hour you're scoring
-        2. The random forest model's predicted states
+        2. The random forest model's predicted states/already scored states
         3. The binned motion for the hour
 
         TO CORRECT BINS:
@@ -660,8 +660,9 @@ def print_instructions():
               1 – Active Wake, Green
               2 – NREM, Blue
               3 – REM, red
-              4 micro-arousal (not used often)
+              4 micro-arousal, yellow
               5 – Quiet Wake, White
+              else - cyan (unknown states)
 
         VIDEO / RAW DATA:
         - if you hover over the motion figure you enter ~~ movie mode ~~
@@ -675,13 +676,9 @@ def print_instructions():
         - clicking again removes old line and shows new line.
 
         EXITING SCORING:
-        - are you done correcting bins?
-        - are you sure?
-        - are you going to come to me/clayton/lizzie and ask how you 'go back'
-          and 'change a few more bins'?
         - think for a second and then, when you're sure, press 'd'
-        - it will then ask you if you want to save your states and/or update
-          the random forest model
+        - Would you like to save these sleep states?:y/n
+        - Would you like to update the model?: y/n n
             - choose wisely
 
         NOTES:
@@ -689,27 +686,9 @@ def print_instructions():
         - the video window along with the raw trace figure will remain up and
           update when you click a new bin don't worry about closing them or
           quitting them, it will probably error if you do.
-        - slack me any errors if you get them or you have ideas for new
-          functionality/GUI design
-            - always looking to stay ~fresh~ with those ~graphics~
         - if something isn't working, make sure you're on Figure 2 and not the
           raw trace/terminal/video
         - plz don't toggle line while in motion axes, it messes up the axes
           limits, not sure why, working on it
-
-        coming soon to sleep-wake code near you:
-        - coding the state while you're slected in the figure, so you don't
-          have to switch to terminal
-        - automatically highlighting problem areas where the model isn't sure
-          or a red flag is raised (going wake/rem/wake/rem)
-        - letting you choose the best fitting model before you fix the states
-          to limit the amont of corrections
-
-
-        ANOUNCEMENTS:
-        - if you're trying to code each bin individually (a.k.a. when it asks
-                you if you want to correct the model you say 'no') it doesn't
-                save afterward yet. you will have to manually save it after
-                you're done for the time being
 
                                                ''')
