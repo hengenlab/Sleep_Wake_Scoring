@@ -401,7 +401,8 @@ def update_sleep_model(model_dir, mod_name, df_additions):
 
 def load_joblib(FeatureList, ymot, yemg, mod_name):
     x_features = copy.deepcopy(FeatureList)
-    [x_features.remove(i) for i in ['Animal_Name', 'Time_Interval', 'State']]
+    # [x_features.remove(i) for i in ['Animal_Name', 'Time_Interval', 'State']]
+    [x_features.remove(i) for i in ['State']]
     jobname = ''
     if not ymot and yemg:
         x_features.remove('Motion')

@@ -138,7 +138,8 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
     # model = input('Use a random forest? y/n: ') == 'y'
     model = 1
     if model:
-        final_features = ['Animal_Name', 'animal_num', 'Time_Interval',
+        # final_features = ['Animal_Name', 'animal_num', 'Time_Interval',
+        final_features = [
                           'State', 'delta_pre', 'delta_pre2',
                           'delta_pre3', 'delta_post', 'delta_post2',
                           'delta_post3', 'EEGdelta', 'theta_pre',
@@ -416,8 +417,10 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
                             np.arange(0, np.size(video_key[1, :]),
                                       int(np.size(video_key[1, :]) /
                                           np.size(animal_name)))]
+                # data = np.vstack(
+                #     [animal_name, animal_num, time_int, State, delta_pre,
                 data = np.vstack(
-                    [animal_name, animal_num, time_int, State, delta_pre,
+                    [State, delta_pre,
                      delta_pre2, delta_pre3, delta_post,
                      delta_post2, delta_post3, EEGdelta, theta_pre, theta_pre2,
                      theta_pre3, theta_post, theta_post2,
@@ -438,6 +441,13 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
                     data = np.vstack([data, EMG, binned_mot, raw_var])
                 df_additions = \
                     pd.DataFrame(columns=final_features, data=data.T)
+                # change nans by mean
+                df_additions = df_additions.fillna(df_additions.mean())
+                # change to 0 if entire column is nan
+                df_additions = df_additions.fillna(0)
+                # for x in df_additions:
+                #     if df_additions[x].dtypes == "int64":
+                #         df_additions[x] = df_additions[x].astype(float)
 
                 Sleep_Model = \
                     SW_utils.update_sleep_model(model_dir, mod_name,
