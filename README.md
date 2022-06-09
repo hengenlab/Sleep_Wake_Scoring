@@ -251,62 +251,53 @@ Boom. Boom. FIYA POWER...
          
                               INSTRUCTIONS
                       
-        Welcome to Sleep Wake Scoring!
-        
+                     Welcome to Sleep Wake Scoring!
+
         The figure you're looking at consists of 3 plots:
         1. The spectrogram for the hour you're scoring
-        2. The random forest model's predicted states
+        2. The random forest model's predicted states/already scored states
         3. The binned motion for the hour
-        
+
         TO CORRECT BINS:
-        - click once on the middle figure to select the start of the bin you want to change
-        - then click the last spot of the bin you want to change   
-        - now color change to turquoise of the selected region  
+        - click once on the middle figure to select the start of the bin you
+          want to change
+        - then click the last spot of the bin you want to change
+        - now color change to turquoise of the selected region
         - switch to terminal and type the state you want that bin to become
             Valid values are 1, 2, 3, 4 and 5
               1 – Active Wake, Green
               2 – NREM, Blue
               3 – REM, red
-              4 micro-arousal (not used often)
+              4 - micro-arousal, yellow (not used often)
               5 – Quiet Wake, White
-        
+              else - cyan (unknown states)
+
         VIDEO / RAW DATA:
-        - if you hover over the motion figure you enter ~~ movie mode ~~  
-        - click on that figure where you want to pull up movie and the raw trace for
-            the 4 seconds before, during, and after the point that you clicked
-        
+        - if you hover over the motion figure you enter ~~ movie mode ~~
+        - click on that figure where you want to pull up movie and the raw
+          trace for the 4 seconds before, during, and after the point that you
+          clicked
+
         CURSOR:
-        - clicking figure (spectrogram) will created magenta dashed line across all 3 plots to check alignment.
+        - clicking figure (spectrogram) will created magenta dashed line across
+          all 3 plots to check alignment.
         - clicking again removes old line and shows new line.
-        
-        EXITING SCORING:     
-        - are you done correcting bins?
-        - are you sure?
-        - are you going to come to me/clayton/lizzie and ask how you 'go back' and 'change a few more bins'?
+
+        EXITING SCORING:
         - think for a second and then, when you're sure, press 'd'
-        - it will then ask you if you want to save your states and/or update the random forest model
-            - choose wisely 
-        
+        - Would you like to save these sleep states?:y/n
+        - Would you like to update the model?: y/n n
+            - choose wisely
+
         NOTES:
         - all keys pressed should be lowercase. don't 'shift + d'. just 'd'.
-        - the video window along with the raw trace figure will remain up and update when you click a new bin
-            don't worry about closing them or quitting them, it will probably error if you do.
-        - slack me any errors if you get them or you have ideas for new functionality/GUI design
-            - always looking to stay ~fresh~ with those ~graphics~
-        - if something isn't working, make sure you're on Figure 2 and not the raw trace/terminal/video
-        - plz don't toggle line while in motion axes, it messes up the axes limits, not sure why, working on it
-        
-        coming soon to sleep-wake code near you:
-        - coding the state while you're slected in the figure, so you don't have to switch to terminal 
-        - automatically highlighting problem areas where the model isn't sure or a red flag is raised (going wake/rem/wake/rem)
-        - letting you choose the best fitting model before you fix the states to limit the amont of corrections
-        
-        
-        ANOUNCEMENTS:
-        - if you're trying to code each bin individually (a.k.a. when it asks you if you want to correct the model you say 'no')
-            it doesn't save afterward yet. you will have to manually save it after you're done for the time being 
-                                              
-                                               
+        - the video window along with the raw trace figure will remain up and
+          update when you click a new bin don't worry about closing them or
+          quitting them, it will probably error if you do.
+        - if something isn't working, make sure you're on Figure 2 and not the
+          raw trace/terminal/video
+        - plz don't toggle line while in motion axes, it messes up the axes
+          limits, not sure why, working on it                  
 
 ```
 #### Frequently asked question
