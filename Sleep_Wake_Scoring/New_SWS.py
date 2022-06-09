@@ -21,6 +21,9 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
     # Valid states you can enter
     valid_sw_states = [1, 2, 3, 4, 5]
 
+    # Keep a copy of mod_name in case load_scores but need to update
+    MOD_NAME_JSON = mod_name
+
     # os.chdir(LFP_dir)
     meanEEG_perhr = np.load('Average_EEG_perhr.npy')
     var_EEG_perhr = np.load('Var_EEG_perhr.npy')
@@ -351,7 +354,7 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
                             cursor.movie_bin = 0
 
                         else:
-                            print("you don't have video, please extract motion using dlc")
+                            print("no video, please extract motion using dlc")
                 else:
                     print("click inside the motion plot")
                 if cursor.DONE:
@@ -399,6 +402,11 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
             # 2 : NREM
             # 5 : REM
             if update:
+                # change mod_name
+                if mod_name == "load_scores":
+                    mod_name = MOD_NAME_JSON
+                print("mod_name ", mod_name)
+
                 State[State == 1] = 0
                 State[State == 2] = 2
                 State[State == 3] = 5
