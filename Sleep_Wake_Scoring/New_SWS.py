@@ -24,6 +24,9 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
     # Keep a copy of mod_name in case load_scores but need to update
     MOD_NAME_JSON = mod_name
 
+    # Plot limit -250 to 250
+    LFP_YLIM = 250
+
     # os.chdir(LFP_dir)
     meanEEG_perhr = np.load('Average_EEG_perhr.npy')
     var_EEG_perhr = np.load('Var_EEG_perhr.npy')
@@ -53,10 +56,6 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
     downdatlfp = np.load('EEGhr' + hr + '.npy')
     ratio2 = 12 * 4
 
-    if mod_name == 'mouse':
-        LFP_ylim = 1000
-    else:
-        LFP_ylim = 250
 
     if pos:
         print('loading motion...')
@@ -250,7 +249,7 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
             line1, line2, line3 = \
                 SW_utils.pull_up_raw_trace(0, ax4, ax5, ax6, ax7, emg,
                                            start, end, realtime, downdatlfp,
-                                           fs, mod_name, LFP_ylim, delt, thet,
+                                           fs, mod_name, LFP_YLIM, delt, thet,
                                            epochlen, EMGamp, ratio2)
 
             if mod_name == "load_scores":
