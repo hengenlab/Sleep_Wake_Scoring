@@ -4,6 +4,7 @@ import scipy.signal as signal
 import glob
 import copy
 import os
+import os.path as op
 import json
 from joblib import load
 import cv2
@@ -62,7 +63,6 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
     thet = np.concatenate((500 * [0], thet, 500 * [0]))
     downdatlfp = np.load('EEGhr' + hr + '.npy')
     ratio2 = 12 * 4
-
 
     if pos:
         print('loading motion...')
@@ -520,6 +520,20 @@ def load_data_for_sw(filename_sw):
     pos = int(d['pos'])
     vid = int(d['vid'])
     # fr = int(d['video_fr'])
+    try:
+        recblock_structure = str(d['recblock_structure'])
+    except KeyError as e:
+        print("recblock_structure is not used", e)
+        recblock_structure = None
+
+    # if recblock_structure append to LFP_dir
+    if recblock_structure is not None:
+        #  create a base name based on recblock_structure
+        base_dir_name = \
+            (recblock_structure.replace(op.sep, '_').split('*')[0]
+                .replace('_', ''))
+        LFP_dir = op.join(LFP_dir, base_dir_name + op.sep)
+        print("LFP_dir ", LFP_dir)
 
     os.chdir(LFP_dir)
     start_swscoring(LFP_dir, motion_dir, model_dir,
