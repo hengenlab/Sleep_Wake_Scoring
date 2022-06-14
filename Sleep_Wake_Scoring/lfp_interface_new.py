@@ -24,7 +24,7 @@ def extract_delta_theta_from_lfp(filename_sw):
         d = json.load(f)
 
     LFP_dir = str(d['LFP_dir'])
-    emg = int(d['emg'])
+    lemg = int(d['emg'])
     EMGinput = str(d['EMGinput'])
     recblock_structure = str(d['recblock_structure'])
 
@@ -32,7 +32,7 @@ def extract_delta_theta_from_lfp(filename_sw):
     if not os.path.exists(LFP_dir) and not os.path.isdir(LFP_dir):
         raise ValueError('LFP_dir not found')
 
-    if emg:
+    if lemg:
         # check EMGinput
         if not os.path.exists(EMGinput) and not os.path.isdir(EMGinput):
             raise ValueError('EMGinput not found')
@@ -53,7 +53,7 @@ def extract_delta_theta_from_lfp(filename_sw):
             print("creating spectrograms with this file order")
         else:
             raise ValueError('Files are not in order')
-    if emg:
+    if lemg:
         emg_fl_list = \
             ntk.natural_sort(glob.glob(EMGinput + recblock_structure))
         for indx, emg_fl in enumerate(emg_fl_list):
@@ -97,7 +97,7 @@ def extract_delta_theta_from_lfp(filename_sw):
     # Load all emg files and append # whatif it is too big
     # change to EMG dir
     os.chdir(EMGinput)
-    if emg:
+    if lemg:
         emg_all = None
         if len(emg_fl_list) > 1:
             for indx, emg_fl in enumerate(emg_fl_list[1:]):
@@ -143,7 +143,7 @@ def extract_delta_theta_from_lfp(filename_sw):
         end = int((indx+1)*reclen*lfp_freq)
         eeg = lfp_all[:, start:end]
         print("sh eeg ", eeg.shape, flush=True)
-        if emg:
+        if lemg:
             emg = emg_all[:, start:end]
 
         if eeg.shape[1] < (lfp_freq * min_lfp_needed):
@@ -154,7 +154,7 @@ def extract_delta_theta_from_lfp(filename_sw):
         np.save(op.join(base_dir_name, 'EEGhr' + str(hour)), downdatlfp)
 
         # save emg
-        if emg:
+        if lemg:
             np.save(op.join(base_dir_name, 'EMGhr' + str(hour)), emg)
 
         # calculate mean of mean of all channels!!!
