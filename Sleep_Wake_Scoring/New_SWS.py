@@ -506,6 +506,10 @@ def load_data_for_sw(filename_sw):
     LFP_dir, motion_dir, model_dir, animal, mod_name,
     epochlen, fs, emg, pos, vid
     '''
+
+    # constant as 500 is used in sorting code
+    RECBLOCK_STRUCTURE_FS = 500
+
     with open(filename_sw, 'r') as f:
         d = json.load(f)
 
@@ -534,6 +538,10 @@ def load_data_for_sw(filename_sw):
                 .replace('_', ''))
         LFP_dir = op.join(LFP_dir, base_dir_name + op.sep)
         print("LFP_dir ", LFP_dir)
+
+    if recblock_structure is not None:
+        if fs  != RECBLOCK_STRUCTURE_FS:
+            raise ValueError('Please check fs expected 500')
 
     os.chdir(LFP_dir)
     start_swscoring(LFP_dir, motion_dir, model_dir,
