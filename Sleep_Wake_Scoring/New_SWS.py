@@ -27,6 +27,13 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
     # Plot limit -250 to 250
     LFP_YLIM = 250
 
+    if emg:
+        # Hack only doing second channel of emg for KDR48
+        EMG_CHANNEL = 1
+
+        EMGHIGHPASS = 20
+        EMGLOWPASS = 200
+
     # os.chdir(LFP_dir)
     meanEEG_perhr = np.load('Average_EEG_perhr.npy')
     var_EEG_perhr = np.load('Var_EEG_perhr.npy')
@@ -74,12 +81,21 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
     if vid and pos:
         SW_utils.check_time_period(movement_files, vidkey_files)
 
+    lemg = 0
     if emg:
         print('loading EMG...')
         EMGamp = np.load('EMGhr' + hr + '.npy')
-        EMGamp = (EMGamp - np.average(EMGamp)) / np.std(EMGamp)
-        EMG = SW_utils.generate_EMG(EMGamp)
-        EMGamp = np.pad(EMGamp, (0, 100), 'constant')
+        EMGamp = EMGamp[EMG_CHANNEL, :]
+        EMGamp = SW_utils.emg_preprocessing(EMGamp, fs, highpass=EMGHIGHPASS,
+                                            lowpass=EMGLOWPASS)
+
+        # EMGamp = (EMGamp - np.average(EMGamp)) / np.std(EMGamp)
+        # EMG = SW_utils.generate_EMG(EMGamp)
+        # EMGamp = np.pad(EMGamp, (0, 100), 'constant')
+        # emg save as temporarly avoid emg
+        lemg = emg
+        emg = 0
+
     else:
         EMGamp = False
 
@@ -254,13 +270,24 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
 
             if mod_name == "load_scores":
                 if pos:
-                    # this should probably be a different figure without
-                    # the confidence line?
-                    fig, ax1, ax2, ax3 = \
-                        SW_utils.create_prediction_figure(LFP_dir, hr,
-                                                          Predict_y, None,
-                                                          None, pos, med,
-                                                          video_key)
+                    if lemg:
+                        # this should probably be a different figure without
+                        # the confidence line?
+                        fig, ax1, ax2, ax3 = \
+                            SW_utils.create_prediction_figure(LFP_dir, hr,
+                                                              Predict_y, None,
+                                                              None, pos, med,
+                                                              video_key,
+                                                              newemg=EMGamp)
+                    else:
+                        # this should probably be a different figure without
+                        # the confidence line?
+                        fig, ax1, ax2, ax3 = \
+                            SW_utils.create_prediction_figure(LFP_dir, hr,
+                                                              Predict_y, None,
+                                                              None, pos, med,
+                                                              video_key)
+
                 else:
                     fig, ax1, ax2, ax3 = \
                         SW_utils.create_prediction_figure(LFP_dir, hr,
@@ -268,13 +295,24 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
                                                           None, pos)
             else:
                 if pos:
-                    # this should probably be a different figure without
-                    # the confidence line?
-                    fig, ax1, ax2, ax3 = \
-                        SW_utils.create_prediction_figure(LFP_dir, hr,
-                                                          Predict_y, clf,
-                                                          Features, pos,
-                                                          med, video_key)
+                    if lemg:
+                        # this should probably be a different figure without
+                        # the confidence line?
+                        fig, ax1, ax2, ax3 = \
+                            SW_utils.create_prediction_figure(LFP_dir, hr,
+                                                              Predict_y, clf,
+                                                              Features, pos,
+                                                              med, video_key,
+                                                              newemg=EMGamp)
+                    else:
+                        # this should probably be a different figure without
+                        # the confidence line?
+                        fig, ax1, ax2, ax3 = \
+                            SW_utils.create_prediction_figure(LFP_dir, hr,
+                                                              Predict_y, clf,
+                                                              Features, pos,
+                                                              med, video_key)
+
                 else:
                     fig, ax1, ax2, ax3 = \
                         SW_utils.create_prediction_figure(LFP_dir, hr,
