@@ -19,6 +19,7 @@ import math
 import os.path as op
 import re
 from datetime import datetime
+import neuraltoolkit as ntk
 
 
 def check_h5_file_size(h5files):
@@ -209,6 +210,32 @@ def generate_EMG(EMGamp):
     for i in np.arange(np.size(EMG)):
         EMG[i] = np.average(EMGamp[EMG_idx[i]:EMG_idx[i + 1]])
     return EMG
+
+def emg_preprocessing(EMGamp, fs, highpass=20, lowpass=200):
+    '''
+    emg_preprocessing(EMGamp, fs)
+
+    Converts emg to size 3600 1hr and bandpass
+
+    EMGamp : emg at fs sampling rate
+    fs : sampling rate
+
+    '''
+
+    # bandpass
+    EMGamp = ntk.butter_bandpass(EMGamp, highpass, lowpass, fs, 3)
+    # EMGamp = signal.savgol_filter(EMGamp, 51, 3)
+
+    # Convert to 1hr in seconds
+    EMGamp = np.reshape(EMGamp, (int(EMGamp.shape[0]/fs), -1))
+
+    # take median per second
+    EMGamp = np.median(EMGamp, axis=1)
+
+    # substract mean
+    # EMGamp = EMGamp - np.mean(EMGamp)
+
+    return EMGamp
 
 
 def bandPower(low, high, downdatlfp, epochlen, fs):
