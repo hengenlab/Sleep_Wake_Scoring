@@ -29,8 +29,7 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
     LFP_YLIM = 250
 
     if emg:
-        # Hack only doing second channel of emg for KDR48
-        EMG_CHANNEL = 1
+        # EMG_CHANNEL = 1
 
         EMGHIGHPASS = 20
         EMGLOWPASS = 200
@@ -85,7 +84,7 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
     if emg:
         print('loading EMG...')
         EMGamp = np.load('EMGhr' + hr + '.npy')
-        EMGamp = EMGamp[EMG_CHANNEL, :]
+        # EMGamp = EMGamp[EMG_CHANNEL, :]
         EMGamp = SW_utils.emg_preprocessing(EMGamp, fs, highpass=EMGHIGHPASS,
                                             lowpass=EMGLOWPASS)
 

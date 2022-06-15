@@ -223,7 +223,11 @@ def emg_preprocessing(EMGamp, fs, highpass=20, lowpass=200):
     '''
 
     # bandpass
-    EMGamp = ntk.butter_bandpass(EMGamp, highpass, lowpass, fs, 3)
+    for i in range(EMGamp.shape[0]):
+        EMGamp[i,:] = np.abs(ntk.butter_bandpass(EMGamp[i,:],
+                                          highpass,
+                                          lowpass,
+                                          fs, 3)) + (800* (i+1))
     # EMGamp = signal.savgol_filter(EMGamp, 51, 3)
 
     # EMGamp = (EMGamp - np.average(EMGamp)) / np.std(EMGamp)
@@ -332,10 +336,17 @@ def plot_motion(ax, med, video_key=False, newemg=None):
     if newemg is not None:
         # Create a twin axes to plot newemg in orange
         ax2 = ax.twinx()
-        # xemg = np.arange(0, len(newemg), 1)
-        xemg = np.linspace(0, 60, len(newemg))
-        ax2.plot(xemg, newemg,
-                 linewidth=0.5, color='orange')
+        if newemg.shape[0] == 1:
+            newemg[0,0] = -1500.0
+            xemg = np.arange(0, len(newemg), 1)
+            ax2.plot(xemg, newemg,
+                     linewidth=0.5, color='orange')
+        else:
+            newemg[:,0] = -1500.0
+            xemg = np.linspace(0, 60, len(newemg[0,:]))
+            ax2.plot(xemg, newemg.T,
+                     linewidth=0.5, color='orange')
+        # ax2.set_ylim([0,4000])
         ax2.set_ylabel('EMG', color='orange')
 
 
