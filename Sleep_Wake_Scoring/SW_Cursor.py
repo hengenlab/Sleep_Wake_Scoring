@@ -107,7 +107,6 @@ class Cursor(object):
         else:
             if event.inaxes != self.ax2:
                 print('Please click in the second figure to select bins')
-                print('Ploting vertical line for alignment')
 
                 # Create a combined transform from ax1 data to ax2 data
                 combinedTransform1to2 = \
@@ -120,33 +119,42 @@ class Cursor(object):
                 # all axes ending draw vline
 
                 # convert event coordinates for all axes
-                c1to2 = combinedTransform1to2.transform((event.xdata,
-                                                         event.ydata))
-                c1to3 = combinedTransform1to3.transform((event.xdata,
-                                                         event.ydata))
-                # remove previous lines if it is there
-                for vl_i in self.vl:
-                    vl_i.remove()
+                if (event.xdata and event.ydata) is not None:
+                    c1to2 = combinedTransform1to2.transform((event.xdata,
+                                                             event.ydata))
+                    c1to3 = combinedTransform1to3.transform((event.xdata,
+                                                             event.ydata))
+                    # remove previous lines if it is there
+                    for vl_i in self.vl:
+                        vl_i.remove()
 
-                # plot same line across axes
-                vl1 = self.ax1.axvline(x=event.xdata, color='m',
-                                       zorder=10, lw=1.5, linestyle='dashed')
-                vl2 = self.ax2.axvline(x=c1to2[0], color='m',
-                                       zorder=10, lw=1.5, linestyle='dashed')
-                vl3 = self.ax3.axvline(x=c1to3[0], color='m',
-                                       zorder=10, lw=1.5, linestyle='dashed')
+                    # plot same line across axes
+                    vl1 = self.ax1.axvline(x=event.xdata, color='m',
+                                           zorder=10, lw=1.5,
+                                           linestyle='dashed')
+                    vl2 = self.ax2.axvline(x=c1to2[0], color='m',
+                                           zorder=10, lw=1.5,
+                                           linestyle='dashed')
+                    vl3 = self.ax3.axvline(x=c1to3[0], color='m',
+                                           zorder=10, lw=1.5,
+                                           linestyle='dashed')
 
-                # clean up old avlines and add new ones
-                self.vl = None
-                self.vl = []
-                self.vl.append(vl1)
-                self.vl.append(vl2)
-                self.vl.append(vl3)
+                    # clean up old avlines and add new ones
+                    self.vl = None
+                    self.vl = []
+                    self.vl.append(vl1)
+                    self.vl.append(vl2)
+                    self.vl.append(vl3)
 
-                # draw vline
-                self.ax1.figure.canvas.draw_idle()
-                self.ax2.figure.canvas.draw_idle()
-                self.ax3.figure.canvas.draw_idle()
+                    # draw vline
+                    self.ax1.figure.canvas.draw_idle()
+                    self.ax2.figure.canvas.draw_idle()
+                    self.ax3.figure.canvas.draw_idle()
+                else:
+                    print('Please click in the')
+                    print('\tsecond figure to select bins')
+                    print("or")
+                    print('\tfirst figure to plot vertical line')
 
             else:
                 self.bins.append(math.floor(event.xdata))
