@@ -151,11 +151,11 @@ def extract_delta_theta_from_lfp(filename_sw):
 
         # mean across channels
         downdatlfp = np.mean(eeg, 0)
-        np.save(op.join(base_dir_name, 'EEGhr' + str(hour)), downdatlfp)
+        np.save(op.join(base_dir_name, 'EEGhr' + str(hour+1)), downdatlfp)
 
         # save emg
         if lemg:
-            np.save(op.join(base_dir_name, 'EMGhr' + str(hour)), emg)
+            np.save(op.join(base_dir_name, 'EMGhr' + str(hour+1)), emg)
 
         # calculate mean of mean of all channels!!!
         average_EEG.append(np.mean(downdatlfp))
