@@ -348,7 +348,7 @@ def plot_motion(ax, med, video_key=False, newemg=None):
             xemg = np.linspace(0, 60, len(newemg[0,:]))
             next(ax2._get_lines.prop_cycler)
             ax2.plot(xemg, newemg.T,
-                     linewidth=0.1)
+                     linewidth=0.2)
         # ax2.set_ylim([0,4000])
         ax2.set_ylabel('EMG/EOG', color='k')
 
