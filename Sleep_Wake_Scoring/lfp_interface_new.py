@@ -95,9 +95,9 @@ def extract_delta_theta_from_lfp(filename_sw):
     total_hours = int(np.ceil(lfp_all.shape[1]/(lfp_freq * reclen)))
 
     # Load all emg files and append # whatif it is too big
-    # change to EMG dir
-    os.chdir(EMGinput)
     if lemg:
+        # change to EMG dir
+        os.chdir(EMGinput)
         emg_all = None
         if len(emg_fl_list) > 1:
             for indx, emg_fl in enumerate(emg_fl_list[1:]):
