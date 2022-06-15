@@ -226,14 +226,18 @@ def emg_preprocessing(EMGamp, fs, highpass=20, lowpass=200):
     EMGamp = ntk.butter_bandpass(EMGamp, highpass, lowpass, fs, 3)
     # EMGamp = signal.savgol_filter(EMGamp, 51, 3)
 
+    # EMGamp = (EMGamp - np.average(EMGamp)) / np.std(EMGamp)
+
     # Convert to 1hr in seconds
-    EMGamp = np.reshape(EMGamp, (int(EMGamp.shape[0]/fs), -1))
+    # EMGamp = np.reshape(EMGamp, (int(EMGamp.shape[0]/fs), -1))
+    # print("sh EMGamp ", EMGamp.shape)
 
     # take median per second
-    EMGamp = np.median(EMGamp, axis=1)
+    # EMGamp = np.mean(EMGamp, axis=1)
+    # print("sh EMGamp ", EMGamp.shape)
 
     # substract mean
-    # EMGamp = EMGamp - np.mean(EMGamp)
+    EMGamp = EMGamp - np.mean(EMGamp)
 
     return EMGamp
 
@@ -328,7 +332,10 @@ def plot_motion(ax, med, video_key=False, newemg=None):
     if newemg is not None:
         # Create a twin axes to plot newemg in orange
         ax2 = ax.twinx()
-        ax2.plot(x_vals, newemg, color='orange')
+        # xemg = np.arange(0, len(newemg), 1)
+        xemg = np.linspace(0, 60, len(newemg))
+        ax2.plot(xemg, newemg,
+                 linewidth=0.5, color='orange')
         ax2.set_ylabel('EMG', color='orange')
 
 
