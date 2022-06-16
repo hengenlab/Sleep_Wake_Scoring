@@ -211,6 +211,7 @@ def generate_EMG(EMGamp):
         EMG[i] = np.average(EMGamp[EMG_idx[i]:EMG_idx[i + 1]])
     return EMG
 
+
 def emg_preprocessing(EMGamp, fs, highpass=20, lowpass=200):
     '''
     emg_preprocessing(EMGamp, fs)
@@ -224,10 +225,10 @@ def emg_preprocessing(EMGamp, fs, highpass=20, lowpass=200):
 
     # bandpass
     for i in range(EMGamp.shape[0]):
-        EMGamp[i,:] = np.abs(ntk.butter_bandpass(EMGamp[i,:],
-                                          highpass,
-                                          lowpass,
-                                          fs, 3)) + (800* (i+1))
+        EMGamp[i, :] = np.abs(ntk.butter_bandpass(EMGamp[i, :],
+                                                  highpass,
+                                                  lowpass,
+                                                  fs, 3)) + (800 * (i+1))
     # EMGamp = signal.savgol_filter(EMGamp, 51, 3)
 
     # EMGamp = (EMGamp - np.average(EMGamp)) / np.std(EMGamp)
@@ -338,14 +339,14 @@ def plot_motion(ax, med, video_key=False, newemg=None):
         ax2 = ax.twinx()
         if newemg.shape[0] == 1:
             # change first value to make plot not overlap
-            newemg[0,0] = -1500.0
+            newemg[0, 0] = -1500.0
             xemg = np.arange(0, len(newemg), 1)
             ax2.plot(xemg, newemg,
                      linewidth=0.5, color='orange')
         else:
             # change first value to make plot not overlap
-            newemg[:,0] = -1500.0
-            xemg = np.linspace(0, 60, len(newemg[0,:]))
+            newemg[:, 0] = -1500.0
+            xemg = np.linspace(0, 60, len(newemg[0, :]))
             next(ax2._get_lines.prop_cycler)
             ax2.plot(xemg, newemg.T,
                      linewidth=0.2)
