@@ -451,10 +451,10 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
                 State[State == 3] = 5
                 ymot = input('Use motion?: y/n ') == 'y'
                 yemg = input('Use EMG?: y/n ') == 'y'
-                time_int = [video_key[1, i][0:26] for i in
-                            np.arange(0, np.size(video_key[1, :]),
-                                      int(np.size(video_key[1, :]) /
-                                          np.size(animal_name)))]
+                # time_int = [video_key[1, i][0:26] for i in
+                #             np.arange(0, np.size(video_key[1, :]),
+                #                       int(np.size(video_key[1, :]) /
+                #                           np.size(animal_name)))]
                 # data = np.vstack(
                 #     [animal_name, animal_num, time_int, State, delta_pre,
                 data = np.vstack(
