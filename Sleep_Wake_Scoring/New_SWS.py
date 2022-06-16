@@ -88,12 +88,14 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
         EMGamp = SW_utils.emg_preprocessing(EMGamp, fs, highpass=EMGHIGHPASS,
                                             lowpass=EMGLOWPASS)
 
-        # EMGamp = (EMGamp - np.average(EMGamp)) / np.std(EMGamp)
-        # EMG = SW_utils.generate_EMG(EMGamp)
-        # EMGamp = np.pad(EMGamp, (0, 100), 'constant')
         # emg save as temporarly avoid emg
         lemg = emg
         emg = 0
+
+        if emg:
+            # EMGamp = (EMGamp - np.average(EMGamp)) / np.std(EMGamp)
+            EMG = SW_utils.generate_EMG(EMGamp)
+            # EMGamp = np.pad(EMGamp, (0, 100), 'constant')
 
     else:
         EMGamp = False
@@ -539,7 +541,7 @@ def load_data_for_sw(filename_sw):
         print("LFP_dir ", LFP_dir)
 
     if recblock_structure is not None:
-        if fs  != RECBLOCK_STRUCTURE_FS:
+        if fs != RECBLOCK_STRUCTURE_FS:
             raise ValueError('Please check fs expected 500')
 
     os.chdir(LFP_dir)
