@@ -27,6 +27,12 @@ def extract_delta_theta_from_lfp(filename_sw):
     lemg = int(d['emg'])
     EMGinput = str(d['EMGinput'])
     recblock_structure = str(d['recblock_structure'])
+    accelerometer = str(d['accelerometer'])
+    if accelerometer == "None":
+        print("None accelerometer ", accelerometer)
+        laccelerometer = 0
+    else:
+        laccelerometer = 1
 
     # check LFPdir
     if not os.path.exists(LFP_dir) and not os.path.isdir(LFP_dir):
@@ -53,6 +59,7 @@ def extract_delta_theta_from_lfp(filename_sw):
             print("creating spectrograms with this file order")
         else:
             raise ValueError('Files are not in order')
+
     if lemg:
         emg_fl_list = \
             ntk.natural_sort(glob.glob(EMGinput + recblock_structure))
@@ -68,6 +75,24 @@ def extract_delta_theta_from_lfp(filename_sw):
             lorder = input('Is files in correct order now?: y/n') == 'y'
             if lorder:
                 print("creating emg with this file order")
+            else:
+                raise ValueError('Files are not in order')
+
+    if laccelerometer:
+        accelerometer_fl_list = \
+            ntk.natural_sort(glob.glob(accelerometer))
+        for indx, accelerometer_fl in enumerate(accelerometer_fl_list):
+            print(indx, " ", accelerometer_fl)
+        lorder = input('Is files in correct order?: y/n') == 'y'
+        if lorder:
+            print("creating accelerometer with this file order")
+        else:
+            accelerometer_fl_list = sorted(glob.glob(accelerometer))
+            for indx, accelerometer_fl in enumerate(accelerometer_fl_list):
+                print(indx, " ", accelerometer_fl)
+            lorder = input('Is files in correct order now?: y/n') == 'y'
+            if lorder:
+                print("creating accelerometer with this file order")
             else:
                 raise ValueError('Files are not in order')
 
@@ -116,6 +141,32 @@ def extract_delta_theta_from_lfp(filename_sw):
             emg_all = np.load(emg_fl_list[0], allow_pickle=True)
             print("sh emg_all ", emg_all.shape, flush=True)
 
+    # Load all accelerometer files and append # whatif it is too big
+    if laccelerometer:
+        accelerometer_all = None
+        if len(accelerometer_fl_list) > 1:
+            for indx, accelerometer_fl in enumerate(accelerometer_fl_list[1:]):
+                if indx == 0:
+                    lfp_tmp1 = np.load(accelerometer_fl_list[indx],
+                                       allow_pickle=True)
+                    lfp_tmp2 = np.load(accelerometer_fl_list[indx+1],
+                                       allow_pickle=True)
+                    accelerometer_all = np.column_stack((lfp_tmp1, lfp_tmp2))
+                    del lfp_tmp1
+                    del lfp_tmp2
+                elif indx > 0:
+                    lfp_tmp1 = np.load(accelerometer_fl_list[indx+1],
+                                       allow_pickle=True)
+                    accelerometer_all = np.column_stack((accelerometer_all,
+                                                         lfp_tmp1))
+                    del lfp_tmp1
+                print("sh accelerometer_all ", accelerometer_all.shape,
+                      flush=True)
+        else:
+            accelerometer_all = np.load(accelerometer_fl_list[0],
+                                        allow_pickle=True)
+            print("sh accelerometer_all ", accelerometer_all.shape, flush=True)
+
     # change to LFP dir
     os.chdir(LFP_dir)
 
@@ -146,6 +197,9 @@ def extract_delta_theta_from_lfp(filename_sw):
         if lemg:
             emg = emg_all[:, start:end]
 
+        if laccelerometer:
+            accelerometer_h = accelerometer_all[:, start:end]
+
         if eeg.shape[1] < (lfp_freq * min_lfp_needed):
             break
 
@@ -156,6 +210,11 @@ def extract_delta_theta_from_lfp(filename_sw):
         # save emg
         if lemg:
             np.save(op.join(base_dir_name, 'EMGhr' + str(hour+1)), emg)
+
+        # save accelerometer
+        if laccelerometer:
+            np.save(op.join(base_dir_name, 'ACC' + str(hour+1)),
+                    accelerometer_h)
 
         # calculate mean of mean of all channels!!!
         average_EEG.append(np.mean(downdatlfp))
