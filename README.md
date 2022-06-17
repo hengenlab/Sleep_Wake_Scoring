@@ -47,6 +47,7 @@ For example,
  "num" : 0,           # time point you want to extract LFP  hour1 = 0 in python
  "num_labels": 4,     # number of DLC labels 
  "cort": 0,
+ "accelerometer": "None", # or "/media/HS/XYF00003/Accel/*/*/*/*lfp_group0.npy",
  "EMGinput": -1,
  "numchan": 64,
  "HS": ["hs64"],
