@@ -15,7 +15,7 @@ from Sleep_Wake_Scoring.SW_Cursor import Cursor
 
 
 def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
-                    epochlen, fs, emg, pos, vid):
+                    epochlen, fs, emg, pos, vid, laccelerometer=0):
     print('this code is supressing warnings')
     warnings.filterwarnings("ignore")
 
@@ -84,6 +84,12 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
     if emg:
         print('loading EMG...')
         EMGamp = np.load('EMGhr' + hr + '.npy')
+        if laccelerometer:
+            print("sh EMGamp ", EMGamp.shape)
+            accelerometer_h = np.load('ACC' + hr + '.npy')
+            print("sh accelerometer_h ", accelerometer_h.shape)
+            EMGamp = np.vstack((EMGamp, accelerometer_h))
+
         # EMGamp = EMGamp[EMG_CHANNEL, :]
         EMGamp = SW_utils.emg_preprocessing(EMGamp, fs, highpass=EMGHIGHPASS,
                                             lowpass=EMGLOWPASS)
@@ -525,6 +531,13 @@ def load_data_for_sw(filename_sw):
     pos = int(d['pos'])
     vid = int(d['vid'])
     # fr = int(d['video_fr'])
+    accelerometer = str(d['accelerometer'])
+    if accelerometer == "None":
+        print("None accelerometer ", accelerometer)
+        laccelerometer = 0
+    else:
+        laccelerometer = 1
+
     try:
         recblock_structure = str(d['recblock_structure'])
     except KeyError as e:
@@ -547,4 +560,4 @@ def load_data_for_sw(filename_sw):
     os.chdir(LFP_dir)
     start_swscoring(LFP_dir, motion_dir, model_dir,
                     animal, mod_name,
-                    epochlen, fs, emg, pos, vid)
+                    epochlen, fs, emg, pos, vid, laccelerometer=laccelerometer)
