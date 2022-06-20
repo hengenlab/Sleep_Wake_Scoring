@@ -1,0 +1,14 @@
+ipython
+numpy
+matplotlib
+seaborn
+pandas
+joblib
+pillow
+scikit-learn==0.21.3
+psutil
+opencv-python
+scipy
+h5py
+tables
+neuraltoolkit@git+https://github.com/hengenlab/neuraltoolkit.git
