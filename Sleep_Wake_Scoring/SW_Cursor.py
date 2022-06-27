@@ -56,6 +56,8 @@ class Cursor(object):
         if event.key == 'd':
             print('DONE SCORING')
             self.DONE = True
+        elif event.key == 'c':
+            self.movie_mode = False
         # elif event.key in [1, 2, 3, 4]:
         #     self.STATE.append(event.key)
         # elif event.key == 'l':
@@ -81,21 +83,23 @@ class Cursor(object):
         #     self.lines[2] = line3.pop(0)
 
     def in_axes(self, event):
-        if event.inaxes == self.ax3:
-            self.movie_mode = True
-            print('MOVIE MODE!')
-        else:
+        # if event.inaxes == self.ax3:
+        #     self.movie_mode = True
+        #     print('MOVIE MODE!')
+        # else:
+        #     self.movie_mode = False
+        if (event.inaxes == self.ax1) or (event.inaxes == self.ax2):
             self.movie_mode = False
 
-    def pull_up_movie(self, event):
-        print('gon pull up some movies')
+    # def pull_up_movie(self, event):
+    #     print('gon pull up some movies')
 
     def on_click(self, event):
-        if self.movie_mode:
-            self.movie_bin = event.xdata
-            print(f'video bin (xdata): {event.xdata}')
-            print(f'x: {event.x}')
-        elif self.clicked:
+        # if self.movie_mode:
+        #     self.movie_bin = event.xdata
+        #     print(f'video bin (xdata): {event.xdata}')
+        #     print(f'x: {event.x}')
+        if self.clicked:
             if event.inaxes != self.ax2:
                 print('please click in the second figure to select bins')
             else:
@@ -105,7 +109,7 @@ class Cursor(object):
                 self.clicked = False
                 self.change_bins = True
         else:
-            if event.inaxes != self.ax2:
+            if event.inaxes == self.ax1:
                 print('Please click in the second figure to select bins')
 
                 # Create a combined transform from ax1 data to ax2 data
@@ -156,8 +160,14 @@ class Cursor(object):
                     print("or")
                     print('\tfirst figure to plot vertical line')
 
-            else:
+            elif event.inaxes == self.ax2:
                 self.bins.append(math.floor(event.xdata))
                 print("FIRST CLICK ----- xdata:{} x:{} axes: {}"
                       .format(event.xdata, event.x, event.inaxes))
                 self.clicked = True
+            else:
+                if (event.xdata and event.ydata) is not None:
+                    self.movie_mode = True
+                    print('MOVIE MODE!')
+                    self.movie_bin = event.xdata
+                    print(f'video bin (xdata): {event.xdata}')

@@ -679,6 +679,7 @@ def update_raw_trace(line1, line2, line3, ax4, fig, start, end, i, downdatlfp,
                                 int(i * 4 * epochlen + 4 * 3 * epochlen)],
                          color='red')
     fig.canvas.draw()
+    fig.tight_layout()
 
 
 def print_instructions():
