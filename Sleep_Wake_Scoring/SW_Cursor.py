@@ -58,6 +58,7 @@ class Cursor(object):
             self.DONE = True
         elif event.key == 'c':
             self.movie_mode = False
+            print("MOVIE MODE OFF")
         # elif event.key in [1, 2, 3, 4]:
         #     self.STATE.append(event.key)
         # elif event.key == 'l':
@@ -82,14 +83,14 @@ class Cursor(object):
         #     self.lines[1] = line2.pop(0)
         #     self.lines[2] = line3.pop(0)
 
-    def in_axes(self, event):
-        # if event.inaxes == self.ax3:
-        #     self.movie_mode = True
-        #     print('MOVIE MODE!')
-        # else:
-        #     self.movie_mode = False
-        if (event.inaxes == self.ax1) or (event.inaxes == self.ax2):
-            self.movie_mode = False
+    # def in_axes(self, event):
+    #     # if event.inaxes == self.ax3:
+    #     #     self.movie_mode = True
+    #     #     print('MOVIE MODE!')
+    #     # else:
+    #     #     self.movie_mode = False
+    #     if (event.inaxes == self.ax1) or (event.inaxes == self.ax2):
+    #         self.movie_mode = False
 
     # def pull_up_movie(self, event):
     #     print('gon pull up some movies')

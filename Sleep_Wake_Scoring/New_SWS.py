@@ -335,7 +335,7 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
             # cID2 = fig.canvas.mpl_connect('axes_enter_event', cursor.in_axes)
             # cID3 = fig.canvas.mpl_connect('key_press_event', cursor.on_press)
             fig.canvas.mpl_connect('button_press_event', cursor.on_click)
-            fig.canvas.mpl_connect('axes_enter_event', cursor.in_axes)
+            # fig.canvas.mpl_connect('axes_enter_event', cursor.in_axes)
             fig.canvas.mpl_connect('key_press_event', cursor.on_press)
 
             plt.show()
