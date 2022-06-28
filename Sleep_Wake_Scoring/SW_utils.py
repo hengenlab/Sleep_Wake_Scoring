@@ -593,42 +593,42 @@ def pull_up_raw_trace(i, ax1, ax2, ax3, ax4, emg, start, end, realtime,
     return line1, line2, line3
 
 
-def plot_delta(delt, start, end, fs, ax):
-    line2, = ax.plot(delt[start:end])
-    ax.set_xlim(0, end-start)
-    ax.set_ylim(np.min(delt), np.max(delt) / 3)
-    bottom_2 = ax.get_ylim()[0]
-    rectangle_2 = patch.Rectangle((fs*4, bottom_2),
-                                  fs*4,
-                                  height=float(-bottom_2/5))
-    ax.add_patch(rectangle_2)
-    ax.set_title('Delta power (0.5 - 4 Hz)')
-    return line2
-
-
-def plot_theta(ax, start, end, fs, theta):
-    line3, = ax.plot(theta[start:end])
-    ax.set_xlim(0, end-start)
-    ax.set_ylim(np.min(theta), np.max(theta)/3)
-    ax.set_title('Theta power (4 - 8 Hz)')
-    bottom_3 = ax.get_ylim()[0]
-    rectangle_3 = patch.Rectangle((fs * 4, bottom_3),
-                                  fs * 4,
-                                  height=-bottom_3 / 5)
-    ax.add_patch(rectangle_3)
-    return line3
-
-
-def plot_LFP(start, end, ax, downdatlfp, realtime, fs, LFP_ylim):
-    line1, = ax.plot(realtime[start:end], downdatlfp[start:end])
-    ax.set_xlim(start/fs, end/fs)
-    ax.set_title('LFP')
-    ax.set_ylim(-LFP_ylim, LFP_ylim)
-    bottom = -LFP_ylim
-    rectangle = patch.Rectangle((start/fs+4, bottom),
-                                4, height=-bottom/5)
-    ax.add_patch(rectangle)
-    return line1
+# def plot_delta(delt, start, end, fs, ax):
+#     line2, = ax.plot(delt[start:end])
+#     ax.set_xlim(0, end-start)
+#     ax.set_ylim(np.min(delt), np.max(delt) / 3)
+#     bottom_2 = ax.get_ylim()[0]
+#     rectangle_2 = patch.Rectangle((fs*4, bottom_2),
+#                                   fs*4,
+#                                   height=float(-bottom_2/5))
+#     ax.add_patch(rectangle_2)
+#     ax.set_title('Delta power (0.5 - 4 Hz)')
+#     return line2
+#
+#
+# def plot_theta(ax, start, end, fs, theta):
+#     line3, = ax.plot(theta[start:end])
+#     ax.set_xlim(0, end-start)
+#     ax.set_ylim(np.min(theta), np.max(theta)/3)
+#     ax.set_title('Theta power (4 - 8 Hz)')
+#     bottom_3 = ax.get_ylim()[0]
+#     rectangle_3 = patch.Rectangle((fs * 4, bottom_3),
+#                                   fs * 4,
+#                                   height=-bottom_3 / 5)
+#     ax.add_patch(rectangle_3)
+#     return line3
+#
+#
+# def plot_LFP(start, end, ax, downdatlfp, realtime, fs, LFP_ylim):
+#     line1, = ax.plot(realtime[start:end], downdatlfp[start:end])
+#     ax.set_xlim(start/fs, end/fs)
+#     ax.set_title('LFP')
+#     ax.set_ylim(-LFP_ylim, LFP_ylim)
+#     bottom = -LFP_ylim
+#     rectangle = patch.Rectangle((start/fs+4, bottom),
+#                                 4, height=-bottom/5)
+#     ax.add_patch(rectangle)
+#     return line1
 
 
 def plot_EMG(i, ax, length, bottom, EMGamp, epochlen, x, start, end):
