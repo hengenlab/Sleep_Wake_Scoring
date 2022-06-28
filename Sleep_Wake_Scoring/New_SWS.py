@@ -273,7 +273,7 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
                 SW_utils.pull_up_raw_trace(0, ax4, ax5, ax6, ax7, emg,
                                            start, end, realtime, downdatlfp,
                                            fs, mod_name, LFP_YLIM, delt, thet,
-                                           epochlen, EMGamp, ratio2)
+                                           epochlen, EMGamp, ratio2, fig=fig2)
 
             if mod_name == "load_scores":
                 if pos:
@@ -385,12 +385,22 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
                         if vid:
                             start = int(cursor.movie_bin * 60 * fs)
                             end = int(((cursor.movie_bin * 60) + 12) * fs)
-                            i = 0
-                            # SW_utils.update_raw_trace(line1, line2, line3, ax4,
+                            # i = 0
+                            # SW_utils.update_raw_trace(line1, line2, line3,
+                            #                           ax4,
                             #                           fig, start, end, i,
                             #                           downdatlfp, delt, thet,
                             #                           fs, epochlen, emg,
                             #                           ratio2, EMGamp)
+
+                            realtime = np.arange(np.size(downdatlfp)) / fs
+                            SW_utils.pull_up_raw_trace(0, ax4, ax5, ax6, ax7,
+                                                       emg, start, end,
+                                                       realtime, downdatlfp,
+                                                       fs, mod_name,
+                                                       LFP_YLIM, delt, thet,
+                                                       epochlen, EMGamp,
+                                                       ratio2, fig=fig2)
                             # fig2.canvas.draw()
                             # fig2.tight_layout()
                             SW_utils.pull_up_movie(start, end, vid_sample,

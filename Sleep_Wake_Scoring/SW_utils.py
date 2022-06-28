@@ -553,21 +553,38 @@ def pull_up_movie(start, end, vid_sample, video_key, motion_dir, fs,
 
 def pull_up_raw_trace(i, ax1, ax2, ax3, ax4, emg, start, end, realtime,
                       downdatlfp, fs, mod_name, LFP_ylim, delt,
-                      theta, epochlen, EMGamp, ratio2):
+                      theta, epochlen, EMGamp, ratio2, fig=None):
     print('pull up the second figure for that bin ')
     print('\t - maybe. Option to click through a few bins around it?')
     x = (end - start) / ratio2
     length = np.arange(int(end / x - start / x))
     bottom = np.zeros(int(end / x - start / x))
 
-    line1 = plot_LFP(start, end, ax1, downdatlfp, realtime, fs, LFP_ylim)
-    line2 = plot_delta(delt, start, end, fs, ax2)
-    line3 = plot_theta(ax3, start, end, fs, theta)
+    lfp_sub = downdatlfp[start:end]
+    delt = ntk.butter_bandpass(lfp_sub, 0.5, 4, fs, 3)
+    thet = ntk.butter_bandpass(lfp_sub, 4, 10, fs, 3)
+    ax1.clear()
+    ax2.clear()
+    ax3.clear()
+    line1 = ax1.plot(lfp_sub)
+    ax1.set_title('LFP')
+    ax1.set_xlim(0, (end-start))
+    line2 = ax2.plot(delt)
+    ax2.set_title('Delta (0.5 - 4 Hz)')
+    ax2.set_xlim(0, (end-start))
+    line3 = ax3.plot(thet)
+    ax3.set_title('Theta (4 - 8 Hz)')
+    ax3.set_xlim(0, (end-start))
+    # line1 = plot_LFP(start, end, ax1, downdatlfp, realtime, fs, LFP_ylim)
+    # line2 = plot_delta(delt, start, end, fs, ax2)
+    # line3 = plot_theta(ax3, start, end, fs, theta)
 
     if not emg:
         ax4.text(0.5, 0.5, 'There is no EMG')
     else:
         plot_EMG(i, ax4, length, bottom, EMGamp, epochlen, x, start, end)
+    fig.canvas.draw()
+    fig.tight_layout()
 
     return line1, line2, line3
 
@@ -664,22 +681,29 @@ def create_scoring_figure(rawdat_dir, hr, video_key, pos, med, newemg=None):
     return fig, ax1, ax2, ax3
 
 
-def update_raw_trace(line1, line2, line3, ax4, fig, start, end, i, downdatlfp,
-                     delt, thet, fs, epochlen, emg, ratio2, EMGamp):
-    line1.set_ydata(downdatlfp[start:end])
-    line2.set_ydata(delt[start:end])
-    line3.set_ydata(thet[start:end])
-    x = (end - start) / ratio2
-    length = np.arange(int(end / x - start / x))
-    bottom = np.zeros(int(end / x - start / x))
-    if emg:
-        ax4.collections.clear()
-        ax4.fill_between(length, bottom,
-                         EMGamp[int(i * 4 * epochlen):
-                                int(i * 4 * epochlen + 4 * 3 * epochlen)],
-                         color='red')
-    fig.canvas.draw()
-    fig.tight_layout()
+# def update_raw_trace(line1, line2, line3, ax4, fig, start, end, i,
+#                      downdatlfp,
+#                      delt, thet, fs, epochlen, emg, ratio2, EMGamp):
+#     # line1.set_ydata(downdatlfp[start:end])
+#     # line2.set_ydata(delt[start:end])
+#     # line3.set_ydata(thet[start:end])
+#     lfp_sub =  downdatlfp[start:end]
+#     delt = ntk.butter_bandpass(lfp_sub, 0.5, 4, fs, 3)
+#     thet = ntk.butter_bandpass(lfp_sub, 4, 10, fs, 3)
+#     line1.set_ydata(lfp_sub)
+#     line2.set_ydata(delt)
+#     line3.set_ydata(thet)
+#     x = (end - start) / ratio2
+#     length = np.arange(int(end / x - start / x))
+#     bottom = np.zeros(int(end / x - start / x))
+#     if emg:
+#         ax4.collections.clear()
+#         ax4.fill_between(length, bottom,
+#                          EMGamp[int(i * 4 * epochlen):
+#                                 int(i * 4 * epochlen + 4 * 3 * epochlen)],
+#                          color='red')
+#     fig.canvas.draw()
+#     fig.tight_layout()
 
 
 def print_instructions():
