@@ -709,6 +709,28 @@ def create_scoring_figure(rawdat_dir, hr, video_key, pos, med, newemg=None):
 #     fig.canvas.draw()
 #     fig.tight_layout()
 
+def calculate_features_from_lfp(lfp_perhour, epochlen, fs):
+    '''
+
+    The LFP is sampled at 500 Hz if extracted from our sorter
+    delta (1-4 Hz)
+    theta (4-8)
+    alpha (8-13 Hz)
+    beta (13-30 Hz) and
+    gamma (30-150 Hz)
+
+    '''
+    # EEG = np.zeros(int(np.size(lfp_perhour)/(epochlen*fs)))
+    # EEGreshape = np.reshape(lfp_perhour, (-1, fs*epochlen))
+
+    delta = ntk.butter_bandpass(lfp_perhour, 0.5, 4, fs, 3)
+    theta = ntk.butter_bandpass(lfp_perhour, 4, 8, fs, 3)
+    alpha = ntk.butter_bandpass(lfp_perhour, 8, 13, fs, 3)
+    beta = ntk.butter_bandpass(lfp_perhour, 13, 30, fs, 3)
+    gamma = ntk.butter_bandpass(lfp_perhour, 30, 150, fs, 3)
+
+    return delta, theta, alpha,  beta, gamma
+
 
 def print_instructions():
     print('''\
