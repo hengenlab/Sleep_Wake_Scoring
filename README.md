@@ -172,6 +172,8 @@ or
 #### 4. Get movement traces from DLC analysis
 
 ```
+# Please use Mouse_genericmodel-Kiran-2022-09-08_aug2 model for dlc analysis
+# in ris until there is a better model.
 import Sleep_Wake_Scoring as sw
 sw.extract_DLC('XYF03.json')  
 ```
