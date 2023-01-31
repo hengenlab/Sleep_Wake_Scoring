@@ -26,9 +26,11 @@ setup(
    packages=['Sleep_Wake_Scoring'],
    install_requires=[
     'ipython', 'numpy', 'matplotlib', 'seaborn', 'pandas',
-    'joblib', 'pillow', 'scikit-learn==0.21.3', 'psutil',
+    'joblib', 'pillow', 'scikit-learn', 'psutil',
     'opencv-python', 'scipy', 'h5py', 'tables',
-    'neuraltoolkit@git+https://github.com/hengenlab/neuraltoolkit.git'],
+    'neuraltoolkit',
+    #'neuraltoolkit@git+https://github.com/hengenlab/neuraltoolkit.git'
+    ],
    classifiers=[
         'Natural Language :: English',
         'Programming Language :: Python :: 3',
