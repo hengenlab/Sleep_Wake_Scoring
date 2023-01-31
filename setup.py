@@ -13,7 +13,6 @@ setup(
                 arousal state of subsequent data. This allows us to\
                 score months worth of continuous acquisition in hours.',
    license="",
-   long_description=long_description,
    keywords='Sleep_Wake_Scoring, neuroscience, electrophysiology',
    package_dir={'Sleep_Wake_Scoring': 'Sleep_Wake_Scoring'},
    author='\
@@ -31,7 +30,6 @@ setup(
     'opencv-python', 'scipy', 'h5py', 'tables',
     'neuraltoolkit@git+https://github.com/hengenlab/neuraltoolkit.git'],
    classifiers=[
-        'Development Status :: 1 - Pre-Alpha',
         'Natural Language :: English',
         'Programming Language :: Python :: 3',
     ],
