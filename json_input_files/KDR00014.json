@@ -14,6 +14,7 @@
  "num" : 0,
  "num_labels": 3,
  "cort": 0,
+ "accelerometer": "None",
  "EMGinput": -1,
  "numchan": 64,
  "HS": ["APT_PCB"],
