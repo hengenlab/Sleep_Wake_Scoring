@@ -11,4 +11,4 @@ opencv-python
 scipy
 h5py
 tables
-neuraltoolkit@git+https://github.com/hengenlab/neuraltoolkit.git
+neuraltoolkit
