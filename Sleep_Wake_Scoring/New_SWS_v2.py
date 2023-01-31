@@ -12,10 +12,12 @@ import pandas as pd
 import warnings
 import Sleep_Wake_Scoring.SW_utils as SW_utils
 from Sleep_Wake_Scoring.SW_Cursor import Cursor
+import sys
 
 
 def start_swscoring_v2(LFP_dir, motion_dir, model_dir, animal, mod_name,
-                       epochlen, fs, emg, pos, vid, laccelerometer=0):
+                       epochlen, fs, emg, pos, vid, laccelerometer=0,
+                       hr=1):
     print('this code is supressing warnings')
     warnings.filterwarnings("ignore")
 
@@ -37,10 +39,11 @@ def start_swscoring_v2(LFP_dir, motion_dir, model_dir, animal, mod_name,
     # os.chdir(LFP_dir)
     meanEEG_perhr = np.load('Average_EEG_perhr.npy')
     var_EEG_perhr = np.load('Var_EEG_perhr.npy')
+    print("I am here 1.0.0", flush=True)
 
     # # animal = input('What animal is this?')
     # animal = str('KNR00004')
-    hr = input('What hour are you working on? (starts at 1): ')
+    # hr = input('What hour are you working on? (starts at 1): ')
     # # mod_name = input('Which model?
     # (young_rat, adult_rat, mouse, rat_mouse)')
     # mod_name = str('rat_mouse')
@@ -80,6 +83,7 @@ def start_swscoring_v2(LFP_dir, motion_dir, model_dir, animal, mod_name,
     if vid and pos:
         SW_utils.check_time_period(movement_files, vidkey_files)
 
+    print("I am here 2.0.0", flush=True)
     lemg = 0
     if emg:
         print('loading EMG...')
@@ -158,10 +162,38 @@ def start_swscoring_v2(LFP_dir, motion_dir, model_dir, animal, mod_name,
 
     animal_name = np.full(np.size(delta_pre), animal)
     animal_num = np.full(np.shape(animal_name), int(animal[3:]))
+    print("I am here 3.0.0", flush=True)
 
     # New features list to add
-    # delta, theta, alpha,  beta, gamma = \
-    #     calculate_features_from_lfp(downdatlfp, epochlen, fs)
+    delta, theta, alpha,  beta, gamma = \
+        SW_utils.calculate_features_from_lfp(downdatlfp, epochlen, fs)
+    print("I am here 4.0.0", flush=True)
+
+    # delta
+    delta_by_theta = np.divide(delta, theta)
+    delta_by_alpha = np.divide(delta, alpha)
+    delta_by_beta = np.divide(delta, beta)
+    delta_by_gamma = np.divide(delta, gamma)
+
+    theta_by_delta = np.divide(theta, delta)
+    theta_by_alpha = np.divide(theta, alpha)
+    theta_by_beta = np.divide(theta, beta)
+    theta_by_gamma = np.divide(theta, gamma)
+
+    alpha_by_delta = np.divide(alpha, delta)
+    alpha_by_theta = np.divide(alpha, theta)
+    alpha_by_beta = np.divide(alpha, beta)
+    alpha_by_gamma = np.divide(alpha, gamma)
+
+    beta_by_delta = np.divide(beta, delta)
+    beta_by_theta = np.divide(beta, theta)
+    beta_by_alpha = np.divide(beta, alpha)
+    beta_by_gamma = np.divide(beta, gamma)
+
+    gamma_by_delta = np.divide(gamma, delta)
+    gamma_by_theta = np.divide(gamma, theta)
+    gamma_by_alpha = np.divide(gamma, alpha)
+    gamma_by_beta = np.divide(gamma, beta)
 
     # model = input('Use a random forest? y/n: ') == 'y'
     model = 1
@@ -177,6 +209,37 @@ def start_swscoring_v2(LFP_dir, motion_dir, model_dir, animal, mod_name,
                           'EEGgamma', 'EEGnarrow', 'nb_pre',
                           'delta/theta', 'EEGfire', 'EEGamp', 'EEGmax',
                           'EEGmean', 'EMG', 'Motion', 'raw_var']
+
+        final_features_v2 =\
+            ['State',
+             'delta', 'theta', 'alpha', 'beta', 'gamma',
+             'delta_by_theta',
+             'delta_by_alpha',
+             'delta_by_beta',
+             'delta_by_gamma',
+
+             'theta_by_delta',
+             'theta_by_alpha',
+             'theta_by_beta',
+             'theta_by_gamma',
+
+             'alpha_by_delta',
+             'alpha_by_theta',
+             'alpha_by_beta',
+             'alpha_by_gamma',
+
+             'beta_by_delta',
+             'beta_by_theta',
+             'beta_by_alpha',
+             'beta_by_gamma',
+
+             'gamma_by_delta',
+             'gamma_by_theta',
+             'gamma_by_alpha',
+             'gamma_by_beta',
+
+             'binned_mot']
+
         nans = np.full(np.shape(animal_name), np.nan)
 
         os.chdir(model_dir)
@@ -217,6 +280,36 @@ def start_swscoring_v2(LFP_dir, motion_dir, model_dir, animal, mod_name,
                                EEGtheta, EEGalpha, EEGbeta, EEGgamma, EEGnb,
                                nb_pre, delt_thet, EEGfire, EEGamp, EEGmax,
                                EEGmean, binned_mot, raw_var]
+                FeatureList_v2 =\
+                    [
+                     delta, theta, alpha, beta, gamma,
+                     delta_by_theta,
+                     delta_by_alpha,
+                     delta_by_beta,
+                     delta_by_gamma,
+
+                     theta_by_delta,
+                     theta_by_alpha,
+                     theta_by_beta,
+                     theta_by_gamma,
+
+                     alpha_by_delta,
+                     alpha_by_theta,
+                     alpha_by_beta,
+                     alpha_by_gamma,
+
+                     beta_by_delta,
+                     beta_by_theta,
+                     beta_by_alpha,
+                     beta_by_gamma,
+
+                     gamma_by_delta,
+                     gamma_by_theta,
+                     gamma_by_alpha,
+                     gamma_by_beta,
+
+                     binned_mot]
+
             elif not pos and not emg:
                 FeatureList = [animal_num, delta_pre, delta_pre2, delta_pre3,
                                delta_post, delta_post2, delta_post3, EEGdelta,
@@ -345,6 +438,56 @@ def start_swscoring_v2(LFP_dir, motion_dir, model_dir, animal, mod_name,
             fig.canvas.mpl_connect('button_press_event', cursor.on_click)
             # fig.canvas.mpl_connect('axes_enter_event', cursor.in_axes)
             fig.canvas.mpl_connect('key_press_event', cursor.on_press)
+
+            print("sh State ", State.shape)
+            print("sh delta ", delta.shape)
+            data_tosave = \
+                np.vstack([State,
+                           delta, theta, alpha, beta, gamma,
+                           delta_by_theta,
+                           delta_by_alpha,
+                           delta_by_beta,
+                           delta_by_gamma,
+
+                           theta_by_delta,
+                           theta_by_alpha,
+                           theta_by_beta,
+                           theta_by_gamma,
+
+                           alpha_by_delta,
+                           alpha_by_theta,
+                           alpha_by_beta,
+                           alpha_by_gamma,
+
+                           beta_by_delta,
+                           beta_by_theta,
+                           beta_by_alpha,
+                           beta_by_gamma,
+
+                           gamma_by_delta,
+                           gamma_by_theta,
+                           gamma_by_alpha,
+                           gamma_by_beta,
+
+                           binned_mot])
+            print("sh data_tosave ", data_tosave.shape)
+            print("len final_features_v2 ", len(final_features_v2))
+            df_tosave = \
+                pd.DataFrame(data_tosave.T,
+                             columns=final_features_v2)
+            dir_to_save =\
+                '/hlabhome/kiranbn/git/Sleep_Wake_Scoring_p/'
+            fl_to_save = op.join(dir_to_save, 'data_tosave.csv')
+            if op.isfile(fl_to_save):
+                df_tosave.to_csv(fl_to_save,
+                                 index=False)
+            else:
+                df_tosave.to_csv(fl_to_save,
+                                 mode='a',
+                                 index=False,
+                                 header=False)
+            plt.close('all')
+            return 1
 
             plt.show()
             DONE = False
@@ -527,7 +670,7 @@ def start_swscoring_v2(LFP_dir, motion_dir, model_dir, animal, mod_name,
                                        model_dir, jobname)
 
 
-def load_data_for_sw_v2(filename_sw):
+def load_data_for_sw_v2(filename_sw, hr):
     '''
      load_data_for_sw(filename_sw)
 
@@ -575,11 +718,12 @@ def load_data_for_sw_v2(filename_sw):
         print("LFP_dir ", LFP_dir)
 
     # if recblock_structure is not None:
-    #     if fs != RECBLOCK_STRUCTURE_FS:
-    #         raise ValueError('Please check fs expected 500')
+        if fs != RECBLOCK_STRUCTURE_FS:
+            raise ValueError('Please check fs expected 500')
 
     os.chdir(LFP_dir)
     start_swscoring_v2(LFP_dir, motion_dir, model_dir,
-                      animal, mod_name,
-                      epochlen, fs, emg, pos, vid,
-                      laccelerometer=laccelerometer)
+                       animal, mod_name,
+                       epochlen, fs, emg, pos, vid,
+                       laccelerometer=laccelerometer,
+                       hr=hr)
