@@ -20,6 +20,7 @@ import os.path as op
 import re
 from datetime import datetime
 import neuraltoolkit as ntk
+import os
 
 
 def check_h5_file_size(h5files):
@@ -729,8 +730,41 @@ def calculate_features_from_lfp(lfp_perhour, epochlen, fs):
     beta = ntk.butter_bandpass(lfp_perhour, 13, 30, fs, 3)
     gamma = ntk.butter_bandpass(lfp_perhour, 30, 150, fs, 3)
 
+    delta = np.reshape(delta, (-1, fs*epochlen))
+    theta = np.reshape(theta, (-1, fs*epochlen))
+    alpha = np.reshape(alpha, (-1, fs*epochlen))
+    beta = np.reshape(beta, (-1, fs*epochlen))
+    gamma = np.reshape(gamma, (-1, fs*epochlen))
+
+    delta = np.median(delta, axis=1)
+    theta = np.median(theta, axis=1)
+    alpha = np.median(alpha, axis=1)
+    beta = np.median(beta, axis=1)
+    gamma = np.median(gamma, axis=1)
+
+    # os.chdir('/media/HlabShare/ckbn/new_sw_features/')
+    # np.save('lfp_CAF00022_hr20.npy', lfp_perhour)
+    # np.save('delta_CAF00022_hr20.npy', delta)
+    # np.save('theta_CAF00022_hr20.npy', theta)
+    # np.save('alpha_CAF00022_hr20.npy', alpha)
+    # np.save('beta_CAF00022_hr20.npy', beta)
+    # np.save('gamma_CAF00022_hr20.npy', gamma)
+
+    # os.chdir('/media/HlabShare/ckbn/new_sw_features/')
+    # np.save('lfp_KDR00048_hr23.npy', lfp_perhour)
+    # np.save('delta_KDR00048_hr23.npy', delta)
+    # np.save('theta_KDR00048_hr23.npy', theta)
+    # np.save('alpha_KDR00048_hr23.npy', alpha)
+    # np.save('beta_KDR00048_hr23.npy', beta)
+    # np.save('gamma_KDR00048_hr23.npy', gamma)
+
     return delta, theta, alpha,  beta, gamma
 
+def band_power(x, fs, fmin, fmax):
+    f, Pxx = scipy.signal.periodogram(x, fs=fs)
+    ind_min = scipy.argmax(f > fmin) - 1
+    ind_max = scipy.argmax(f > fmax) - 1
+    return scipy.trapz(Pxx[ind_min: ind_max], f[ind_min: ind_max])
 
 def print_instructions():
     print('''\
