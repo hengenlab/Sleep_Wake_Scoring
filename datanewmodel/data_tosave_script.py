@@ -120,16 +120,17 @@ dir_path = '/media/HlabShare/ckbn/train_sleep_wake_model/json_files/'
 fileidx = 0
 for fileidx,  fl in enumerate(fl_list):
     try:
-        for i in range(2, 11, 1):
+        for i in range(2, 24, 1):
             print(f'Hour {i}')
             sw.load_data_for_sw_v2(op.join(dir_path, fl_list[fileidx]),
                                    hr=str(i))
 
-        final_dir = '/hlabhome/kiranbn/git/Sleep_Wake_Scoring_p/'
-        os.chdir(final_dir)
-        final_file = 'data_tosave.csv'
-        os.rename(final_file, 'data_tosave' +
-                  op.splitext(fl_list[fileidx])[0] + '.csv')
+        final_dir = \
+            '/hlabhome/kiranbn/git/Sleep_Wake_Scoring_p/datanewmodel/'
+        # os.chdir(final_dir)
+        # final_file = 'data_tosave.csv'
+        # os.rename(final_file, 'data_tosave' +
+        #           op.splitext(fl_list[fileidx])[0] + '.csv')
     except Exception as e:
         print(e)
         with open (op.join(final_dir, 'error.txt'), 'a') as f:
