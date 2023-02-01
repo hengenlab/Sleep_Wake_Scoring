@@ -718,7 +718,8 @@ def calculate_features_from_lfp(lfp_perhour, epochlen, fs):
     theta (4-8)
     alpha (8-13 Hz)
     beta (13-30 Hz) and
-    gamma (30-150 Hz)
+    lgamma (30-80 Hz)
+    hgamma (80-150 Hz)
 
     '''
     # EEG = np.zeros(int(np.size(lfp_perhour)/(epochlen*fs)))
@@ -728,26 +729,30 @@ def calculate_features_from_lfp(lfp_perhour, epochlen, fs):
     theta = ntk.butter_bandpass(lfp_perhour, 4, 8, fs, 3)
     alpha = ntk.butter_bandpass(lfp_perhour, 8, 13, fs, 3)
     beta = ntk.butter_bandpass(lfp_perhour, 13, 30, fs, 3)
-    gamma = ntk.butter_bandpass(lfp_perhour, 30, 150, fs, 3)
+    lgamma = ntk.butter_bandpass(lfp_perhour, 30, 80, fs, 3)
+    hgamma = ntk.butter_bandpass(lfp_perhour, 80, 150, fs, 3)
 
     delta = (delta - np.average(delta))/np.std(delta)
     theta = (theta - np.average(theta))/np.std(theta)
     alpha = (alpha - np.average(alpha))/np.std(alpha)
     beta = (beta - np.average(beta))/np.std(beta)
-    gamma = (gamma - np.average(gamma))/np.std(gamma)
+    lgamma = (lgamma - np.average(lgamma))/np.std(lgamma)
+    hgamma = (hgamma - np.average(hgamma))/np.std(hgamma)
 
 
     delta = np.reshape(delta, (-1, fs*epochlen))
     theta = np.reshape(theta, (-1, fs*epochlen))
     alpha = np.reshape(alpha, (-1, fs*epochlen))
     beta = np.reshape(beta, (-1, fs*epochlen))
-    gamma = np.reshape(gamma, (-1, fs*epochlen))
+    lgamma = np.reshape(lgamma, (-1, fs*epochlen))
+    hgamma = np.reshape(hgamma, (-1, fs*epochlen))
 
     delta = np.median(delta, axis=1)
     theta = np.median(theta, axis=1)
     alpha = np.median(alpha, axis=1)
     beta = np.median(beta, axis=1)
-    gamma = np.median(gamma, axis=1)
+    lgamma = np.median(lgamma, axis=1)
+    hgamma = np.median(hgamma, axis=1)
 
     # os.chdir('/media/HlabShare/ckbn/new_sw_features/')
     # np.save('lfp_CAF00022_hr20.npy', lfp_perhour)
@@ -765,7 +770,7 @@ def calculate_features_from_lfp(lfp_perhour, epochlen, fs):
     # np.save('beta_KDR00048_hr23.npy', beta)
     # np.save('gamma_KDR00048_hr23.npy', gamma)
 
-    return delta, theta, alpha,  beta, gamma
+    return delta, theta, alpha,  beta, lgamma, hgamma
 
 def band_power(x, fs, fmin, fmax):
     f, Pxx = scipy.signal.periodogram(x, fs=fs)

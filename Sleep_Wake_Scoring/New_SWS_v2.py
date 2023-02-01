@@ -165,7 +165,7 @@ def start_swscoring_v2(LFP_dir, motion_dir, model_dir, animal, mod_name,
     print("I am here 3.0.0", flush=True)
 
     # New features list to add
-    delta, theta, alpha,  beta, gamma = \
+    delta, theta, alpha,  beta, lgamma, hgamma = \
         SW_utils.calculate_features_from_lfp(downdatlfp, epochlen, fs)
     print("I am here 4.0.0", flush=True)
 
@@ -173,27 +173,38 @@ def start_swscoring_v2(LFP_dir, motion_dir, model_dir, animal, mod_name,
     delta_by_theta = np.divide(delta, theta)
     delta_by_alpha = np.divide(delta, alpha)
     delta_by_beta = np.divide(delta, beta)
-    delta_by_gamma = np.divide(delta, gamma)
+    delta_by_lgamma = np.divide(delta, lgamma)
+    delta_by_hgamma = np.divide(delta, hgamma)
 
     theta_by_delta = np.divide(theta, delta)
     theta_by_alpha = np.divide(theta, alpha)
     theta_by_beta = np.divide(theta, beta)
-    theta_by_gamma = np.divide(theta, gamma)
+    theta_by_lgamma = np.divide(theta, lgamma)
+    theta_by_hgamma = np.divide(theta, hgamma)
 
     alpha_by_delta = np.divide(alpha, delta)
     alpha_by_theta = np.divide(alpha, theta)
     alpha_by_beta = np.divide(alpha, beta)
-    alpha_by_gamma = np.divide(alpha, gamma)
+    alpha_by_lgamma = np.divide(alpha, lgamma)
+    alpha_by_hgamma = np.divide(alpha, hgamma)
 
     beta_by_delta = np.divide(beta, delta)
     beta_by_theta = np.divide(beta, theta)
     beta_by_alpha = np.divide(beta, alpha)
-    beta_by_gamma = np.divide(beta, gamma)
+    beta_by_lgamma = np.divide(beta, lgamma)
+    beta_by_hgamma = np.divide(beta, hgamma)
 
-    gamma_by_delta = np.divide(gamma, delta)
-    gamma_by_theta = np.divide(gamma, theta)
-    gamma_by_alpha = np.divide(gamma, alpha)
-    gamma_by_beta = np.divide(gamma, beta)
+    lgamma_by_delta = np.divide(lgamma, delta)
+    lgamma_by_theta = np.divide(lgamma, theta)
+    lgamma_by_alpha = np.divide(lgamma, alpha)
+    lgamma_by_beta = np.divide(lgamma, beta)
+    lgamma_by_hgamma = np.divide(lgamma, hgamma)
+
+    hgamma_by_delta = np.divide(hgamma, delta)
+    hgamma_by_theta = np.divide(hgamma, theta)
+    hgamma_by_alpha = np.divide(hgamma, alpha)
+    hgamma_by_beta = np.divide(hgamma, beta)
+    hgamma_by_lgamma = np.divide(hgamma, lgamma)
 
     # model = input('Use a random forest? y/n: ') == 'y'
     model = 1
@@ -212,31 +223,42 @@ def start_swscoring_v2(LFP_dir, motion_dir, model_dir, animal, mod_name,
 
         final_features_v2 =\
             ['State',
-             'delta', 'theta', 'alpha', 'beta', 'gamma',
+             'delta', 'theta', 'alpha', 'beta', 'lgamma', 'hgamma',
              'delta_by_theta',
              'delta_by_alpha',
              'delta_by_beta',
-             'delta_by_gamma',
+             'delta_by_lgamma',
+             'delta_by_hgamma',
 
              'theta_by_delta',
              'theta_by_alpha',
              'theta_by_beta',
-             'theta_by_gamma',
+             'theta_by_lgamma',
+             'theta_by_hgamma',
 
              'alpha_by_delta',
              'alpha_by_theta',
              'alpha_by_beta',
-             'alpha_by_gamma',
+             'alpha_by_lgamma',
+             'alpha_by_hgamma',
 
              'beta_by_delta',
              'beta_by_theta',
              'beta_by_alpha',
-             'beta_by_gamma',
+             'beta_by_lgamma',
+             'beta_by_hgamma',
 
-             'gamma_by_delta',
-             'gamma_by_theta',
-             'gamma_by_alpha',
-             'gamma_by_beta',
+             'lgamma_by_delta',
+             'lgamma_by_theta',
+             'lgamma_by_alpha',
+             'lgamma_by_beta',
+             'lgamma_by_hgamma',
+
+             'hgamma_by_delta',
+             'hgamma_by_theta',
+             'hgamma_by_alpha',
+             'hgamma_by_beta',
+             'hgamma_by_lgamma',
 
              'binned_mot']
 
@@ -282,31 +304,42 @@ def start_swscoring_v2(LFP_dir, motion_dir, model_dir, animal, mod_name,
                                EEGmean, binned_mot, raw_var]
                 FeatureList_v2 =\
                     [
-                     delta, theta, alpha, beta, gamma,
+                     delta, theta, alpha, beta, lgamma, hgamma,
                      delta_by_theta,
                      delta_by_alpha,
                      delta_by_beta,
-                     delta_by_gamma,
+                     delta_by_lgamma,
+                     delta_by_hgamma,
 
                      theta_by_delta,
                      theta_by_alpha,
                      theta_by_beta,
-                     theta_by_gamma,
+                     theta_by_lgamma,
+                     theta_by_hgamma,
 
                      alpha_by_delta,
                      alpha_by_theta,
                      alpha_by_beta,
-                     alpha_by_gamma,
+                     alpha_by_lgamma,
+                     alpha_by_hgamma,
 
                      beta_by_delta,
                      beta_by_theta,
                      beta_by_alpha,
-                     beta_by_gamma,
+                     beta_by_lgamma,
+                     beta_by_hgamma,
 
-                     gamma_by_delta,
-                     gamma_by_theta,
-                     gamma_by_alpha,
-                     gamma_by_beta,
+                     lgamma_by_delta,
+                     lgamma_by_theta,
+                     lgamma_by_alpha,
+                     lgamma_by_beta,
+                     lgamma_by_hgamma,
+
+                     hgamma_by_delta,
+                     hgamma_by_theta,
+                     hgamma_by_alpha,
+                     hgamma_by_beta,
+                     hgamma_by_lgamma,
 
                      binned_mot]
 
@@ -443,31 +476,42 @@ def start_swscoring_v2(LFP_dir, motion_dir, model_dir, animal, mod_name,
             print("sh delta ", delta.shape)
             data_tosave = \
                 np.vstack([State,
-                           delta, theta, alpha, beta, gamma,
+                           delta, theta, alpha, beta, lgamma, hgamma,
                            delta_by_theta,
                            delta_by_alpha,
                            delta_by_beta,
-                           delta_by_gamma,
+                           delta_by_lgamma,
+                           delta_by_hgamma,
 
                            theta_by_delta,
                            theta_by_alpha,
                            theta_by_beta,
-                           theta_by_gamma,
+                           theta_by_lgamma,
+                           theta_by_hgamma,
 
                            alpha_by_delta,
                            alpha_by_theta,
                            alpha_by_beta,
-                           alpha_by_gamma,
+                           alpha_by_lgamma,
+                           alpha_by_hgamma,
 
                            beta_by_delta,
                            beta_by_theta,
                            beta_by_alpha,
-                           beta_by_gamma,
+                           beta_by_lgamma,
+                           beta_by_hgamma,
 
-                           gamma_by_delta,
-                           gamma_by_theta,
-                           gamma_by_alpha,
-                           gamma_by_beta,
+                           lgamma_by_delta,
+                           lgamma_by_theta,
+                           lgamma_by_alpha,
+                           lgamma_by_beta,
+                           lgamma_by_hgamma,
+
+                           hgamma_by_delta,
+                           hgamma_by_theta,
+                           hgamma_by_alpha,
+                           hgamma_by_beta,
+                           hgamma_by_lgamma,
 
                            binned_mot])
             print("sh data_tosave ", data_tosave.shape)
@@ -476,10 +520,11 @@ def start_swscoring_v2(LFP_dir, motion_dir, model_dir, animal, mod_name,
                 pd.DataFrame(data_tosave.T,
                              columns=final_features_v2)
             dir_to_save =\
-                '/hlabhome/kiranbn/git/Sleep_Wake_Scoring_p/'
+                '/hlabhome/kiranbn/git/Sleep_Wake_Scoring_p/datanewmodel/'
             fl_to_save = op.join(dir_to_save, 'data_tosave.csv')
-            if op.isfile(fl_to_save):
+            if not op.isfile(fl_to_save):
                 df_tosave.to_csv(fl_to_save,
+                                 header=True,
                                  index=False)
             else:
                 df_tosave.to_csv(fl_to_save,
