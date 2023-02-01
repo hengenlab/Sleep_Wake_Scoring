@@ -165,7 +165,8 @@ def start_swscoring_v2(LFP_dir, motion_dir, model_dir, animal, mod_name,
     print("I am here 3.0.0", flush=True)
 
     # New features list to add
-    delta, theta, alpha,  beta, lgamma, hgamma = \
+    delta, theta, alpha,  beta, lgamma, hgamma , \
+        delta_n, theta_n, alpha_n,  beta_n, lgamma_n, hgamma_n = \
         SW_utils.calculate_features_from_lfp(downdatlfp, epochlen, fs)
     print("I am here 4.0.0", flush=True)
 

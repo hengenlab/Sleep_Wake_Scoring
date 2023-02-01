@@ -732,13 +732,6 @@ def calculate_features_from_lfp(lfp_perhour, epochlen, fs):
     lgamma = ntk.butter_bandpass(lfp_perhour, 30, 80, fs, 3)
     hgamma = ntk.butter_bandpass(lfp_perhour, 80, 150, fs, 3)
 
-    delta = (delta - np.average(delta))/np.std(delta)
-    theta = (theta - np.average(theta))/np.std(theta)
-    alpha = (alpha - np.average(alpha))/np.std(alpha)
-    beta = (beta - np.average(beta))/np.std(beta)
-    lgamma = (lgamma - np.average(lgamma))/np.std(lgamma)
-    hgamma = (hgamma - np.average(hgamma))/np.std(hgamma)
-
 
     delta = np.reshape(delta, (-1, fs*epochlen))
     theta = np.reshape(theta, (-1, fs*epochlen))
@@ -753,6 +746,13 @@ def calculate_features_from_lfp(lfp_perhour, epochlen, fs):
     beta = np.median(beta, axis=1)
     lgamma = np.median(lgamma, axis=1)
     hgamma = np.median(hgamma, axis=1)
+
+    delta_n = (delta - np.average(delta))/np.std(delta)
+    theta_n = (theta - np.average(theta))/np.std(theta)
+    alpha_n = (alpha - np.average(alpha))/np.std(alpha)
+    beta_n = (beta - np.average(beta))/np.std(beta)
+    lgamma_n = (lgamma - np.average(lgamma))/np.std(lgamma)
+    hgamma_n = (hgamma - np.average(hgamma))/np.std(hgamma)
 
     # os.chdir('/media/HlabShare/ckbn/new_sw_features/')
     # np.save('lfp_CAF00022_hr20.npy', lfp_perhour)
@@ -770,7 +770,8 @@ def calculate_features_from_lfp(lfp_perhour, epochlen, fs):
     # np.save('beta_KDR00048_hr23.npy', beta)
     # np.save('gamma_KDR00048_hr23.npy', gamma)
 
-    return delta, theta, alpha,  beta, lgamma, hgamma
+    return delta, theta, alpha,  beta, lgamma, hgamma,
+           delta_n, theta_n, alpha_n,  beta_n, lgamma_n, hgamma_n
 
 def band_power(x, fs, fmin, fmax):
     f, Pxx = scipy.signal.periodogram(x, fs=fs)
