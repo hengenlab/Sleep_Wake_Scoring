@@ -730,6 +730,13 @@ def calculate_features_from_lfp(lfp_perhour, epochlen, fs):
     beta = ntk.butter_bandpass(lfp_perhour, 13, 30, fs, 3)
     gamma = ntk.butter_bandpass(lfp_perhour, 30, 150, fs, 3)
 
+    delta = (delta - np.average(delta))/np.std(delta)
+    theta = (theta - np.average(theta))/np.std(theta)
+    alpha = (alpha - np.average(alpha))/np.std(alpha)
+    beta = (beta - np.average(beta))/np.std(beta)
+    gamma = (gamma - np.average(gamma))/np.std(gamma)
+
+
     delta = np.reshape(delta, (-1, fs*epochlen))
     theta = np.reshape(theta, (-1, fs*epochlen))
     alpha = np.reshape(alpha, (-1, fs*epochlen))
