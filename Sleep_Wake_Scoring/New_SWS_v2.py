@@ -261,6 +261,15 @@ def start_swscoring_v2(LFP_dir, motion_dir, model_dir, animal, mod_name,
              'hgamma_by_beta',
              'hgamma_by_lgamma',
 
+             'EEGdelta',
+             'EEGalpha',
+             'EEGbeta',
+             'EEGgamma',
+             'EEGnb',
+             'EEGtheta',
+             'EEGfire',
+             'delt_thet',
+
              'binned_mot']
 
         nans = np.full(np.shape(animal_name), np.nan)
@@ -513,6 +522,15 @@ def start_swscoring_v2(LFP_dir, motion_dir, model_dir, animal, mod_name,
                            hgamma_by_alpha,
                            hgamma_by_beta,
                            hgamma_by_lgamma,
+
+                           EEGdelta,
+                           EEGalpha,
+                           EEGbeta,
+                           EEGgamma,
+                           EEGnb,
+                           EEGtheta,
+                           EEGfire,
+                           delt_thet,
 
                            binned_mot])
             print("sh data_tosave ", data_tosave.shape)
