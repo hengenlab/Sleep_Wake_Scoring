@@ -131,7 +131,7 @@ best_channels_for_lfp : Best 5 channels for lfp
 ```
 
 ```diff
-+ Eventhough you have extracted 5 channels using sorter,
++ Eventhough you have extracted LFP from 5 channels using sorter,
 + please only add really good channels indexes in best_channels as
 + it affects sleep scoring.
 ! Remember best channels may change between recording sessions,
