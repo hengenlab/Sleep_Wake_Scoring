@@ -770,8 +770,8 @@ def calculate_features_from_lfp(lfp_perhour, epochlen, fs):
     # np.save('beta_KDR00048_hr23.npy', beta)
     # np.save('gamma_KDR00048_hr23.npy', gamma)
 
-    return delta, theta, alpha,  beta, lgamma, hgamma,
-    delta_n, theta_n, alpha_n,  beta_n, lgamma_n, hgamma_n
+    return delta, theta, alpha,  beta, lgamma, hgamma,\
+        delta_n, theta_n, alpha_n,  beta_n, lgamma_n, hgamma_n
 
 def band_power(x, fs, fmin, fmax):
     f, Pxx = scipy.signal.periodogram(x, fs=fs)
