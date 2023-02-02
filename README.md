@@ -128,6 +128,17 @@ import Sleep_Wake_Scoring as sw
 sw.manually_add_selected_channels(filename_sw, best_channels_for_lfp)
 filename_sw : json input file, please check json_input_files directory
 best_channels_for_lfp : Best 5 channels for lfp
+```
+
+```diff
++ Eventhough you have extracted 5 channels using sorter,
++ please only add really good channels indexes in best_channels as
++ it affects sleep scoring.
+! Remember best channels may change between recording sessions,
+! as we do really long term recordings.
+```
+
+```
 Examples :
 import Sleep_Wake_Scoring as sw 
 import numpy as np
