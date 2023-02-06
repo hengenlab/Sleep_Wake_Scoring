@@ -20,7 +20,6 @@ import os.path as op
 import re
 from datetime import datetime
 import neuraltoolkit as ntk
-import os
 
 
 def check_h5_file_size(h5files):
@@ -725,6 +724,7 @@ def calculate_features_from_lfp(lfp_perhour, epochlen, fs):
     # EEG = np.zeros(int(np.size(lfp_perhour)/(epochlen*fs)))
     # EEGreshape = np.reshape(lfp_perhour, (-1, fs*epochlen))
 
+    # low pass
     delta = ntk.butter_bandpass(lfp_perhour, 0.5, 4, fs, 3)
     theta = ntk.butter_bandpass(lfp_perhour, 4, 8, fs, 3)
     alpha = ntk.butter_bandpass(lfp_perhour, 8, 13, fs, 3)
@@ -732,7 +732,22 @@ def calculate_features_from_lfp(lfp_perhour, epochlen, fs):
     lgamma = ntk.butter_bandpass(lfp_perhour, 30, 80, fs, 3)
     hgamma = ntk.butter_bandpass(lfp_perhour, 80, 150, fs, 3)
 
+    # 1s bins
+    delta1s = np.reshape(delta, (-1, fs*1))
+    theta1s = np.reshape(theta, (-1, fs*1))
+    alpha1s = np.reshape(alpha, (-1, fs*1))
+    beta1s = np.reshape(beta, (-1, fs*1))
+    lgamma1s = np.reshape(lgamma, (-1, fs*1))
+    hgamma1s = np.reshape(hgamma, (-1, fs*1))
 
+    delta1s = np.median(delta1s, axis=1)
+    theta1s = np.median(theta1s, axis=1)
+    alpha1s = np.median(alpha1s, axis=1)
+    beta1s = np.median(beta1s, axis=1)
+    lgamma1s = np.median(lgamma1s, axis=1)
+    hgamma1s = np.median(hgamma1s, axis=1)
+
+    # epochlen bin
     delta = np.reshape(delta, (-1, fs*epochlen))
     theta = np.reshape(theta, (-1, fs*epochlen))
     alpha = np.reshape(alpha, (-1, fs*epochlen))
@@ -771,13 +786,9 @@ def calculate_features_from_lfp(lfp_perhour, epochlen, fs):
     # np.save('gamma_KDR00048_hr23.npy', gamma)
 
     return delta, theta, alpha,  beta, lgamma, hgamma,\
+        delta1s, theta1s, alpha1s,  beta1s, lgamma1s, hgamma1s,\
         delta_n, theta_n, alpha_n,  beta_n, lgamma_n, hgamma_n
 
-def band_power(x, fs, fmin, fmax):
-    f, Pxx = scipy.signal.periodogram(x, fs=fs)
-    ind_min = scipy.argmax(f > fmin) - 1
-    ind_max = scipy.argmax(f > fmax) - 1
-    return scipy.trapz(Pxx[ind_min: ind_max], f[ind_min: ind_max])
 
 def print_instructions():
     print('''\

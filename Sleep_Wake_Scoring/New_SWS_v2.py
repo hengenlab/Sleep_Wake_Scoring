@@ -12,7 +12,6 @@ import pandas as pd
 import warnings
 import Sleep_Wake_Scoring.SW_utils as SW_utils
 from Sleep_Wake_Scoring.SW_Cursor import Cursor
-import sys
 
 
 def start_swscoring_v2(LFP_dir, motion_dir, model_dir, animal, mod_name,
@@ -165,10 +164,46 @@ def start_swscoring_v2(LFP_dir, motion_dir, model_dir, animal, mod_name,
     print("I am here 3.0.0", flush=True)
 
     # New features list to add
-    delta, theta, alpha,  beta, lgamma, hgamma , \
+    delta, theta, alpha,  beta, lgamma, hgamma, \
+        delta1s, theta1s, alpha1s,  beta1s, lgamma1s, hgamma1s, \
         delta_n, theta_n, alpha_n,  beta_n, lgamma_n, hgamma_n = \
         SW_utils.calculate_features_from_lfp(downdatlfp, epochlen, fs)
     print("I am here 4.0.0", flush=True)
+
+    print("sh delta1s ", delta1s.shape, flush=True)
+    delta1s1 = delta1s[0::4]
+    delta1s2 = delta1s[1::4]
+    delta1s3 = delta1s[2::4]
+    delta1s4 = delta1s[3::4]
+    print("sh delta1s1 ", delta1s1.shape, flush=True)
+    print("sh delta1s2 ", delta1s2.shape, flush=True)
+    print("sh delta1s3 ", delta1s3.shape, flush=True)
+    print("sh delta1s4 ", delta1s4.shape, flush=True)
+
+    theta1s1 = theta1s[0::4]
+    theta1s2 = theta1s[1::4]
+    theta1s3 = theta1s[2::4]
+    theta1s4 = theta1s[3::4]
+
+    alpha1s1 = alpha1s[0::4]
+    alpha1s2 = alpha1s[1::4]
+    alpha1s3 = alpha1s[2::4]
+    alpha1s4 = alpha1s[3::4]
+
+    beta1s1 = beta1s[0::4]
+    beta1s2 = beta1s[1::4]
+    beta1s3 = beta1s[2::4]
+    beta1s4 = beta1s[3::4]
+
+    lgamma1s1 = lgamma1s[0::4]
+    lgamma1s2 = lgamma1s[1::4]
+    lgamma1s3 = lgamma1s[2::4]
+    lgamma1s4 = lgamma1s[3::4]
+
+    hgamma1s1 = hgamma1s[0::4]
+    hgamma1s2 = hgamma1s[1::4]
+    hgamma1s3 = hgamma1s[2::4]
+    hgamma1s4 = hgamma1s[3::4]
 
     # delta
     delta_by_theta = np.divide(delta, theta)
@@ -225,6 +260,14 @@ def start_swscoring_v2(LFP_dir, motion_dir, model_dir, animal, mod_name,
         final_features_v2 =\
             ['State',
              'delta', 'theta', 'alpha', 'beta', 'lgamma', 'hgamma',
+             'delta1s1', 'theta1s1', 'alpha1s1', 'beta1s1',
+             'lgamma1s1', 'hgamma1s1',
+             'delta1s2', 'theta1s2', 'alpha1s2', 'beta1s2',
+             'lgamma1s2', 'hgamma1s2',
+             'delta1s3', 'theta1s3', 'alpha1s3', 'beta1s3',
+             'lgamma1s3', 'hgamma1s3',
+             'delta1s4', 'theta1s4', 'alpha1s4', 'beta1s4',
+             'lgamma1s4', 'hgamma1s4',
              'delta_by_theta',
              'delta_by_alpha',
              'delta_by_beta',
@@ -315,6 +358,14 @@ def start_swscoring_v2(LFP_dir, motion_dir, model_dir, animal, mod_name,
                 FeatureList_v2 =\
                     [
                      delta, theta, alpha, beta, lgamma, hgamma,
+                     delta1s1, theta1s1, alpha1s1,  beta1s1,
+                     lgamma1s1, hgamma1s1,
+                     delta1s2, theta1s2, alpha1s2,  beta1s2,
+                     lgamma1s2, hgamma1s2,
+                     delta1s3, theta1s3, alpha1s3,  beta1s3,
+                     lgamma1s3, hgamma1s3,
+                     delta1s4, theta1s4, alpha1s4,  beta1s4,
+                     lgamma1s4, hgamma1s4,
                      delta_by_theta,
                      delta_by_alpha,
                      delta_by_beta,
@@ -487,6 +538,16 @@ def start_swscoring_v2(LFP_dir, motion_dir, model_dir, animal, mod_name,
             data_tosave = \
                 np.vstack([State,
                            delta, theta, alpha, beta, lgamma, hgamma,
+
+                           delta1s1, theta1s1, alpha1s1,  beta1s1,
+                           lgamma1s1, hgamma1s1,
+                           delta1s2, theta1s2, alpha1s2,  beta1s2,
+                           lgamma1s2, hgamma1s2,
+                           delta1s3, theta1s3, alpha1s3,  beta1s3,
+                           lgamma1s3, hgamma1s3,
+                           delta1s4, theta1s4, alpha1s4,  beta1s4,
+                           lgamma1s4, hgamma1s4,
+
                            delta_by_theta,
                            delta_by_alpha,
                            delta_by_beta,
