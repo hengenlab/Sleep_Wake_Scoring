@@ -205,42 +205,86 @@ def start_swscoring_v2(LFP_dir, motion_dir, model_dir, animal, mod_name,
     hgamma1s3 = hgamma1s[2::4]
     hgamma1s4 = hgamma1s[3::4]
 
+    print("sh med ", med.shape, flush=True)
+    binned_mot_med1 = med[0::4]
+    binned_mot_med2 = med[0::4]
+    binned_mot_med3 = med[0::4]
+    binned_mot_med4 = med[0::4]
+    print("sh binned_mot_med1 ", binned_mot_med1.shape, flush=True)
+
+    # # delta
+    # delta_by_theta = np.divide(delta, theta)
+    # delta_by_alpha = np.divide(delta, alpha)
+    # delta_by_beta = np.divide(delta, beta)
+    # delta_by_lgamma = np.divide(delta, lgamma)
+    # delta_by_hgamma = np.divide(delta, hgamma)
+
+    # theta_by_delta = np.divide(theta, delta)
+    # theta_by_alpha = np.divide(theta, alpha)
+    # theta_by_beta = np.divide(theta, beta)
+    # theta_by_lgamma = np.divide(theta, lgamma)
+    # theta_by_hgamma = np.divide(theta, hgamma)
+
+    # alpha_by_delta = np.divide(alpha, delta)
+    # alpha_by_theta = np.divide(alpha, theta)
+    # alpha_by_beta = np.divide(alpha, beta)
+    # alpha_by_lgamma = np.divide(alpha, lgamma)
+    # alpha_by_hgamma = np.divide(alpha, hgamma)
+
+    # beta_by_delta = np.divide(beta, delta)
+    # beta_by_theta = np.divide(beta, theta)
+    # beta_by_alpha = np.divide(beta, alpha)
+    # beta_by_lgamma = np.divide(beta, lgamma)
+    # beta_by_hgamma = np.divide(beta, hgamma)
+
+    # lgamma_by_delta = np.divide(lgamma, delta)
+    # lgamma_by_theta = np.divide(lgamma, theta)
+    # lgamma_by_alpha = np.divide(lgamma, alpha)
+    # lgamma_by_beta = np.divide(lgamma, beta)
+    # lgamma_by_hgamma = np.divide(lgamma, hgamma)
+
+    # hgamma_by_delta = np.divide(hgamma, delta)
+    # hgamma_by_theta = np.divide(hgamma, theta)
+    # hgamma_by_alpha = np.divide(hgamma, alpha)
+    # hgamma_by_beta = np.divide(hgamma, beta)
+    # hgamma_by_lgamma = np.divide(hgamma, lgamma)
+
     # delta
-    delta_by_theta = np.divide(delta, theta)
-    delta_by_alpha = np.divide(delta, alpha)
-    delta_by_beta = np.divide(delta, beta)
-    delta_by_lgamma = np.divide(delta, lgamma)
-    delta_by_hgamma = np.divide(delta, hgamma)
+    delta_by_theta = np.divide(delta_n, theta)
+    delta_by_alpha = np.divide(delta_n, alpha)
+    delta_by_beta = np.divide(delta_n, beta)
+    delta_by_lgamma = np.divide(delta_n, lgamma)
+    delta_by_hgamma = np.divide(delta_n, hgamma)
 
-    theta_by_delta = np.divide(theta, delta)
-    theta_by_alpha = np.divide(theta, alpha)
-    theta_by_beta = np.divide(theta, beta)
-    theta_by_lgamma = np.divide(theta, lgamma)
-    theta_by_hgamma = np.divide(theta, hgamma)
+    theta_by_delta = np.divide(theta_n, delta)
+    theta_by_alpha = np.divide(theta_n, alpha)
+    theta_by_beta = np.divide(theta_n, beta)
+    theta_by_lgamma = np.divide(theta_n, lgamma)
+    theta_by_hgamma = np.divide(theta_n, hgamma)
 
-    alpha_by_delta = np.divide(alpha, delta)
-    alpha_by_theta = np.divide(alpha, theta)
-    alpha_by_beta = np.divide(alpha, beta)
-    alpha_by_lgamma = np.divide(alpha, lgamma)
-    alpha_by_hgamma = np.divide(alpha, hgamma)
+    alpha_by_delta = np.divide(alpha_n, delta)
+    alpha_by_theta = np.divide(alpha_n, theta)
+    alpha_by_beta = np.divide(alpha_n, beta)
+    alpha_by_lgamma = np.divide(alpha_n, lgamma)
+    alpha_by_hgamma = np.divide(alpha_n, hgamma)
 
-    beta_by_delta = np.divide(beta, delta)
-    beta_by_theta = np.divide(beta, theta)
-    beta_by_alpha = np.divide(beta, alpha)
-    beta_by_lgamma = np.divide(beta, lgamma)
-    beta_by_hgamma = np.divide(beta, hgamma)
+    beta_by_delta = np.divide(beta_n, delta)
+    beta_by_theta = np.divide(beta_n, theta)
+    beta_by_alpha = np.divide(beta_n, alpha)
+    beta_by_lgamma = np.divide(beta_n, lgamma)
+    beta_by_hgamma = np.divide(beta_n, hgamma)
 
-    lgamma_by_delta = np.divide(lgamma, delta)
-    lgamma_by_theta = np.divide(lgamma, theta)
-    lgamma_by_alpha = np.divide(lgamma, alpha)
-    lgamma_by_beta = np.divide(lgamma, beta)
-    lgamma_by_hgamma = np.divide(lgamma, hgamma)
+    lgamma_by_delta = np.divide(lgamma_n, delta)
+    lgamma_by_theta = np.divide(lgamma_n, theta)
+    lgamma_by_alpha = np.divide(lgamma_n, alpha)
+    lgamma_by_beta = np.divide(lgamma_n, beta)
+    lgamma_by_hgamma = np.divide(lgamma_n, hgamma)
 
-    hgamma_by_delta = np.divide(hgamma, delta)
-    hgamma_by_theta = np.divide(hgamma, theta)
-    hgamma_by_alpha = np.divide(hgamma, alpha)
-    hgamma_by_beta = np.divide(hgamma, beta)
-    hgamma_by_lgamma = np.divide(hgamma, lgamma)
+    hgamma_by_delta = np.divide(hgamma_n, delta)
+    hgamma_by_theta = np.divide(hgamma_n, theta)
+    hgamma_by_alpha = np.divide(hgamma_n, alpha)
+    hgamma_by_beta = np.divide(hgamma_n, beta)
+    hgamma_by_lgamma = np.divide(hgamma_n, lgamma)
 
     # model = input('Use a random forest? y/n: ') == 'y'
     model = 1
@@ -313,6 +357,10 @@ def start_swscoring_v2(LFP_dir, motion_dir, model_dir, animal, mod_name,
              'EEGfire',
              'delt_thet',
 
+             'binned_mot_med1',
+             'binned_mot_med2',
+             'binned_mot_med3',
+             'binned_mot_med4',
              'binned_mot']
 
         nans = np.full(np.shape(animal_name), np.nan)
@@ -402,6 +450,10 @@ def start_swscoring_v2(LFP_dir, motion_dir, model_dir, animal, mod_name,
                      hgamma_by_beta,
                      hgamma_by_lgamma,
 
+                     binned_mot_med1,
+                     binned_mot_med2,
+                     binned_mot_med3,
+                     binned_mot_med4,
                      binned_mot]
 
             elif not pos and not emg:
@@ -593,6 +645,10 @@ def start_swscoring_v2(LFP_dir, motion_dir, model_dir, animal, mod_name,
                            EEGfire,
                            delt_thet,
 
+                           binned_mot_med1,
+                           binned_mot_med2,
+                           binned_mot_med3,
+                           binned_mot_med4,
                            binned_mot])
             print("sh data_tosave ", data_tosave.shape)
             print("len final_features_v2 ", len(final_features_v2))
