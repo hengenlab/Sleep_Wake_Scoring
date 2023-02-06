@@ -361,6 +361,7 @@ def start_swscoring_v2(LFP_dir, motion_dir, model_dir, animal, mod_name,
              'binned_mot_med2',
              'binned_mot_med3',
              'binned_mot_med4',
+             'raw_var',
              'binned_mot']
 
         nans = np.full(np.shape(animal_name), np.nan)
@@ -454,6 +455,7 @@ def start_swscoring_v2(LFP_dir, motion_dir, model_dir, animal, mod_name,
                      binned_mot_med2,
                      binned_mot_med3,
                      binned_mot_med4,
+                     raw_var,
                      binned_mot]
 
             elif not pos and not emg:
@@ -649,6 +651,7 @@ def start_swscoring_v2(LFP_dir, motion_dir, model_dir, animal, mod_name,
                            binned_mot_med2,
                            binned_mot_med3,
                            binned_mot_med4,
+                           raw_var,
                            binned_mot])
             print("sh data_tosave ", data_tosave.shape)
             print("len final_features_v2 ", len(final_features_v2))
