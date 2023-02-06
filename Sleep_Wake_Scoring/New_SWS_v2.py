@@ -212,6 +212,58 @@ def start_swscoring_v2(LFP_dir, motion_dir, model_dir, animal, mod_name,
     binned_mot_med4 = med[0::4]
     print("sh binned_mot_med1 ", binned_mot_med1.shape, flush=True)
 
+
+    # new set
+    delta_by_all1s =\
+        np.divide(delta1s,
+                  (theta1s + alpha1s + beta1s + lgamma1s + hgamma1s))
+    theta_by_all1s = \
+        np.divide(theta1s,
+                  (delta1s + alpha1s + beta1s + lgamma1s + hgamma1s))
+    alpha_by_all1s = \
+        np.divide(alpha1s,
+                  (delta1s + theta1s + beta1s + lgamma1s + hgamma1s))
+    beta_by_all1s = \
+        np.divide(beta1s,
+                  (delta1s + theta1s + alpha1s +  lgamma1s + hgamma1s))
+    lgamma_by_all1s = \
+        np.divide(lgamma1s,
+                  (delta1s + theta1s + alpha1s + beta1s + hgamma1s))
+    hgamma_by_all1s = \
+        np.divide(hgamma1s,
+                  (delta1s + theta1s + alpha1s + beta1s + hgamma1s))
+
+    delta_by_all1s1 = delta_by_all1s[0::4]
+    delta_by_all1s2 = delta_by_all1s[1::4]
+    delta_by_all1s3 = delta_by_all1s[2::4]
+    delta_by_all1s4 = delta_by_all1s[3::4]
+
+    theta_by_all1s1 = theta_by_all1s[0::4]
+    theta_by_all1s2 = theta_by_all1s[1::4]
+    theta_by_all1s3 = theta_by_all1s[2::4]
+    theta_by_all1s4 = theta_by_all1s[3::4]
+
+    alpha_by_all1s1 = alpha_by_all1s[0::4]
+    alpha_by_all1s2 = alpha_by_all1s[1::4]
+    alpha_by_all1s3 = alpha_by_all1s[2::4]
+    alpha_by_all1s4 = alpha_by_all1s[3::4]
+
+    beta_by_all1s1 = beta_by_all1s[0::4]
+    beta_by_all1s2 = beta_by_all1s[1::4]
+    beta_by_all1s3 = beta_by_all1s[2::4]
+    beta_by_all1s4 = beta_by_all1s[3::4]
+
+    lgamma_by_all1s1 = lgamma_by_all1s[0::4]
+    lgamma_by_all1s2 = lgamma_by_all1s[1::4]
+    lgamma_by_all1s3 = lgamma_by_all1s[2::4]
+    lgamma_by_all1s4 = lgamma_by_all1s[3::4]
+
+    hgamma_by_all1s1 = hgamma_by_all1s[0::4]
+    hgamma_by_all1s2 = hgamma_by_all1s[1::4]
+    hgamma_by_all1s3 = hgamma_by_all1s[2::4]
+    hgamma_by_all1s4 = hgamma_by_all1s[3::4]
+
+
     # # delta
     # delta_by_theta = np.divide(delta, theta)
     # delta_by_alpha = np.divide(delta, alpha)
@@ -312,6 +364,20 @@ def start_swscoring_v2(LFP_dir, motion_dir, model_dir, animal, mod_name,
              'lgamma1s3', 'hgamma1s3',
              'delta1s4', 'theta1s4', 'alpha1s4', 'beta1s4',
              'lgamma1s4', 'hgamma1s4',
+
+             'delta_by_all1s1', 'delta_by_all1s2',
+             'delta_by_all1s3', 'delta_by_all1s4',
+             'theta_by_all1s1', 'theta_by_all1s2',
+             'theta_by_all1s3', 'theta_by_all1s4',
+             'alpha_by_all1s1', 'alpha_by_all1s2',
+             'alpha_by_all1s3', 'alpha_by_all1s4',
+             'beta_by_all1s1', 'beta_by_all1s2',
+             'beta_by_all1s3', 'beta_by_all1s4',
+             'lgamma_by_all1s1', 'lgamma_by_all1s2',
+             'lgamma_by_all1s3', 'lgamma_by_all1s4',
+             'hgamma_by_all1s1', 'hgamma_by_all1s2',
+             'hgamma_by_all1s3', 'hgamma_by_all1s4',
+
              'delta_by_theta',
              'delta_by_alpha',
              'delta_by_beta',
@@ -415,6 +481,20 @@ def start_swscoring_v2(LFP_dir, motion_dir, model_dir, animal, mod_name,
                      lgamma1s3, hgamma1s3,
                      delta1s4, theta1s4, alpha1s4,  beta1s4,
                      lgamma1s4, hgamma1s4,
+
+                     delta_by_all1s1, delta_by_all1s2, delta_by_all1s3,
+                     delta_by_all1s4,
+                     theta_by_all1s1, theta_by_all1s2, theta_by_all1s3,
+                     theta_by_all1s4,
+                     alpha_by_all1s1, alpha_by_all1s2, alpha_by_all1s3,
+                     alpha_by_all1s4,
+                     beta_by_all1s1, beta_by_all1s2, beta_by_all1s3,
+                     beta_by_all1s4,
+                     lgamma_by_all1s1, lgamma_by_all1s2, lgamma_by_all1s3,
+                     lgamma_by_all1s4,
+                     hgamma_by_all1s1, hgamma_by_all1s2, hgamma_by_all1s3,
+                     hgamma_by_all1s4,
+
                      delta_by_theta,
                      delta_by_alpha,
                      delta_by_beta,
@@ -601,6 +681,21 @@ def start_swscoring_v2(LFP_dir, motion_dir, model_dir, animal, mod_name,
                            lgamma1s3, hgamma1s3,
                            delta1s4, theta1s4, alpha1s4,  beta1s4,
                            lgamma1s4, hgamma1s4,
+
+                           delta_by_all1s1, delta_by_all1s2, delta_by_all1s3,
+                           delta_by_all1s4,
+                           theta_by_all1s1, theta_by_all1s2, theta_by_all1s3,
+                           theta_by_all1s4,
+                           alpha_by_all1s1, alpha_by_all1s2, alpha_by_all1s3,
+                           alpha_by_all1s4,
+                           beta_by_all1s1, beta_by_all1s2, beta_by_all1s3,
+                           beta_by_all1s4,
+                           lgamma_by_all1s1, lgamma_by_all1s2,
+                           lgamma_by_all1s3,
+                           lgamma_by_all1s4,
+                           hgamma_by_all1s1, hgamma_by_all1s2,
+                           hgamma_by_all1s3,
+                           hgamma_by_all1s4,
 
                            delta_by_theta,
                            delta_by_alpha,
