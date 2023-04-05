@@ -754,8 +754,7 @@ def start_swscoring_v2(LFP_dir, motion_dir, model_dir, animal, mod_name,
             # dir_to_save =\
             #     '/hlabhome/kiranbn/git/Sleep_Wake_Scoring_p/datanewmodel/'
             dir_to_save =\
-                '/hlabhome/kiranbn/git/kiran_work/' + \
-                'sleep_scoring_for_james_withoutdlc/'
+                '/media/HlabShare/ckbn/sleep_score_james_paper/data/'
             fl_to_save = op.join(dir_to_save, 'data_tosave.csv')
             if not op.isfile(fl_to_save):
                 df_tosave.to_csv(fl_to_save,
