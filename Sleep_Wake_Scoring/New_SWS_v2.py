@@ -212,7 +212,6 @@ def start_swscoring_v2(LFP_dir, motion_dir, model_dir, animal, mod_name,
     binned_mot_med4 = med[0::4]
     print("sh binned_mot_med1 ", binned_mot_med1.shape, flush=True)
 
-
     # new set
     delta_by_all1s =\
         np.divide(delta1s,
@@ -225,7 +224,7 @@ def start_swscoring_v2(LFP_dir, motion_dir, model_dir, animal, mod_name,
                   (delta1s + theta1s + beta1s + lgamma1s + hgamma1s))
     beta_by_all1s = \
         np.divide(beta1s,
-                  (delta1s + theta1s + alpha1s +  lgamma1s + hgamma1s))
+                  (delta1s + theta1s + alpha1s + lgamma1s + hgamma1s))
     lgamma_by_all1s = \
         np.divide(lgamma1s,
                   (delta1s + theta1s + alpha1s + beta1s + hgamma1s))
@@ -262,7 +261,6 @@ def start_swscoring_v2(LFP_dir, motion_dir, model_dir, animal, mod_name,
     hgamma_by_all1s2 = hgamma_by_all1s[1::4]
     hgamma_by_all1s3 = hgamma_by_all1s[2::4]
     hgamma_by_all1s4 = hgamma_by_all1s[3::4]
-
 
     # # delta
     # delta_by_theta = np.divide(delta, theta)
@@ -753,8 +751,11 @@ def start_swscoring_v2(LFP_dir, motion_dir, model_dir, animal, mod_name,
             df_tosave = \
                 pd.DataFrame(data_tosave.T,
                              columns=final_features_v2)
+            # dir_to_save =\
+            #     '/hlabhome/kiranbn/git/Sleep_Wake_Scoring_p/datanewmodel/'
             dir_to_save =\
-                '/hlabhome/kiranbn/git/Sleep_Wake_Scoring_p/datanewmodel/'
+                '/hlabhome/kiranbn/git/kiran_work/' + \
+                'sleep_scoring_for_james_withoutdlc/'
             fl_to_save = op.join(dir_to_save, 'data_tosave.csv')
             if not op.isfile(fl_to_save):
                 df_tosave.to_csv(fl_to_save,
