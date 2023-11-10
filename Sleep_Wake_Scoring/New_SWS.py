@@ -107,7 +107,7 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
             # EMGamp = np.pad(EMGamp, (0, 100), 'constant')
 
     else:
-        EMGamp = False
+        # EMGamp = False
 
         if laccelerometer:
             accelerometer_h = np.load('ACC' + hr + '.npy')
@@ -120,7 +120,7 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
                                             lowpass=EMGLOWPASS)
 
         # emg save as temporarly avoid emg
-        lemg = emg
+        lemg = 1 # emg
         emg = 0
 
         if emg:
