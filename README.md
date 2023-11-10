@@ -169,6 +169,7 @@ It is best to select single channel from  different tetrode groups
 tetrode recordings.  Channel number starts at 1 not 0.
 ```
 ##### 3. Generate spectrograms, delta and theta
+This will also generate accelerometer files (ACChr*.npy) files. 
 ```
 import Sleep_Wake_Scoring as sw
 sw.extract_delta_theta_from_lfp('/home/kbn/ABC00001.json')
