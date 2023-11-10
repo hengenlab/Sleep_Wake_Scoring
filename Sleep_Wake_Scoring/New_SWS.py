@@ -107,10 +107,10 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
         EMGamp = False
 
         if laccelerometer:
-            print("sh EMGamp ", EMGamp.shape)
             accelerometer_h = np.load('ACC' + hr + '.npy')
             print("sh accelerometer_h ", accelerometer_h.shape)
             EMGamp = accelerometer_h * 1
+            # print("sh EMGamp ", EMGamp.shape)
 
         # EMGamp = EMGamp[EMG_CHANNEL, :]
         EMGamp = SW_utils.emg_preprocessing(EMGamp, fs, highpass=EMGHIGHPASS,
