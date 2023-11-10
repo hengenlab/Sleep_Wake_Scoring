@@ -305,7 +305,7 @@ def plot_motion(ax, med, video_key=False, newemg=None):
     newemg : emg from spike sorter
     '''
     x_vals = np.linspace(0, 60, np.size(med))
-    ax.plot(x_vals, med)
+    ax.plot(x_vals, med, linewidth=0.1, linestyle='--')
     ax.set_xlim(0, 60)
     ax.set_xticks(np.linspace(0, 60, 13))
     ax.set_ylim(0, 10)
