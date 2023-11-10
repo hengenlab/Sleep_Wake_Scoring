@@ -33,6 +33,9 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
 
         EMGHIGHPASS = 20
         EMGLOWPASS = 200
+    elif laccelerometer:
+        EMGHIGHPASS = 20
+        EMGLOWPASS = 200
 
     # os.chdir(LFP_dir)
     meanEEG_perhr = np.load('Average_EEG_perhr.npy')
