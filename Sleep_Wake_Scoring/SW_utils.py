@@ -344,8 +344,12 @@ def plot_motion(ax, med, video_key=False, newemg=None):
                      linewidth=0.5, color='orange')
         else:
             for newemg_indx in range(newemg.shape[0]):
-                newemg[newemg_indx, :] = newemg[newemg_indx, :] +\
-                        (2500.0 * (newemg_indx + 1))
+                if newemg_indx == 0:
+                    newemg[newemg_indx, :] = newemg[newemg_indx, :] -\
+                            min(newemg[newemg_indx, :])
+                else:
+                    newemg[newemg_indx, :] = newemg[newemg_indx, :] +\
+                            (5000.0 * (newemg_indx + 1))
             xemg = np.linspace(0, 60, len(newemg[0, :]))
             next(ax2._get_lines.prop_cycler)
             ax2.plot(xemg, newemg.T,
