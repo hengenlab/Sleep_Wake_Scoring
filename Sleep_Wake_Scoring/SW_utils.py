@@ -338,14 +338,14 @@ def plot_motion(ax, med, video_key=False, newemg=None):
         # Create a twin axes to plot newemg in orange
         ax2 = ax.twinx()
         if newemg.shape[0] == 1:
-            # change first value to make plot not overlap
-            newemg[0, 0] = -1500.0
+            newemg[0, :] = newemg[0, :] - 1500.0
             xemg = np.arange(0, len(newemg), 1)
             ax2.plot(xemg, newemg,
                      linewidth=0.5, color='orange')
         else:
-            # change first value to make plot not overlap
-            newemg[:, 0] = -1500.0
+            for newemg_indx in range(newemg.shape[0]):
+                newemg[newemg_indx, :] = newemg[newemg_indx, :] +\
+                        (2500.0 * (newemg_indx + 1))
             xemg = np.linspace(0, 60, len(newemg[0, :]))
             next(ax2._get_lines.prop_cycler)
             ax2.plot(xemg, newemg.T,
