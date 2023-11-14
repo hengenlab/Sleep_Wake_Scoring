@@ -112,25 +112,24 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
         if laccelerometer:
             accelerometer_h = np.load('ACC' + hr + '.npy')
             print("sh accelerometer_h ", accelerometer_h.shape)
-            EMGamp = accelerometer_h * 1
+            # EMGamp = accelerometer_h * 1
+            EMGamp = np.sqrt(np.sum(np.array(accelerometer_h,
+                             dtype='int64')**2, axis=0))
+            accelerometer_h = accelerometer_h[0, :]
             # print("sh EMGamp ", EMGamp.shape)
 
         # EMGamp = EMGamp[EMG_CHANNEL, :]
-        EMGamp = SW_utils.emg_preprocessing(EMGamp, fs, highpass=EMGHIGHPASS,
-                                            lowpass=EMGLOWPASS)
+        # EMGamp = SW_utils.emg_preprocessing(EMGamp, fs, highpass=EMGHIGHPASS,
+        #                                     lowpass=EMGLOWPASS)
 
         # emg save as temporarly avoid emg
-        lemg = 1 # emg
+        lemg = 1  # emg
         emg = 0
 
         if emg:
             # EMGamp = (EMGamp - np.average(EMGamp)) / np.std(EMGamp)
             EMG = SW_utils.generate_EMG(EMGamp)
             # EMGamp = np.pad(EMGamp, (0, 100), 'constant')
-
-
-
-
 
     os.chdir(LFP_dir)
     normmean, normstd = SW_utils.normMean(meanEEG_perhr, var_EEG_perhr, hr)
