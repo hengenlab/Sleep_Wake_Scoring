@@ -116,6 +116,7 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
             EMGamp = np.sqrt(np.sum(np.array(accelerometer_h,
                              dtype='int64')**2, axis=0))
             accelerometer_h = accelerometer_h[0, :]
+            EMGamp = np.vstack((EMGamp, accelerometer_h))
             # print("sh EMGamp ", EMGamp.shape)
 
         # EMGamp = EMGamp[EMG_CHANNEL, :]
