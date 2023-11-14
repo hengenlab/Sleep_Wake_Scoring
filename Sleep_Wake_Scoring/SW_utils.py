@@ -337,8 +337,8 @@ def plot_motion(ax, med, video_key=False, newemg=None):
     if newemg is not None:
         # Create a twin axes to plot newemg in orange
         ax2 = ax.twinx()
-        if newemg.shape[0] == 1:
-            newemg[0, :] = newemg[0, :] - 1500.0
+        if newemg.ndim == 1:
+            newemg = newemg - min(newemg)
             xemg = np.arange(0, len(newemg), 1)
             ax2.plot(xemg, newemg,
                      linewidth=0.5, color='orange')
