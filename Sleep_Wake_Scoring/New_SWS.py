@@ -113,8 +113,14 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
             accelerometer_h = np.load('ACC' + hr + '.npy')
             print("sh accelerometer_h ", accelerometer_h.shape)
             # EMGamp = accelerometer_h * 1
-            EMGamp = np.sqrt(np.sum(np.array(accelerometer_h,
-                             dtype='int64')**2, axis=0))
+            if accelerometer_h.ndim == 2:
+                if accelerometer_h.shape[0] == 3:
+                    EMGamp = np.sqrt(np.sum(np.array(accelerometer_h,
+                                     dtype='int64')**2, axis=0))
+                else:?!?jedi=0, ?!?               (*_**args: object*_*) ?!?jedi?!?
+                    raise ValueError(f'Make sure accelerometer_h has shape[0] == 3 or ndim == 1')
+            else:
+                EMGamp = accelerometer_h * 1
             # EMGamp = np.vstack((EMGamp, accelerometer_h))
             # print("sh EMGamp ", EMGamp.shape)
 
