@@ -345,8 +345,8 @@ def plot_motion(ax, med, video_key=False, newemg=None):
         else:
             for newemg_indx in range(newemg.shape[0]):
                 if newemg_indx == 0:
-                    newemg[newemg_indx, :] = newemg[newemg_indx, :] -\
-                            min(newemg[newemg_indx, :])
+                    newemg[newemg_indx, :] = ((newemg[newemg_indx, :] -\
+                            min(newemg[newemg_indx, :])) - 1000)
                 else:
                     newemg[newemg_indx, :] = newemg[newemg_indx, :] +\
                             (5000.0 * (newemg_indx + 1))
