@@ -339,7 +339,8 @@ def plot_motion(ax, med, video_key=False, newemg=None):
         ax2 = ax.twinx()
         if newemg.ndim == 1:
             newemg = newemg - min(newemg)
-            xemg = np.arange(0, len(newemg), 1)
+            # xemg = np.arange(0, len(newemg), 1)
+            xemg = np.linspace(0, 60, len(newemg))
             ax2.plot(xemg, newemg,
                      linewidth=0.5, color='orange')
         else:
