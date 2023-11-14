@@ -342,7 +342,8 @@ def plot_motion(ax, med, video_key=False, newemg=None):
             # xemg = np.arange(0, len(newemg), 1)
             xemg = np.linspace(0, 60, len(newemg))
             ax2.plot(xemg, newemg,
-                     linewidth=0.2, color='orange')
+                     linewidth=0.1, linestyle='--',
+                     color='orange')
         else:
             for newemg_indx in range(newemg.shape[0]):
                 if newemg_indx == 0:
