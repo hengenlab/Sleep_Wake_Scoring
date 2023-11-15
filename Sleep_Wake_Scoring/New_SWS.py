@@ -138,6 +138,8 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
                 # EMGamp = np.pad(EMGamp, (0, 100), 'constant')
         else:
             EMGamp = False
+            lemg = 0
+            emg = 0
 
     os.chdir(LFP_dir)
     normmean, normstd = SW_utils.normMean(meanEEG_perhr, var_EEG_perhr, hr)
