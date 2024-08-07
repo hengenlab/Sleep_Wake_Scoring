@@ -260,7 +260,7 @@ def bandPower(low, high, downdatlfp, epochlen, fs):
     idx_max = np.argmax(freqs > high) - 1
     idx = np.zeros(dtype=bool, shape=freqs.shape)
     idx[idx_min:idx_max] = True
-    EEG = simps(psd[:, idx], freqs[idx])
+    EEG = simps(psd[:, idx], x=freqs[idx])
     return EEG, idx
 
 
