@@ -1,6 +1,10 @@
 import numpy as np
 import sys
-from scipy.integrate import simps
+try:
+    from scipy.integrate import simps
+except Exception as e:
+    print("importing simpson")
+    from scipy.integrate import simpson as simps
 import scipy.signal as signal
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
