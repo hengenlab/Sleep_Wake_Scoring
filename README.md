@@ -130,7 +130,7 @@ number_of_channels = int(probechans * nprobes)
 # lfp_lowpass : default 250
 lfp_lowpass = 250
 
-for probenum in nprobes:
+for probenum in range(nprobes):
     ntk.selectlfpchans(rawdat_dir, outdir, hstype, hour,
                        fs=fs, nprobes=nprobes,
                        number_of_channels=number_of_channels,
