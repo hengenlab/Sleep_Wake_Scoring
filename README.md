@@ -148,9 +148,9 @@ for probenum in range(nprobes_to_check):
 
 
 
-- $\textcolor{#b4eeb4}{\textbf{Please make plots for different hours, an hour with wake, nrem and rem will be ideal}}$
+- $\textcolor{#a0db8e}{\textbf{Please make plots for different hours, an hour with wake, nrem and rem will be ideal}}$
 
-- $\textcolor{#b4eeb4}{\textbf{Please check plots and find best channels in the best probe to extract LFP}}$
+- $\textcolor{#a0db8e}{\textbf{Please check plots and find best channels in the best probe to extract LFP}}$
 
 
 
