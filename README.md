@@ -89,6 +89,8 @@ accurately.
 ```
 
 ##### 1. Find best channels  
+### $\textcolor{#6897bb}{\textbf{Find best channels, using spectrograms}}$
+
 ```
 # Create spectrograms
 import neuraltoolkit as ntk
@@ -130,17 +132,29 @@ number_of_channels = int(probechans * nprobes)
 # lfp_lowpass : default 250
 lfp_lowpass = 250
 
-for probenum in range(nprobes):
+nprobes_to_check = nprobes
+# If you have 'IMU' as last probe uncomment line below
+# nprobes_to_check = nprobes - 1
+
+for probenum in range(nprobes_to_check):
     ntk.selectlfpchans(rawdat_dir, outdir, hstype, hour,
                        fs=fs, nprobes=nprobes,
                        number_of_channels=number_of_channels,
                        probenum=probenum,
                        probechans=probechans,
                        lfp_lowpass=lfp_lowpass)
-# Now go through the spectrograms and select best lfp channels in
-# the best probe to extract lfp
-
 ```
+
+
+
+
+- $\textcolor{#b4eeb4}{\textbf{Please make plots for different hours, an hour with wake, nrem and rem will be ideal}}$
+
+- $\textcolor{#b4eeb4}{\textbf{Please check plots and find best channels in the best probe to extract LFP}}$
+
+
+
+
 ```
 # Plot spectrograms
 import Sleep_Wake_Scoring as sw
