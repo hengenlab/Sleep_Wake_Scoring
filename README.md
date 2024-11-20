@@ -88,69 +88,9 @@ accurately.
 
 ```
 
-##### 1. Find best channels  
-### $\textcolor{#6897bb}{\textbf{Find best channels, using spectrograms}}$
 
-```
-# Create spectrograms
-import neuraltoolkit as ntk
+##### 1. [Identify up to 5 best channels, click here for more details](https://github.com/hengenlab/neuraltoolkit/blob/master/README.md#textcolor6897bbtextbffind-best-channels-using-spectrograms) 
 
-#
-# Change this block
-#
-# rawdata
-rawdat_dir = '/media/KDR00032/KDR00032_L1_W2_2022-01-24_09-08-46/'
-#
-# Standard /media/HlabShare/Sleep_Scoring/ABC00001/LFP_chancheck/'
-# here ABC00001 is the animal name
-outdir = '/media/HlabShare/Sleep_Scoring/ABC00001/LFP_chancheck/'
-#
-# hour: hour to generate spectrograms
-# choose a representative hour with both NREM, REM and wake
-hour = 0
-#
-# fs: sampling frequency (default 25000)
-fs = 25000
-#
-# nprobes : Number of probes (default 1)
-nprobes = 1
-#
-# Channel map
-hstype = ['APT_PCB'] * nprobes
-# If you have 'IMU' as last probe uncomment these two lines below
-# hstype = ['APT_PCB'] * (nprobes-1)   # Channel map
-# hstype.append('IMU')
-#
-# probechans : number of channels per probe (symmetric)
-probechans = 64
-#
-# number_of_channels : total number of channels
-number_of_channels = int(probechans * nprobes)
-#
-# probenum : which probe to return (starts from zero)
-#
-# lfp_lowpass : default 250
-lfp_lowpass = 250
-
-nprobes_to_check = nprobes
-# If you have 'IMU' as last probe uncomment line below
-# nprobes_to_check = nprobes - 1
-
-for probenum in range(nprobes_to_check):
-    ntk.selectlfpchans(rawdat_dir, outdir, hstype, hour,
-                       fs=fs, nprobes=nprobes,
-                       number_of_channels=number_of_channels,
-                       probenum=probenum,
-                       probechans=probechans,
-                       lfp_lowpass=lfp_lowpass)
-```
-
-
-
-
-- $\textcolor{#a0db8e}{\textbf{Please make plots for different hours, an hour with wake, nrem and rem will be ideal}}$
-
-- $\textcolor{#a0db8e}{\textbf{Please check plots and find best channels in the best probe to extract LFP}}$
 
 
 
