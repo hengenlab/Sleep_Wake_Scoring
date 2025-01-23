@@ -118,8 +118,9 @@ def start_swscoring(LFP_dir, motion_dir, model_dir, animal, mod_name,
                     EMGamp = np.sqrt(np.sum(np.array(accelerometer_h,
                                      dtype='int64')**2, axis=0))
                 elif accelerometer_h.shape[0] == 9:
-                    EMGamp = np.sqrt(np.sum(np.array(accelerometer_h[0:3, :],
-                                     dtype='int64')**2, axis=0))
+                    EMGamp = accelerometer_h[0:1, :] * 1
+                    # EMGamp = np.sqrt(np.sum(np.array(accelerometer_h[0:3, :],
+                    #                  dtype='int64')**2, axis=0))
                 else:
                     raise ValueError(f'Make sure accelerometer_h has shape[0] == 3 or ndim == 1')
             else:
