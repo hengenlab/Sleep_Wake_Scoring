@@ -225,7 +225,8 @@ def extract_delta_theta_from_lfp(filename_sw):
         ntk.ntk_spectrogram(downdatlfp, fs=lfp_freq, nperseg=None,
                             noverlap=None, f_low=1, f_high=64,
                             lsavedir=base_dir_name, hour=hour+1, chan=None,
-                            reclen=reclen, lsavedeltathetha=1, probenum=None)
+                            reclen=reclen, lsavedeltathetha=1, probenum=None,
+                            lmultitaper=1)
 
     average_EEG = np.asarray(average_EEG)
     var_EEG = np.asarray(var_EEG)
