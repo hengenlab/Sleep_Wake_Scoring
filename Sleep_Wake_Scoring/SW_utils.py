@@ -372,9 +372,9 @@ def plot_spectrogram(ax, rawdat_dir, hr):
     ax.set_ylim(178, 0)
     ax.set_xticks(np.linspace(199, 1441, 13))
     ax.set_xticklabels(np.arange(0, 65, 5))
-    ticksy = [35, 100, 150]
-    labelsy = [60, 6, 2]
-    ax.set_yticks(ticksy, labelsy)
+    # ticksy = [35, 100, 150]
+    # labelsy = [60, 6, 2]
+    # ax.set_yticks(ticksy, labelsy)
 
 
 def plot_predicted(ax, Predict_y, clf=None, features=None):
