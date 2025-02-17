@@ -23,6 +23,9 @@
  "nprobes" : 1,
  "video_fr":30,
  "digital":0,
- "offset":7.4
+ "offset":7.4,
+ "lmultitaper":1,
+ "lmultitaper_low":0,
+ "lmultitaper_high":32
 }
 
