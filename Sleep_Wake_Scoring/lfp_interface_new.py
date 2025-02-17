@@ -34,6 +34,17 @@ def extract_delta_theta_from_lfp(filename_sw):
     else:
         laccelerometer = 1
 
+    # Read options for multitapper
+    try:
+        lmultitaper = int(d['lmultitaper'])
+        lmultitaper_low =int(d['lmultitaper_low'])
+        lmultitaper_high =int(d['lmultitaper_high'])
+    except Exception as e:
+        print("turning off multitaper")
+        lmultitaper = 0
+        lmultitaper_low =0
+        lmultitaper_high = 0
+
     # check LFPdir
     if not os.path.exists(LFP_dir) and not os.path.isdir(LFP_dir):
         raise ValueError('LFP_dir not found')
@@ -226,7 +237,9 @@ def extract_delta_theta_from_lfp(filename_sw):
                             noverlap=None, f_low=1, f_high=64,
                             lsavedir=base_dir_name, hour=hour+1, chan=None,
                             reclen=reclen, lsavedeltathetha=1, probenum=None,
-                            lmultitaper=1)
+                            lmultitaper=lmultitaper,
+                            m_f_low=lmultitaper_low,
+                            m_f_high=lmultitaper_high)
 
     average_EEG = np.asarray(average_EEG)
     var_EEG = np.asarray(var_EEG)
